@@ -1,0 +1,33 @@
+{
+    "name": "real-estate-backend",
+    "version": "1.0.0",
+    "description": "Real Estate Application Backend",
+    "main": "src/server.js",
+    "scripts": {
+        "start": "node src/server.js",
+        "dev": "nodemon src/server.js",
+        "seed": "node src/utils/seed.js"
+    },
+    "dependencies": {
+        "express": "^4.18.2",
+        "mongoose": "^7.5.0",
+        "bcryptjs": "^2.4.3",
+        "jsonwebtoken": "^9.0.2",
+        "dotenv": "^16.3.1",
+        "cors": "^2.8.5",
+        "express-validator": "^7.0.1",
+        "multer": "^1.4.5-lts.1",
+        "cloudinary": "^1.41.0",
+        "express-async-handler": "^1.2.0",
+        "helmet": "^7.0.0",
+        "compression": "^1.7.4",
+        "morgan": "^1.10.0",
+        "express-rate-limit": "^6.10.0",
+        "winston": "^3.10.0",
+        "nodemailer": "^6.9.5",
+        "razorpay": "^2.8.6"
+    },
+    "devDependencies": {
+        "nodemon": "^3.0.1"
+    }
+}
