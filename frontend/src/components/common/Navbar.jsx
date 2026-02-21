@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FiInfo, FiMessageCircle } from 'react-icons/fi';
 import {
     FiMenu, FiX, FiSun, FiMoon, FiUser, FiHeart,
     FiLogOut, FiHome, FiSearch, FiStar, FiPhone
@@ -38,6 +39,8 @@ const Navbar = () => {
     const navLinks = [
         { name: 'Home', path: '/', icon: FiHome },
         { name: 'Properties', path: '/properties', icon: FiSearch },
+        { name: 'About', path: '/about', icon: FiInfo },
+        { name: 'Contact', path: '/contact', icon: FiMessageCircle },
         { name: 'Wishlist', path: '/wishlist', icon: FiHeart, protected: true },
         { name: 'Admin', path: '/admin', icon: FiStar, admin: true },
     ];
@@ -51,8 +54,8 @@ const Navbar = () => {
     return (
         <>
             <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled
-                    ? 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg py-2'
-                    : 'bg-transparent py-4'
+                ? 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-lg py-2'
+                : 'bg-transparent py-4'
                 }`}>
                 <div className="container-custom">
                     <div className="flex justify-between items-center">
@@ -73,8 +76,8 @@ const Navbar = () => {
                                     key={link.path}
                                     to={link.path}
                                     className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 flex items-center space-x-2 ${location.pathname === link.path
-                                            ? 'bg-primary-600 text-white'
-                                            : 'text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-gray-800'
+                                        ? 'bg-primary-600 text-white'
+                                        : 'text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-gray-800'
                                         }`}
                                 >
                                     <link.icon className="text-lg" />
@@ -184,8 +187,8 @@ const Navbar = () => {
                                             key={link.path}
                                             to={link.path}
                                             className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition-all duration-300 ${location.pathname === link.path
-                                                    ? 'bg-primary-600 text-white'
-                                                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                                ? 'bg-primary-600 text-white'
+                                                : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
                                                 }`}
                                             onClick={() => setIsOpen(false)}
                                         >
