@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
 const Property = require('../models/Property');
 const { uploadToCloudinary, deleteFromCloudinary } = require('../utils/cloudinary');
+const mongoose = require('mongoose');
 
 // @desc    Get all properties with filters
 // @route   GET /api/properties

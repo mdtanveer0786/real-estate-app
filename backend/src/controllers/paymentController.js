@@ -1,21 +1,22 @@
 const asyncHandler = require('express-async-handler');
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
+const Payment = require('../models/Payment');
 
 // Initialize Razorpay
 const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
+    key_id: process.env.RAZORPAY_KEY_ID || 'dummy_id',
+    key_secret: process.env.RAZORPAY_KEY_SECRET || 'dummy_secret',
 });
 
 // @desc    Create payment order
 // @route   POST /api/payments/create-order
 // @access  Private
 const createOrder = asyncHandler(async (req, res) => {
-    const { amount, currency = 'INR', receipt } = req.body;
+    const { amount, currency = 'INR', receipt, propertyId } = req.body;
 
     const options = {
-        amount: amount * 100, // Razorpay expects amount in paise
+        amount: Math.round(amount * 100), // Razorpay expects amount in paise
         currency,
         receipt: receipt || `receipt_${Date.now()}`,
     };
@@ -41,24 +42,35 @@ const verifyPayment = asyncHandler(async (req, res) => {
         razorpay_order_id,
         razorpay_payment_id,
         razorpay_signature,
+        amount,
+        propertyId
     } = req.body;
 
     const body = razorpay_order_id + '|' + razorpay_payment_id;
 
     const expectedSignature = crypto
-        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || 'dummy_secret')
         .update(body.toString())
         .digest('hex');
 
     const isAuthentic = expectedSignature === razorpay_signature;
 
     if (isAuthentic) {
-        // Payment is verified
-        // Here you can update your database with payment details
+        // Payment is verified - Save to database
+        const payment = await Payment.create({
+            user: req.user._id,
+            property: propertyId,
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature,
+            amount: amount / 100, // Store in actual currency unit, not paise
+            status: 'paid',
+        });
+
         res.json({
             success: true,
-            message: 'Payment verified successfully',
-            paymentId: razorpay_payment_id,
+            message: 'Payment verified and saved successfully',
+            payment,
         });
     } else {
         res.status(400);

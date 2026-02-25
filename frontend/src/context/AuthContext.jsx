@@ -41,11 +41,19 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         try {
             const { data } = await api.post('/auth/login', { email, password });
+            console.log('Login response:', data); // DEBUG: Check role
+            console.log('Is Admin?', data.role === 'admin'); // DEBUG
+
             localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data));
             setToken(data.token);
             setUser(data);
             toast.success('Login successful!');
+
+            // Agar admin hai to redirect
+            if (data.role === 'admin') {
+                window.location.href = '/admin';
+            }
+
             return data;
         } catch (error) {
             toast.error(error.response?.data?.error || 'Login failed');

@@ -1,68 +1,69 @@
 import React from 'react';
 import PropertyCard from './PropertyCard';
 import { motion, AnimatePresence } from 'framer-motion';
+import Pagination from '../common/Pagination';
 
 const PropertyList = ({ properties, totalPages, currentPage, onPageChange }) => {
     if (properties.length === 0) {
         return (
-            <div className="text-center py-12">
-                <h3 className="text-xl font-semibold mb-2">No properties found</h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                    Try adjusting your filters to find what you're looking for.
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center py-20 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700"
+            >
+                <div className="text-6xl mb-4">🏠</div>
+                <h3 className="text-2xl font-bold mb-2">No properties found</h3>
+                <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+                    We couldn't find any properties matching your current filters. Try broadening your search.
                 </p>
-            </div>
+                <button 
+                    onClick={() => window.location.reload()} 
+                    className="mt-6 text-primary-600 font-semibold hover:underline"
+                >
+                    Reset all filters
+                </button>
+            </motion.div>
         );
     }
 
     return (
-        <div>
-            {/* Results Count */}
-            <div className="mb-4 text-gray-600 dark:text-gray-400">
-                Found {properties.length} properties
+        <div className="space-y-8">
+            {/* Results Info */}
+            <div className="flex justify-between items-center bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <p className="text-gray-600 dark:text-gray-400 font-medium">
+                    Showing <span className="text-primary-600 font-bold">{properties.length}</span> properties
+                </p>
+                <div className="text-sm text-gray-400">
+                    Page {currentPage} of {totalPages}
+                </div>
             </div>
 
             {/* Property Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                <AnimatePresence>
-                    {properties.map((property) => (
-                        <PropertyCard key={property._id} property={property} />
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
+                <AnimatePresence mode="popLayout">
+                    {properties.map((property, index) => (
+                        <motion.div
+                            key={property._id}
+                            layout
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            transition={{ duration: 0.3, delay: index * 0.05 }}
+                        >
+                            <PropertyCard property={property} />
+                        </motion.div>
                     ))}
                 </AnimatePresence>
             </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-                <div className="flex justify-center mt-8 space-x-2">
-                    <button
-                        onClick={() => onPageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                        className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-                    >
-                        Previous
-                    </button>
-
-                    {[...Array(totalPages)].map((_, i) => (
-                        <button
-                            key={i + 1}
-                            onClick={() => onPageChange(i + 1)}
-                            className={`px-4 py-2 rounded-lg transition ${currentPage === i + 1
-                                    ? 'bg-primary-600 text-white'
-                                    : 'border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'
-                                }`}
-                        >
-                            {i + 1}
-                        </button>
-                    ))}
-
-                    <button
-                        onClick={() => onPageChange(currentPage + 1)}
-                        disabled={currentPage === totalPages}
-                        className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-                    >
-                        Next
-                    </button>
-                </div>
-            )}
+            {/* Enhanced Pagination */}
+            <div className="pt-8 border-t border-gray-100 dark:border-gray-800">
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={onPageChange}
+                />
+            </div>
         </div>
     );
 };

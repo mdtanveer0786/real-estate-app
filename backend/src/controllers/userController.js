@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
 const Property = require('../models/Property');
+const Inquiry = require('../models/Inquiry');
 
 // @desc    Get user wishlist
 // @route   GET /api/users/wishlist
@@ -80,7 +81,7 @@ const getUserInquiries = asyncHandler(async (req, res) => {
         .populate('property', 'title images price location')
         .sort('-createdAt');
 
-    res.json(inquiries);
+    res.json({ inquiries });
 });
 
 module.exports = {

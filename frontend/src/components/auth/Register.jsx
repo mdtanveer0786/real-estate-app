@@ -24,6 +24,7 @@ const Register = () => {
                 name: data.name,
                 email: data.email,
                 password: data.password,
+                role: data.role, // Pass the selected role
             });
 
             // Success page dikhao
@@ -137,6 +138,21 @@ const Register = () => {
                             {errors.email && (
                                 <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
                             )}
+                        </div>
+
+                        {/* Role Field */}
+                        <div>
+                            <label htmlFor="role" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                Register as
+                            </label>
+                            <select
+                                id="role"
+                                {...register('role')}
+                                className="input-field"
+                            >
+                                <option value="user">User (Customer)</option>
+                                <option value="admin">Admin (Staff)</option>
+                            </select>
                         </div>
 
                         {/* Password Field */}

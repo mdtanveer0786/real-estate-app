@@ -15,8 +15,11 @@ const Login = () => {
     const onSubmit = async (data) => {
         setLoading(true);
         try {
-            await login(data.email, data.password);
-            navigate('/');
+            const user = await login(data.email, data.password);
+            // Only navigate to home if user is not admin (admin redirect handled in context)
+            if (user && user.role !== 'admin') {
+                navigate('/');
+            }
         } catch (error) {
             // Error handled in auth context
         } finally {
