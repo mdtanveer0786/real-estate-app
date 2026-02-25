@@ -47,15 +47,13 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Enable CORS
-const cors = require("cors");
-
 app.use(cors({
-    origin: "https://real-estateelite.vercel.app/",
-    credentials: true
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true,
 }));
-app.use(cors({
-    origin: "*"
-}));
+// app.use(cors({
+//   origin: "*"
+// }));
 
 // Apply rate limiting
 app.use('/api/', apiLimiter);
