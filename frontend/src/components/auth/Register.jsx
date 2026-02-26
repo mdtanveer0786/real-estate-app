@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
-import { FiUser, FiMail, FiLock, FiUserPlus, FiCheckCircle } from 'react-icons/fi';
+import { FiUser, FiMail, FiLock, FiUserPlus, FiCheckCircle, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';  // ✅ AuthContext use kar rahe hain
 import toast from 'react-hot-toast';
 
@@ -12,6 +12,8 @@ const Register = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [registrationSuccess, setRegistrationSuccess] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const { register: registerUser } = useAuth();  // ✅ AuthContext se register function
     const { register, handleSubmit, watch, formState: { errors } } = useForm();
     const password = watch('password');
@@ -149,7 +151,7 @@ const Register = () => {
                                 <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                 <input
                                     id="password"
-                                    type="password"
+                                    type={showPassword ? 'text' : 'password'}
                                     {...register('password', {
                                         required: 'Password is required',
                                         minLength: {
@@ -161,9 +163,16 @@ const Register = () => {
                                             message: 'Password must contain at least one letter and one number'
                                         }
                                     })}
-                                    className="input-field pl-10"
+                                    className="input-field pl-10 pr-10"
                                     placeholder="••••••••"
                                 />
+                                <button
+                                    type="button"
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 focus:outline-none"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? <FiEyeOff /> : <FiEye />}
+                                </button>
                             </div>
                             {errors.password && (
                                 <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
@@ -179,14 +188,21 @@ const Register = () => {
                                 <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                 <input
                                     id="confirmPassword"
-                                    type="password"
+                                    type={showConfirmPassword ? 'text' : 'password'}
                                     {...register('confirmPassword', {
                                         required: 'Please confirm your password',
                                         validate: value => value === password || 'Passwords do not match'
                                     })}
-                                    className="input-field pl-10"
+                                    className="input-field pl-10 pr-10"
                                     placeholder="••••••••"
                                 />
+                                <button
+                                    type="button"
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 focus:outline-none"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                >
+                                    {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
+                                </button>
                             </div>
                             {errors.confirmPassword && (
                                 <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>
