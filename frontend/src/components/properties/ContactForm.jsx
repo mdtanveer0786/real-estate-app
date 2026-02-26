@@ -35,7 +35,7 @@ const ContactForm = ({ propertyId }) => {
     };
 
     const handleWhatsApp = () => {
-        const phone = '+1234567890'; // Replace with actual owner's phone
+        const phone = '+918252574386'; // Replace with actual owner's phone
         const message = `Hi, I'm interested in this property. Can you provide more details?`;
         window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
     };

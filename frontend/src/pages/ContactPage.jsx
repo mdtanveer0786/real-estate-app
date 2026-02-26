@@ -27,8 +27,8 @@ const ContactPage = () => {
         {
             icon: FiPhone,
             title: 'Phone',
-            details: ['+91 9999999999', '+91 12345 67890'],
-            action: 'tel:+919999999999'
+            details: ['+91 8252574386'],
+            action: 'tel:+918252574386'
         },
         {
             icon: FiMail,
@@ -165,7 +165,7 @@ const ContactPage = () => {
                                             type="tel"
                                             {...register('phone')}
                                             className="input-field"
-                                            placeholder="+91 9999999999"
+                                            placeholder="+91 8252574386"
                                         />
                                     </div>
 

@@ -90,7 +90,7 @@ const TermsPage = () => {
                             </p>
                             <ul className="list-disc list-inside text-gray-700 dark:text-gray-300">
                                 <li>Email: legal@estateelite.com</li>
-                                <li>Phone: +91 9999999999</li>
+                                <li>Phone: +91 8252574386</li>
                                 <li>Address: 123 Business Avenue, Koramangala, Bangalore - 560034</li>
                             </ul>
                         </div>
