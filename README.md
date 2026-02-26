@@ -178,7 +178,7 @@ VITE_API_URL=http://localhost:5000/api
 After running `npm run seed`:
 ```
 Email:    admin@estateelite.com
-Password: admin123
+Password: *****
 ```
 
 ### Admin Features
@@ -281,7 +281,6 @@ MIT License - Free to use and modify
   
 **⭐ Star this repo if you found it useful!**
 
-Made with ❤️ by [mdtanveer0786]
+Made with ❤️ by [Md Tanveer Alam]
 
 </div>
-```
