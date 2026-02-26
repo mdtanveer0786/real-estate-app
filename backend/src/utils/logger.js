@@ -32,13 +32,6 @@ const logger = winston.createLogger({
     ],
 });
 
-// If we're not in production, also log to the console with simple format
-if (process.env.NODE_ENV !== 'production') {
-    logger.add(new winston.transports.Console({
-        format: winston.format.simple(),
-    }));
-}
-
 // Create a stream object for Morgan
 logger.stream = {
     write: (message) => logger.info(message.trim()),
