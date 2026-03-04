@@ -63,13 +63,16 @@ const PageViewTracker = () => {
 };
 
 function AppContent() {
+    const location = useLocation();
+    const isAdminPath = location.pathname.startsWith('/admin');
+
     return (
         <>
             <ScrollToTopOnMount />
             <PageViewTracker />
             <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
-                <Navbar />
-                <main className="flex-grow pt-20"> {/* Add more padding-top for fixed navbar */}
+                {!isAdminPath && <Navbar />}
+                <main className={`flex-grow ${!isAdminPath ? 'pt-20' : ''}`}>
                     <Suspense fallback={<Loader />}>
                         <ErrorBoundary>
                             <Routes>
@@ -109,8 +112,8 @@ function AppContent() {
                         </ErrorBoundary>
                     </Suspense>
                 </main>
-                <Newsletter />
-                <Footer />
+                {!isAdminPath && <Newsletter />}
+                {!isAdminPath && <Footer />}
                 <CookieConsent />
             </div>
             <Toaster
