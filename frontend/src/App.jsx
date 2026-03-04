@@ -69,7 +69,7 @@ function AppContent() {
             <PageViewTracker />
             <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
                 <Navbar />
-                <main className="flex-grow pt-16"> {/* Add padding-top for fixed navbar */}
+                <main className="flex-grow pt-20"> {/* Add more padding-top for fixed navbar */}
                     <Suspense fallback={<Loader />}>
                         <ErrorBoundary>
                             <Routes>

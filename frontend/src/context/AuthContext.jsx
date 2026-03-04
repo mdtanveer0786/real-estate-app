@@ -41,22 +41,17 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         try {
             const { data } = await api.post('/auth/login', { email, password });
-            console.log('Login response:', data); // DEBUG: Check role
-            console.log('Is Admin?', data.role === 'admin'); // DEBUG
-
             localStorage.setItem('token', data.token);
             setToken(data.token);
             setUser(data);
-            toast.success('Login successful!');
+            toast.success(`Welcome back, ${data.name || 'User'}!`);
 
-            // Agar admin hai to redirect
             if (data.role === 'admin') {
                 window.location.href = '/admin';
             }
-
             return data;
         } catch (error) {
-            toast.error(error.response?.data?.error || 'Login failed');
+            toast.error(error.response?.data?.error || 'Invalid email or password');
             throw error;
         }
     };
@@ -64,12 +59,10 @@ export const AuthProvider = ({ children }) => {
     const register = async (userData) => {
         try {
             const { data } = await api.post('/auth/register', userData);
-            // Don't set token or user here
-            // Just return success
-            toast.success('Registration successful! Please login.');
-            return { success: true, message: 'Registration successful' };
+            toast.success('Registration successful! Please login to continue.');
+            return { success: true };
         } catch (error) {
-            toast.error(error.response?.data?.error || 'Registration failed');
+            toast.error(error.response?.data?.error || 'Registration failed. Please try again.');
             throw error;
         }
     };
