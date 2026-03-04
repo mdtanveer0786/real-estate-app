@@ -14,9 +14,7 @@ export default defineConfig({
         sourcemap: false,
         rollupOptions: {
             output: {
-                manualChunks: {
-                    vendor: ['react', 'react-dom', 'react-router-dom'],
-                },
+                manualChunks: undefined, // Let Vite handle chunks automatically
             },
         },
     },
