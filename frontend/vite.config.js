@@ -3,19 +3,32 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
     plugins: [react()],
+    base: '/',
     server: {
         port: 3000,
         open: true
     },
+    build: {
+        outDir: 'dist',
+        emptyOutDir: true,
+        sourcemap: false,
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    vendor: ['react', 'react-dom', 'react-router-dom'],
+                },
+            },
+        },
+    },
     esbuild: {
-        loader: 'jsx',  // Set default loader to jsx
-        include: /src\/.*\.jsx?$/,  // Include both .js and .jsx files
+        loader: 'jsx',
+        include: /src\/.*\.jsx?$/,
         exclude: []
     },
     optimizeDeps: {
         esbuildOptions: {
             loader: {
-                '.js': 'jsx',  // Treat .js files as JSX
+                '.js': 'jsx',
             },
         },
     },
