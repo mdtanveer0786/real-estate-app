@@ -1,23 +1,8 @@
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 
-// Ensure the properties directory exists
-const propertiesDir = path.join(__dirname, '../../public/properties');
-if (!fs.existsSync(propertiesDir)) {
-    fs.mkdirSync(propertiesDir, { recursive: true });
-}
-
-// Configure storage
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, propertiesDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, `${uniqueSuffix}${path.extname(file.originalname)}`);
-    },
-});
+// Use memory storage so files are kept as buffers for Cloudinary upload
+const storage = multer.memoryStorage();
 
 // Check file type
 const fileFilter = (req, file, cb) => {

@@ -2,8 +2,7 @@ const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
 const Property = require('../models/Property');
 const mongoose = require('mongoose');
-const path = require('path');
-const fs = require('fs');
+const { uploadToCloudinary, deleteFromCloudinary } = require('../utils/cloudinary');
 
 // @desc    Get all properties with filters
 // @route   GET /api/properties
@@ -154,10 +153,14 @@ const uploadPropertyImages = asyncHandler(async (req, res) => {
         throw new Error('Please upload images');
     }
 
-    const uploadedImages = req.files.map(file => ({
-        public_id: file.filename,
-        url: `/public/properties/${file.filename}`
-    }));
+    // Upload each file buffer to Cloudinary
+    const uploadPromises = req.files.map(file => {
+        const b64 = Buffer.from(file.buffer).toString('base64');
+        const dataURI = `data:${file.mimetype};base64,${b64}`;
+        return uploadToCloudinary(dataURI, 'properties');
+    });
+
+    const uploadedImages = await Promise.all(uploadPromises);
 
     property.images.push(...uploadedImages);
     await property.save();
@@ -200,15 +203,11 @@ const deleteProperty = asyncHandler(async (req, res) => {
         throw new Error('Property not found');
     }
 
-    // Delete local images
-    property.images.forEach(img => {
-        if (img.url.startsWith('/public/properties/')) {
-            const filePath = path.join(__dirname, '../../', img.url);
-            if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath);
-            }
-        }
-    });
+    // Delete images from Cloudinary
+    const deletePromises = property.images
+        .filter(img => img.public_id)
+        .map(img => deleteFromCloudinary(img.public_id));
+    await Promise.all(deletePromises);
 
     await property.deleteOne();
     res.json({ message: 'Property removed' });

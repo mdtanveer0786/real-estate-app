@@ -15,8 +15,8 @@ const ImageGallery = ({ images }) => {
         setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
     };
 
-    // Fix: Add default image if no images
-    const defaultImage = getImageUrl('/public/properties/simple1.webp');
+    // Default placeholder when no images are available
+    const defaultImage = 'https://res.cloudinary.com/dpegeu5q3/image/upload/v1773070986/real-estate/properties/cdekkv3wlsxiybzueaky.webp'
 
     return (
         <>
