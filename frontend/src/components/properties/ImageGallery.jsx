@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiChevronLeft, FiChevronRight, FiX } from 'react-icons/fi';
+import { getImageUrl } from '../../utils/imageHelper';
 
 const ImageGallery = ({ images }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -23,7 +24,7 @@ const ImageGallery = ({ images }) => {
             <div className="relative h-[500px] bg-gray-900">
                 {/* Main Image */}
                 <img
-                    src={images[currentIndex]?.url || defaultImage}
+                    src={getImageUrl(images[currentIndex]?.url) || defaultImage}
                     alt="Property"
                     className="w-full h-full object-cover cursor-pointer"
                     onClick={() => setLightboxOpen(true)}
@@ -63,7 +64,7 @@ const ImageGallery = ({ images }) => {
                                     }`}
                             >
                                 <img
-                                    src={image.url}
+                                    src={getImageUrl(image.url)}
                                     alt={`Thumbnail ${index + 1}`}
                                     className="w-full h-full object-cover"
                                 />
@@ -91,7 +92,7 @@ const ImageGallery = ({ images }) => {
                         </button>
 
                         <img
-                            src={images[currentIndex]?.url || defaultImage}
+                            src={getImageUrl(images[currentIndex]?.url) || defaultImage}
                             alt="Property"
                             className="max-h-[90vh] max-w-[90vw] object-contain"
                             onClick={(e) => e.stopPropagation()}

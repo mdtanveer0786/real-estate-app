@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { useWishlist } from '../../context/WishlistContext';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
+import { getImageUrl } from '../../utils/imageHelper';
 
 const QuickView = ({ property, isOpen, onClose }) => {
     const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
@@ -61,7 +62,7 @@ const QuickView = ({ property, isOpen, onClose }) => {
                                 {/* Image Section */}
                                 <div className="relative h-64 md:h-full">
                                     <img
-                                        src={property.images[0]?.url || 'https://via.placeholder.com/800'}
+                                        src={getImageUrl(property.images[0]?.url)}
                                         alt={property.title}
                                         className="w-full h-full object-cover"
                                     />

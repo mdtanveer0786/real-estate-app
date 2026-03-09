@@ -15,6 +15,7 @@ import {
 import { useWishlist } from '../../context/WishlistContext';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
+import { getImageUrl } from '../../utils/imageHelper';
 
 const PropertyCard = ({ property, onDelete }) => {
     const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
@@ -74,7 +75,7 @@ const PropertyCard = ({ property, onDelete }) => {
                             <div className="absolute inset-0 skeleton" />
                         )}
                         <img
-                            src={property.images[0]?.url || 'https://via.placeholder.com/400x300'}
+                            src={getImageUrl(property.images[0]?.url)}
                             alt={property.title}
                             className={`w-full h-full object-cover transition-transform duration-700 ${isHovered ? 'scale-110' : 'scale-100'
                                 } ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}

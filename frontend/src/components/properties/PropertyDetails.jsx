@@ -20,6 +20,7 @@ import { useWishlist } from '../../context/WishlistContext';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
+import { getImageUrl } from '../../utils/imageHelper';
 
 const PropertyDetails = ({ property }) => {
     const { id } = useParams();
@@ -108,7 +109,7 @@ const PropertyDetails = ({ property }) => {
                 {/* Main Image */}
                 <div className="relative h-full">
                     <img
-                        src={property.images[currentImageIndex]?.url || 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2'}
+                        src={getImageUrl(property.images[currentImageIndex]?.url)}
                         alt={property.title}
                         className="w-full h-full object-cover"
                     />
@@ -169,7 +170,7 @@ const PropertyDetails = ({ property }) => {
                                         }`}
                                 >
                                     <img
-                                        src={image.url}
+                                        src={getImageUrl(image.url)}
                                         alt={`Thumbnail ${index + 1}`}
                                         className="w-full h-full object-cover"
                                     />

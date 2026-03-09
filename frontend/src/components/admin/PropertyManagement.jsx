@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FiEdit2, FiTrash2, FiEye, FiSearch } from 'react-icons/fi';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { getImageUrl } from '../../utils/imageHelper';
 
 const PropertyManagement = () => {
   const [properties, setProperties] = useState([]);
@@ -84,7 +85,7 @@ const PropertyManagement = () => {
                 <td className="px-6 py-4">
                   <div className="flex items-center">
                     <img
-                      src={property.images[0]?.url || 'https://via.placeholder.com/50'}
+                      src={getImageUrl(property.images[0]?.url)}
                       alt={property.title}
                       className="w-12 h-12 rounded-lg object-cover mr-3"
                     />
@@ -126,7 +127,7 @@ const PropertyManagement = () => {
           <div key={property._id} className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border border-gray-100 dark:border-gray-700">
             <div className="flex gap-4 mb-4">
               <img
-                src={property.images[0]?.url || 'https://via.placeholder.com/80'}
+                src={getImageUrl(property.images[0]?.url)}
                 alt={property.title}
                 className="w-20 h-20 object-cover rounded-lg"
               />

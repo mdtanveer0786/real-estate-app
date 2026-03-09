@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs');
 
 dotenv.config();
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
+// const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
 
 const sampleProperties = [
     {
@@ -29,11 +29,11 @@ const sampleProperties = [
         images: [
             {
                 public_id: 'simple1',
-                url: `${BASE_URL}/public/properties/simple1.webp`
+                url: '/public/properties/simple1.webp'
             },
             {
                 public_id: 'simple2',
-                url: `${BASE_URL}/public/properties/simple2.webp`
+                url: '/public/properties/simple2.webp'
             }
         ],
         status: 'available',
@@ -59,11 +59,11 @@ const sampleProperties = [
         images: [
             {
                 public_id: 'simple3',
-                url: `${BASE_URL}/public/properties/simple3.webp`
+                url: '/public/properties/simple3.webp'
             },
             {
                 public_id: 'simple4',
-                url: `${BASE_URL}/public/properties/simple4.webp`
+                url: '/public/properties/simple4.webp'
             }
         ],
         status: 'available',
@@ -89,11 +89,11 @@ const sampleProperties = [
         images: [
             {
                 public_id: 'simple5',
-                url: `${BASE_URL}/public/properties/simple5.webp`
+                url: '/public/properties/simple5.webp'
             },
             {
                 public_id: 'simple6',
-                url: `${BASE_URL}/public/properties/simple6.webp`
+                url: '/public/properties/simple6.webp'
             }
         ],
         status: 'available',
@@ -119,11 +119,11 @@ const sampleProperties = [
         images: [
             {
                 public_id: 'simple7',
-                url: `${BASE_URL}/public/properties/simple7.webp`
+                url: '/public/properties/simple7.webp'
             },
             {
                 public_id: 'simple8',
-                url: `${BASE_URL}/public/properties/simple8.webp`
+                url: '/public/properties/simple8.webp'
             }
         ],
         status: 'available',
@@ -149,11 +149,11 @@ const sampleProperties = [
         images: [
             {
                 public_id: 'simple9',
-                url: `${BASE_URL}/public/properties/simple9.webp`
+                url: '/public/properties/simple9.webp'
             },
             {
                 public_id: 'simple10',
-                url: `${BASE_URL}/public/properties/simple10.webp`
+                url: '/public/properties/simple10.webp'
             }
         ],
         status: 'available',
@@ -179,11 +179,11 @@ const sampleProperties = [
         images: [
             {
                 public_id: 'simple11',
-                url: `${BASE_URL}/public/properties/simple11.webp`
+                url: '/public/properties/simple11.webp'
             },
             {
                 public_id: 'simple12',
-                url: `${BASE_URL}/public/properties/simple12.webp`
+                url: '/public/properties/simple12.webp'
             }
         ],
         status: 'available',

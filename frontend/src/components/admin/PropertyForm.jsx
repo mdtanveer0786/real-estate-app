@@ -4,6 +4,7 @@ import { useForm, useFieldArray } from 'react-hook-form';
 import { FiPlus, FiX, FiUpload } from 'react-icons/fi';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
+import { getImageUrl } from '../../utils/imageHelper';
 
 const PropertyForm = () => {
     const { id } = useParams();
@@ -306,7 +307,7 @@ const PropertyForm = () => {
                         {images.map((image, index) => (
                             <div key={index} className="relative group">
                                 <img
-                                    src={image.url || URL.createObjectURL(image)}
+                                    src={image.url ? getImageUrl(image.url) : URL.createObjectURL(image)}
                                     alt={`Property ${index + 1}`}
                                     className="w-full h-32 object-cover rounded-lg"
                                 />

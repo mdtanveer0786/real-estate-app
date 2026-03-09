@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiSearch, FiMapPin } from 'react-icons/fi';
+import { getImageUrl } from '../../utils/imageHelper';
 import { useDebounce } from '../../hooks/useDebounce';
 import propertyService from '../../services/propertyService';
 
@@ -95,7 +96,7 @@ const SearchSuggestions = ({ onSelect }) => {
                                         className="w-full px-4 py-3 flex items-start hover:bg-gray-50 dark:hover:bg-gray-700 transition text-left border-b last:border-0 border-gray-100 dark:border-gray-700"
                                     >
                                         <img
-                                            src={suggestion.images[0]?.url || 'https://via.placeholder.com/50'}
+                                            src={getImageUrl(suggestion.images[0]?.url)}
                                             alt={suggestion.title}
                                             className="w-12 h-12 rounded-lg object-cover mr-3"
                                         />
