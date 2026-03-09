@@ -3,17 +3,18 @@ import { motion } from 'framer-motion';
 import { FiSearch, FiMapPin, FiHome, FiDollarSign } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
+// Import local images
+import hero1 from '../../assets/hero/hero1.webp';
+import hero2 from '../../assets/hero/hero2.webp';
+import hero3 from '../../assets/hero/hero3.webp';
+
 const HeroSection = () => {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
     const [searchType, setSearchType] = useState('buy');
     const [currentSlide, setCurrentSlide] = useState(0);
 
-    const backgroundImages = [
-        'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-        'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2075&q=80',
-        'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-    ];
+    const backgroundImages = [hero1, hero2, hero3];
 
     useEffect(() => {
         const timer = setInterval(() => {

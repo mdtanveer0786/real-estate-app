@@ -6,6 +6,8 @@ const bcrypt = require('bcryptjs');
 
 dotenv.config();
 
+const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
+
 const sampleProperties = [
     {
         title: 'Luxury 3BHK Apartment with Sea View',
@@ -26,12 +28,12 @@ const sampleProperties = [
         features: ['Sea View', 'Modular Kitchen', 'Gym', 'Swimming Pool', 'Parking'],
         images: [
             {
-                public_id: 'sample1',
-                url: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+                public_id: 'simple1',
+                url: `${BASE_URL}/public/properties/simple1.webp`
             },
             {
-                public_id: 'sample2',
-                url: 'https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+                public_id: 'simple2',
+                url: `${BASE_URL}/public/properties/simple2.webp`
             }
         ],
         status: 'available',
@@ -56,12 +58,12 @@ const sampleProperties = [
         features: ['Garden', 'Private Pool', 'Home Theater', 'Staff Quarters', 'Security System'],
         images: [
             {
-                public_id: 'sample3',
-                url: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+                public_id: 'simple3',
+                url: `${BASE_URL}/public/properties/simple3.webp`
             },
             {
-                public_id: 'sample4',
-                url: 'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+                public_id: 'simple4',
+                url: `${BASE_URL}/public/properties/simple4.webp`
             }
         ],
         status: 'available',
@@ -86,12 +88,12 @@ const sampleProperties = [
         features: ['Fully Furnished', 'Power Backup', 'Security', 'Parking', 'Gym'],
         images: [
             {
-                public_id: 'sample5',
-                url: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+                public_id: 'simple5',
+                url: `${BASE_URL}/public/properties/simple5.webp`
             },
             {
-                public_id: 'sample6',
-                url: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+                public_id: 'simple6',
+                url: `${BASE_URL}/public/properties/simple6.webp`
             }
         ],
         status: 'available',
@@ -116,12 +118,12 @@ const sampleProperties = [
         features: ['Rooftop Garden', 'Private Terrace', 'Jacuzzi', 'Smart Home', 'Concierge'],
         images: [
             {
-                public_id: 'sample7',
-                url: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+                public_id: 'simple7',
+                url: `${BASE_URL}/public/properties/simple7.webp`
             },
             {
-                public_id: 'sample8',
-                url: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+                public_id: 'simple8',
+                url: `${BASE_URL}/public/properties/simple8.webp`
             }
         ],
         status: 'available',
@@ -146,12 +148,12 @@ const sampleProperties = [
         features: ['Reception Area', 'Conference Room', 'Pantry', '24/7 Access', 'Security'],
         images: [
             {
-                public_id: 'sample9',
-                url: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+                public_id: 'simple9',
+                url: `${BASE_URL}/public/properties/simple9.webp`
             },
             {
-                public_id: 'sample10',
-                url: 'https://images.unsplash.com/photo-1497366811353-6870744d04b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+                public_id: 'simple10',
+                url: `${BASE_URL}/public/properties/simple10.webp`
             }
         ],
         status: 'available',
@@ -176,12 +178,12 @@ const sampleProperties = [
         features: ['Private Beach', 'Infinity Pool', 'Spa', 'Home Theater', 'Wine Cellar'],
         images: [
             {
-                public_id: 'sample11',
-                url: 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+                public_id: 'simple11',
+                url: `${BASE_URL}/public/properties/simple11.webp`
             },
             {
-                public_id: 'sample12',
-                url: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+                public_id: 'simple12',
+                url: `${BASE_URL}/public/properties/simple12.webp`
             }
         ],
         status: 'available',

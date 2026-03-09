@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const morgan = require('morgan');
@@ -38,6 +39,9 @@ app.use(compression());
 // Body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Static folder
+app.use('/public', express.static(path.join(__dirname, '../public')));
 
 // Logging
 if (process.env.NODE_ENV === 'development') {
