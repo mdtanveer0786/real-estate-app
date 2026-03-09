@@ -11,6 +11,7 @@ import { useWishlist } from '../context/WishlistContext';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
+import { getImageUrl } from '../utils/imageHelper';
 
 const ProfilePage = () => {
     const { user, logout } = useAuth();
@@ -284,7 +285,7 @@ const ProfilePage = () => {
                                                     className="flex items-center space-x-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-lg transition group"
                                                 >
                                                     <img
-                                                        src={property.images[0]?.url || 'https://via.placeholder.com/80'}
+                                                        src={getImageUrl(property.images[0]?.url)}
                                                         alt={property.title}
                                                         className="w-20 h-20 object-cover rounded-lg group-hover:scale-105 transition"
                                                     />

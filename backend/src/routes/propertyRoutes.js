@@ -11,6 +11,7 @@ const {
 } = require('../controllers/propertyController');
 const { protect, admin } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
+const User = require('../models/User');
 
 // Public routes
 router.route('/')

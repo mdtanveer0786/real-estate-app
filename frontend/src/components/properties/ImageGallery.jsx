@@ -16,7 +16,7 @@ const ImageGallery = ({ images }) => {
     };
 
     // Fix: Add default image if no images
-    const defaultImage = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80';
+    const defaultImage = getImageUrl('/public/properties/simple1.webp');
 
     return (
         <>
