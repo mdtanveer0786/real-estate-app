@@ -105,7 +105,7 @@ const PropertyDetails = ({ property }) => {
             className="bg-white dark:bg-gray-900"
         >
             {/* Image Gallery Section */}
-            <div className="relative h-[60vh] bg-gray-900 overflow-hidden">
+            <div className="relative h-[50vh] sm:h-[60vh] md:h-[70vh] bg-gray-900 overflow-hidden">
                 {/* Main Image */}
                 <div className="relative h-full">
                     <img
@@ -115,20 +115,20 @@ const PropertyDetails = ({ property }) => {
                     />
 
                     {/* Image Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
 
-                    {/* Navigation Arrows */}
+                    {/* Navigation Arrows - Larger on mobile for easier tapping */}
                     {property.images.length > 1 && (
                         <>
                             <button
                                 onClick={prevImage}
-                                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/75 transition z-10"
+                                className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 bg-black/40 backdrop-blur-md text-white p-3 sm:p-4 rounded-full hover:bg-black/60 transition z-10"
                             >
                                 <FiChevronLeft size={24} />
                             </button>
                             <button
                                 onClick={nextImage}
-                                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/75 transition z-10"
+                                className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 bg-black/40 backdrop-blur-md text-white p-3 sm:p-4 rounded-full hover:bg-black/60 transition z-10"
                             >
                                 <FiChevronRight size={24} />
                             </button>
@@ -136,7 +136,7 @@ const PropertyDetails = ({ property }) => {
                     )}
 
                     {/* Image Counter */}
-                    <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-10">
+                    <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md text-white px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium z-10">
                         {currentImageIndex + 1} / {property.images.length}
                     </div>
 
@@ -144,29 +144,29 @@ const PropertyDetails = ({ property }) => {
                     <div className="absolute top-4 right-4 flex space-x-2 z-10">
                         <button
                             onClick={handleShare}
-                            className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 p-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition shadow-lg"
+                            className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md text-gray-700 dark:text-gray-300 p-3 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition shadow-lg border border-white/20"
                         >
                             <FiShare2 size={20} />
                         </button>
                         <button
                             onClick={handleWishlistToggle}
-                            className={`p-3 rounded-full transition shadow-lg ${isInWishlist(id)
+                            className={`p-3 rounded-xl transition shadow-lg backdrop-blur-md border border-white/20 ${isInWishlist(id)
                                     ? 'bg-red-500 text-white'
-                                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                                    : 'bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300'
                                 }`}
                         >
                             <FiHeart className={isInWishlist(id) ? 'fill-current' : ''} size={20} />
                         </button>
                     </div>
 
-                    {/* Thumbnails */}
+                    {/* Thumbnails - Improved scrolling on mobile */}
                     {property.images.length > 1 && (
-                        <div className="absolute bottom-4 left-4 flex space-x-2 overflow-x-auto max-w-[calc(100%-8rem)] pb-2 z-10">
+                        <div className="absolute bottom-4 left-4 flex space-x-2 overflow-x-auto max-w-[calc(100%-8rem)] pb-2 z-10 scrollbar-hide snap-x">
                             {property.images.map((image, index) => (
                                 <button
                                     key={index}
                                     onClick={() => setCurrentImageIndex(index)}
-                                    className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition ${index === currentImageIndex ? 'border-primary-500' : 'border-transparent'
+                                    className={`flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 transition snap-start ${index === currentImageIndex ? 'border-primary-500 scale-110' : 'border-transparent opacity-70'
                                         }`}
                                 >
                                     <img
@@ -182,62 +182,71 @@ const PropertyDetails = ({ property }) => {
             </div>
 
             {/* Property Info Section */}
-            <div className="container-custom py-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="container-custom py-6 sm:py-8 lg:py-12">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
                     {/* Left Column - Main Info */}
-                    <div className="lg:col-span-2">
+                    <div className="lg:col-span-2 space-y-8">
                         {/* Title and Location */}
-                        <div className="mb-6">
-                            <h1 className="text-3xl font-bold mb-2">{property.title}</h1>
-                            <div className="flex items-center text-gray-600 dark:text-gray-400">
-                                <FiMapPin className="mr-2 flex-shrink-0" />
-                                <span>{property.location.address}, {property.location.city}, {property.location.state} - {property.location.pincode}</span>
+                        <div>
+                            <div className="flex flex-wrap gap-2 mb-3">
+                                <span className="badge badge-primary uppercase tracking-wider text-[10px] font-bold">
+                                    {property.type === 'buy' ? 'For Sale' : 'For Rent'}
+                                </span>
+                                <span className="badge bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 uppercase tracking-wider text-[10px] font-bold">
+                                    {property.propertyType}
+                                </span>
+                            </div>
+                            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 tracking-tight">{property.title}</h1>
+                            <div className="flex items-start text-gray-600 dark:text-gray-400">
+                                <FiMapPin className="mr-2 mt-1 flex-shrink-0 text-primary-500" />
+                                <span className="text-sm sm:text-base">{property.location.address}, {property.location.city}, {property.location.state} - {property.location.pincode}</span>
                             </div>
                         </div>
 
-                        {/* Price and Status */}
-                        <div className="bg-primary-50 dark:bg-primary-900/20 p-6 rounded-lg mb-6">
-                            <div className="flex items-center justify-between">
+                        {/* Price and Status - Refined for mobile */}
+                        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <div>
-                                    <span className="text-sm text-gray-600 dark:text-gray-400">Price</span>
-                                    <div className="text-3xl font-bold text-primary-600">
+                                    <span className="text-xs uppercase tracking-widest font-bold text-gray-400">Total Price</span>
+                                    <div className="text-3xl sm:text-4xl font-black text-primary-600 mt-1">
                                         ₹{property.price.toLocaleString()}
-                                        {property.type === 'rent' && <span className="text-lg ml-2">/month</span>}
+                                        {property.type === 'rent' && <span className="text-lg font-bold ml-1 text-gray-500">/mo</span>}
                                     </div>
                                 </div>
-                                <div className="text-right">
-                                    <span className="text-sm text-gray-600 dark:text-gray-400">Status</span>
-                                    <div className={`text-lg font-semibold ${property.status === 'available' ? 'text-green-600' :
-                                            property.status === 'sold' ? 'text-red-600' :
-                                                'text-yellow-600'
+                                <div className="sm:text-right pt-4 sm:pt-0 border-t sm:border-0 border-gray-50 dark:border-gray-700">
+                                    <span className="text-xs uppercase tracking-widest font-bold text-gray-400">Current Status</span>
+                                    <div className={`text-lg font-bold mt-1 flex items-center sm:justify-end gap-2 ${property.status === 'available' ? 'text-green-500' :
+                                            property.status === 'sold' ? 'text-red-500' :
+                                                'text-yellow-500'
                                         }`}>
+                                        <span className={`w-2 h-2 rounded-full ${property.status === 'available' ? 'bg-green-500' : property.status === 'sold' ? 'bg-red-500' : 'bg-yellow-500'}`} />
                                         {property.status.charAt(0).toUpperCase() + property.status.slice(1)}
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Key Features Grid */}
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-                            <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                <FiMaximize className="mx-auto text-xl mb-2 text-primary-600" />
-                                <div className="font-semibold">{property.area.value} {property.area.unit}</div>
-                                <div className="text-sm text-gray-600 dark:text-gray-400">Area</div>
+                        {/* Key Features Grid - 2x2 on mobile, 4x1 on desktop */}
+                        <div className="grid grid-cols-2 xs:grid-cols-4 gap-3 sm:gap-4">
+                            <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700/50 text-center">
+                                <FiMaximize className="mx-auto text-xl mb-2 text-primary-500" />
+                                <div className="font-bold text-sm sm:text-base">{property.area.value} {property.area.unit}</div>
+                                <div className="text-[10px] uppercase font-bold text-gray-400 tracking-tighter">Area</div>
                             </div>
-                            <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                <FiGrid className="mx-auto text-xl mb-2 text-primary-600" />
-                                <div className="font-semibold">{property.bedrooms}</div>
-                                <div className="text-sm text-gray-600 dark:text-gray-400">Bedrooms</div>
+                            <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700/50 text-center">
+                                <FiGrid className="mx-auto text-xl mb-2 text-primary-500" />
+                                <div className="font-bold text-sm sm:text-base">{property.bedrooms}</div>
+                                <div className="text-[10px] uppercase font-bold text-gray-400 tracking-tighter">Bedrooms</div>
                             </div>
-                            <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                <FiDroplet className="mx-auto text-xl mb-2 text-primary-600" />
-                                <div className="font-semibold">{property.bathrooms}</div>
-                                <div className="text-sm text-gray-600 dark:text-gray-400">Bathrooms</div>
+                            <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700/50 text-center">
+                                <FiDroplet className="mx-auto text-xl mb-2 text-primary-500" />
+                                <div className="font-bold text-sm sm:text-base">{property.bathrooms}</div>
+                                <div className="text-[10px] uppercase font-bold text-gray-400 tracking-tighter">Baths</div>
                             </div>
-                            <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                                <FiMapPin className="mx-auto text-xl mb-2 text-primary-600" />
-                                <div className="font-semibold capitalize">{property.propertyType}</div>
-                                <div className="text-sm text-gray-600 dark:text-gray-400">Type</div>
+                            <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700/50 text-center">
+                                <FiMapPin className="mx-auto text-xl mb-2 text-primary-500" />
+                                <div className="font-bold text-sm sm:text-base capitalize">{property.propertyType}</div>
+                                <div className="text-[10px] uppercase font-bold text-gray-400 tracking-tighter">Type</div>
                             </div>
                         </div>
 

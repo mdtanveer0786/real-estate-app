@@ -31,16 +31,21 @@ const PropertyFilters = ({ filters, onFilterChange }) => {
 
     return (
         <>
-            {/* Mobile Filter Button */}
+            {/* Mobile Filter Button - More prominent */}
             <button
                 onClick={() => setIsOpen(true)}
-                className="lg:hidden fixed bottom-4 right-4 z-40 bg-primary-600 text-white p-4 rounded-full shadow-lg"
+                className="lg:hidden fixed bottom-6 right-6 z-40 bg-primary-600 text-white p-4 rounded-2xl shadow-[0_10px_25px_-5px_rgba(37,99,235,0.4)] flex items-center gap-2 border border-primary-500 animate-fade-in"
             >
-                <FiFilter size={24} />
+                <FiFilter size={20} />
+                <span className="font-bold text-sm">Filters</span>
             </button>
 
             {/* Desktop Filters */}
-            <div className="hidden lg:block bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 sticky top-24">
+            <div className="hidden lg:block bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 sticky top-24 border border-gray-100 dark:border-gray-800">
+                <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                    <FiFilter className="text-primary-600" />
+                    Search Filters
+                </h3>
                 <FilterContent
                     filters={localFilters}
                     handleChange={handleChange}
@@ -49,40 +54,45 @@ const PropertyFilters = ({ filters, onFilterChange }) => {
                 />
             </div>
 
-            {/* Mobile Filter Modal */}
+            {/* Mobile Filter Modal - Improved layout */}
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 lg:hidden"
+                        className="fixed inset-0 z-[2000] lg:hidden"
                     >
-                        <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setIsOpen(false)} />
+                        <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
 
                         <motion.div
                             initial={{ x: '100%' }}
                             animate={{ x: 0 }}
                             exit={{ x: '100%' }}
-                            transition={{ type: 'tween' }}
-                            className="absolute right-0 top-0 h-full w-80 bg-white dark:bg-gray-800 shadow-xl p-6 overflow-y-auto"
+                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                            className="absolute right-0 top-0 h-full w-full max-w-[320px] bg-white dark:bg-gray-900 shadow-2xl flex flex-col"
                         >
-                            <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-lg font-semibold">Filters</h3>
-                                <button onClick={() => setIsOpen(false)}>
-                                    <FiX size={24} />
+                            <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-gray-800">
+                                <h3 className="text-xl font-bold">Filters</h3>
+                                <button 
+                                    onClick={() => setIsOpen(false)}
+                                    className="p-2 bg-gray-100 dark:bg-gray-800 rounded-xl text-gray-500"
+                                >
+                                    <FiX size={20} />
                                 </button>
                             </div>
 
-                            <FilterContent
-                                filters={localFilters}
-                                handleChange={handleChange}
-                                applyFilters={() => {
-                                    applyFilters();
-                                    setIsOpen(false);
-                                }}
-                                clearFilters={clearFilters}
-                            />
+                            <div className="flex-1 p-6 overflow-y-auto">
+                                <FilterContent
+                                    filters={localFilters}
+                                    handleChange={handleChange}
+                                    applyFilters={() => {
+                                        applyFilters();
+                                        setIsOpen(false);
+                                    }}
+                                    clearFilters={clearFilters}
+                                />
+                            </div>
                         </motion.div>
                     </motion.div>
                 )}

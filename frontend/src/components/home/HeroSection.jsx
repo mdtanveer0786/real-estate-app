@@ -45,7 +45,7 @@ const HeroSection = () => {
             ))}
 
             {/* Content */}
-            <div className="relative z-10 container-custom text-center text-white">
+            <div className="relative z-10 container-custom text-center text-white px-4">
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -57,49 +57,49 @@ const HeroSection = () => {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="inline-block bg-white/10 backdrop-blur-md px-4 py-2 rounded-full mb-6"
+                        className="inline-block bg-white/10 backdrop-blur-md px-3 py-1.5 sm:px-4 sm:py-2 rounded-full mb-6 border border-white/10"
                     >
-                        <span className="text-sm font-medium">🏆 India's Most Trusted Real Estate Platform</span>
+                        <span className="text-[10px] sm:text-xs md:text-sm font-bold tracking-wider uppercase">🏆 India's Most Trusted Platform</span>
                     </motion.div>
 
                     {/* Main Heading */}
-                    <h1 className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl font-bold mb-6 leading-tight">
+                    <h1 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl font-black mb-6 leading-[1.1] tracking-tight">
                         Find Your{' '}
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400">
                             Dream Home
                         </span>
                     </h1>
 
-                    <p className="text-lg sm:text-xl md:text-2xl mb-8 text-gray-200 max-w-2xl mx-auto">
+                    <p className="text-base sm:text-xl md:text-2xl mb-10 text-gray-200 max-w-2xl mx-auto leading-relaxed">
                         Discover the perfect property from our extensive collection of 5000+ homes, apartments, and villas across India
                     </p>
 
-                    {/* Search Bar */}
+                    {/* Search Bar - Refined for mobile */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
-                        className="bg-white/10 backdrop-blur-md rounded-2xl p-4 mb-12"
+                        className="bg-white/10 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-3 sm:p-5 mb-12 border border-white/20 shadow-2xl"
                     >
-                        <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
-                            <div className="flex-1 relative">
-                                <FiMapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
+                        <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-3 sm:gap-4">
+                            <div className="flex-1 relative group">
+                                <FiMapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-primary-500 text-xl group-focus-within:scale-110 transition-transform" />
                                 <input
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Enter city, locality or project name"
-                                    className="w-full pl-12 pr-4 py-4 rounded-xl bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    placeholder="City, locality or project..."
+                                    className="w-full pl-12 pr-4 py-4 rounded-xl sm:rounded-2xl bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-primary-500/20 transition-all font-medium"
                                 />
                             </div>
 
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 sm:gap-3">
                                 <button
                                     type="button"
                                     onClick={() => setSearchType('buy')}
-                                    className={`flex-1 px-6 py-4 rounded-xl font-medium transition-all duration-300 ${searchType === 'buy'
-                                            ? 'bg-primary-600 text-white'
-                                            : 'bg-white/20 text-white hover:bg-white/30'
+                                    className={`flex-1 px-4 sm:px-8 py-4 rounded-xl sm:rounded-2xl font-bold transition-all duration-300 ${searchType === 'buy'
+                                            ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
+                                            : 'bg-white/20 text-white hover:bg-white/30 backdrop-blur-md'
                                         }`}
                                 >
                                     Buy
@@ -107,9 +107,9 @@ const HeroSection = () => {
                                 <button
                                     type="button"
                                     onClick={() => setSearchType('rent')}
-                                    className={`flex-1 px-6 py-4 rounded-xl font-medium transition-all duration-300 ${searchType === 'rent'
-                                            ? 'bg-primary-600 text-white'
-                                            : 'bg-white/20 text-white hover:bg-white/30'
+                                    className={`flex-1 px-4 sm:px-8 py-4 rounded-xl sm:rounded-2xl font-bold transition-all duration-300 ${searchType === 'rent'
+                                            ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
+                                            : 'bg-white/20 text-white hover:bg-white/30 backdrop-blur-md'
                                         }`}
                                 >
                                     Rent
@@ -118,36 +118,37 @@ const HeroSection = () => {
 
                             <button
                                 type="submit"
-                                className="md:px-8 py-4 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-xl font-semibold hover:from-primary-700 hover:to-secondary-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
+                                className="md:px-10 py-4 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-xl sm:rounded-2xl font-bold hover:from-primary-700 hover:to-secondary-700 transition-all duration-300 shadow-xl shadow-primary-600/20 flex items-center justify-center gap-2 group"
                             >
-                                <FiSearch className="text-xl" />
-                                <span className="hidden sm:inline">Search</span>
+                                <FiSearch className="text-xl group-hover:scale-110 transition-transform" />
+                                <span className="md:hidden lg:inline">Search Now</span>
+                                <span className="hidden md:inline lg:hidden">Go</span>
                             </button>
                         </form>
                     </motion.div>
 
-                    {/* Stats */}
+                    {/* Stats - Grid refined for small mobile */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6 }}
-                        className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8"
+                        className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8"
                     >
-                        <div className="text-center">
-                            <div className="text-2xl md:text-3xl font-bold text-primary-400">5000+</div>
-                            <div className="text-sm md:text-base text-gray-300">Properties</div>
+                        <div className="text-center group">
+                            <div className="text-2xl sm:text-4xl font-black text-primary-400 mb-1 group-hover:scale-110 transition-transform">5000+</div>
+                            <div className="text-[10px] sm:text-xs uppercase tracking-widest font-bold text-gray-300">Properties</div>
                         </div>
-                        <div className="text-center">
-                            <div className="text-2xl md:text-3xl font-bold text-primary-400">1000+</div>
-                            <div className="text-sm md:text-base text-gray-300">Happy Clients</div>
+                        <div className="text-center group">
+                            <div className="text-2xl sm:text-4xl font-black text-primary-400 mb-1 group-hover:scale-110 transition-transform">1000+</div>
+                            <div className="text-[10px] sm:text-xs uppercase tracking-widest font-bold text-gray-300">Happy Clients</div>
                         </div>
-                        <div className="text-center">
-                            <div className="text-2xl md:text-3xl font-bold text-primary-400">50+</div>
-                            <div className="text-sm md:text-base text-gray-300">Cities</div>
+                        <div className="text-center group">
+                            <div className="text-2xl sm:text-4xl font-black text-primary-400 mb-1 group-hover:scale-110 transition-transform">50+</div>
+                            <div className="text-[10px] sm:text-xs uppercase tracking-widest font-bold text-gray-300">Cities</div>
                         </div>
-                        <div className="text-center">
-                            <div className="text-2xl md:text-3xl font-bold text-primary-400">24/7</div>
-                            <div className="text-sm md:text-base text-gray-300">Support</div>
+                        <div className="text-center group">
+                            <div className="text-2xl sm:text-4xl font-black text-primary-400 mb-1 group-hover:scale-110 transition-transform">24/7</div>
+                            <div className="text-[10px] sm:text-xs uppercase tracking-widest font-bold text-gray-300">Support</div>
                         </div>
                     </motion.div>
 

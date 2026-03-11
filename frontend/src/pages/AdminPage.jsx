@@ -145,10 +145,10 @@ const AdminPage = () => {
       <main className={`flex-1 flex flex-col min-h-screen relative transition-all duration-300 ${isSidebarCollapsed ? 'lg:ml-20' : 'lg:ml-72'}`}>
         {/* Professional TopBar */}
         <header className="sticky top-0 h-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 z-30 px-4 sm:px-8 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <button 
               onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden p-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl text-gray-600 dark:text-gray-300"
+              className="lg:hidden p-2.5 bg-primary-50 dark:bg-primary-900/20 rounded-xl text-primary-600 dark:text-primary-400 border border-primary-100 dark:border-primary-800"
             >
               <FiMenu size={20} />
             </button>
@@ -158,14 +158,14 @@ const AdminPage = () => {
             >
               <FiMenu size={20} className={`transition-transform duration-300 ${isSidebarCollapsed ? 'rotate-90' : 'rotate-0'}`} />
             </button>
-            <div className="hidden sm:flex items-center gap-2 text-sm text-gray-500 ml-2">
-              <span className="hover:text-primary-600 cursor-pointer transition">Admin</span>
-              <FiChevronRight className="text-gray-300" />
-              <span className="text-gray-900 dark:text-white font-bold tracking-tight">{getCurrentPageName()}</span>
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <span className="hidden xs:inline hover:text-primary-600 cursor-pointer transition">Admin</span>
+              <FiChevronRight className="hidden xs:inline text-gray-300" />
+              <span className="text-gray-900 dark:text-white font-bold tracking-tight truncate max-w-[120px] xs:max-w-none">{getCurrentPageName()}</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 sm:gap-6">
+          <div className="flex items-center gap-2 sm:gap-6">
             <div className="hidden md:flex flex-col text-right">
               <span className="text-sm font-bold text-gray-900 dark:text-white">{user?.name}</span>
               <span className="text-[10px] text-primary-600 font-bold uppercase tracking-tighter">System Administrator</span>
