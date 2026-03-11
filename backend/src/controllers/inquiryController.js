@@ -1,6 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const Inquiry = require('../models/Inquiry');
-const { sendInquiryConfirmation } = require('../utils/emailService');
+const { sendInquiryConfirmation, sendInquiryToAdmin } = require('../utils/emailService');
 
 // @desc    Create new inquiry
 // @route   POST /api/inquiries
@@ -18,13 +18,18 @@ const createInquiry = asyncHandler(async (req, res) => {
     });
 
     if (inquiry) {
-        // Send inquiry confirmation email
+        // Send emails
         try {
             // Populate property to get the title for the email content
             const populatedInquiry = await Inquiry.findById(inquiry._id).populate('property', 'title');
+            
+            // Send confirmation to user
             await sendInquiryConfirmation(populatedInquiry);
+            
+            // Send notification to admin
+            await sendInquiryToAdmin(populatedInquiry);
         } catch (emailError) {
-            console.error('Inquiry confirmation email failed to send:', emailError.message);
+            console.error('Inquiry email(s) failed to send:', emailError.message);
         }
 
         res.status(201).json(inquiry);

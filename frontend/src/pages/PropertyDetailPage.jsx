@@ -244,7 +244,7 @@ const PropertyDetailPage = () => {
                         {/* Sidebar - Contact Form */}
                         <div className="lg:col-span-1">
                             <div className="sticky top-24">
-                                <ContactForm propertyId={property._id} />
+                                <ContactForm property={property} />
                             </div>
                         </div>
                     </div>

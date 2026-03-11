@@ -32,7 +32,7 @@ const sendEmail = async (options) => {
     }
 };
 
-// Send inquiry confirmation
+// Send inquiry confirmation to user
 const sendInquiryConfirmation = async (inquiry) => {
     const html = `
     <h2>Thank you for your inquiry</h2>
@@ -50,6 +50,30 @@ const sendInquiryConfirmation = async (inquiry) => {
     return sendEmail({
         to: inquiry.email,
         subject: 'Inquiry Received - EstateElite',
+        html,
+    });
+};
+
+// Send inquiry notification to admin
+const sendInquiryToAdmin = async (inquiry) => {
+    const html = `
+    <h2>New Property Inquiry</h2>
+    <p>A new inquiry has been submitted for a property.</p>
+    <h3>Inquiry Details:</h3>
+    <ul>
+      <li><strong>Property:</strong> ${inquiry.property?.title}</li>
+      <li><strong>Name:</strong> ${inquiry.name}</li>
+      <li><strong>Email:</strong> ${inquiry.email}</li>
+      <li><strong>Phone:</strong> ${inquiry.phone}</li>
+    </ul>
+    <h3>Message:</h3>
+    <p>${inquiry.message}</p>
+    <p>Please log in to the admin dashboard to manage this inquiry.</p>
+  `;
+
+    return sendEmail({
+        to: process.env.ADMIN_EMAIL || 'realestateeliteteam01@gmail.com',
+        subject: `New Inquiry: ${inquiry.property?.title}`,
         html,
     });
 };
@@ -101,6 +125,7 @@ const sendPasswordResetEmail = async (user, resetToken) => {
 module.exports = {
     sendEmail,
     sendInquiryConfirmation,
+    sendInquiryToAdmin,
     sendWelcomeEmail,
     sendPasswordResetEmail,
 };

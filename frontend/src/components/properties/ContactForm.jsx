@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { FiMail, FiPhone, FiMessageSquare, FiSend, FiUser } from 'react-icons/fi'; // Combined all Fi imports
+import { FiMail, FiPhone, FiMessageSquare, FiSend, FiUser } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 
-const ContactForm = ({ propertyId }) => {
+const ContactForm = ({ property }) => {
+    const propertyId = property?._id;
     const { user, isAuthenticated } = useAuth();
     const [loading, setLoading] = useState(false);
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
@@ -18,6 +19,18 @@ const ContactForm = ({ propertyId }) => {
         }
     });
 
+    // Sync user data when it changes
+    useEffect(() => {
+        if (user) {
+            reset({
+                name: user.name || '',
+                email: user.email || '',
+                phone: user.phone || '',
+                message: '',
+            });
+        }
+    }, [user, reset]);
+
     const onSubmit = async (data) => {
         setLoading(true);
         try {
@@ -26,7 +39,10 @@ const ContactForm = ({ propertyId }) => {
                 propertyId,
             });
             toast.success('Inquiry sent successfully! The owner will contact you soon.');
-            reset();
+            reset({
+                ...data,
+                message: '', // Clear only the message
+            });
         } catch (error) {
             toast.error(error.response?.data?.error || 'Failed to send inquiry');
         } finally {
@@ -35,8 +51,9 @@ const ContactForm = ({ propertyId }) => {
     };
 
     const handleWhatsApp = () => {
-        const phone = '+918252574386'; // Replace with actual owner's phone
-        const message = `Hi, I'm interested in this property. Can you provide more details?`;
+        // Use property owner's phone if available, else fallback
+        const phone = property?.createdBy?.phone || '+918252574386';
+        const message = `Hi, I'm interested in your property: "${property?.title}". Can you provide more details?`;
         window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
     };
 

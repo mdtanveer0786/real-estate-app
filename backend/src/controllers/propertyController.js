@@ -94,7 +94,7 @@ const getProperties = asyncHandler(async (req, res) => {
 // @access  Public
 const getPropertyById = asyncHandler(async (req, res) => {
     const property = await Property.findById(req.params.id)
-        .populate('createdBy', 'name email');
+        .populate('createdBy', 'name email phone');
 
     if (property) {
         // Increment views

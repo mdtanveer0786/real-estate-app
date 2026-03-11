@@ -5,10 +5,10 @@ const {
     getInquiries,
     updateInquiryStatus,
 } = require('../controllers/inquiryController');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, admin, resolveUser } = require('../middleware/authMiddleware');
 
 router.route('/')
-    .post(createInquiry)
+    .post(resolveUser, createInquiry)
     .get(protect, admin, getInquiries);
 
 router.put('/:id', protect, admin, updateInquiryStatus);
