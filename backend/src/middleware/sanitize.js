@@ -1,14 +1,15 @@
-const sanitizeHtml = require('sanitize-html');
+// Simple HTML sanitizer — strips all HTML tags (no external dependency needed)
+const stripHtmlTags = (str) => {
+    if (typeof str !== 'string') return str;
+    return str.replace(/<[^>]*>/g, '').trim();
+};
 
 const sanitizeMiddleware = (req, res, next) => {
     // Sanitize request body
     if (req.body) {
         Object.keys(req.body).forEach(key => {
             if (typeof req.body[key] === 'string') {
-                req.body[key] = sanitizeHtml(req.body[key], {
-                    allowedTags: [],
-                    allowedAttributes: {},
-                }).trim();
+                req.body[key] = stripHtmlTags(req.body[key]);
             }
         });
     }
@@ -17,10 +18,7 @@ const sanitizeMiddleware = (req, res, next) => {
     if (req.query) {
         Object.keys(req.query).forEach(key => {
             if (typeof req.query[key] === 'string') {
-                req.query[key] = sanitizeHtml(req.query[key], {
-                    allowedTags: [],
-                    allowedAttributes: {},
-                }).trim();
+                req.query[key] = stripHtmlTags(req.query[key]);
             }
         });
     }

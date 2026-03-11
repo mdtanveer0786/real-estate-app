@@ -1,4 +1,9 @@
 const errorHandler = (err, req, res, next) => {
+    // If headers are already sent, delegate to Express default error handler
+    if (res.headersSent) {
+        return next(err);
+    }
+
     let error = { ...err };
     error.message = err.message;
 

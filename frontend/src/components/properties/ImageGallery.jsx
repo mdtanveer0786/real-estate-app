@@ -7,6 +7,25 @@ const ImageGallery = ({ images }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [lightboxOpen, setLightboxOpen] = useState(false);
 
+    // Default placeholder when no images are available
+    const defaultImage = 'https://res.cloudinary.com/dpegeu5q3/image/upload/v1773070986/real-estate/properties/cdekkv3wlsxiybzueaky.webp'
+
+    // Guard against empty images array
+    if (!images || images.length === 0) {
+        return (
+            <div className="relative h-[500px] bg-gray-900">
+                <img
+                    src={defaultImage}
+                    alt="No property image available"
+                    className="w-full h-full object-cover"
+                />
+                <div className="absolute bottom-4 right-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
+                    No images
+                </div>
+            </div>
+        );
+    }
+
     const nextImage = () => {
         setCurrentIndex((prev) => (prev + 1) % images.length);
     };
@@ -14,9 +33,6 @@ const ImageGallery = ({ images }) => {
     const prevImage = () => {
         setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
     };
-
-    // Default placeholder when no images are available
-    const defaultImage = 'https://res.cloudinary.com/dpegeu5q3/image/upload/v1773070986/real-estate/properties/cdekkv3wlsxiybzueaky.webp'
 
     return (
         <>

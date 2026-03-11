@@ -1,5 +1,5 @@
-const NodeCache = require('node-cache');
-const myCache = new NodeCache({ stdTTL: 600 }); // Cache for 10 minutes
+// Simple in-memory cache using a Map (no external dependency needed)
+const cache = new Map();
 
 const cacheMiddleware = (duration = 600) => {
     return (req, res, next) => {
@@ -9,25 +9,31 @@ const cacheMiddleware = (duration = 600) => {
         }
 
         const key = req.originalUrl;
-        const cachedResponse = myCache.get(key);
+        const cached = cache.get(key);
 
-        if (cachedResponse) {
-            return res.json(cachedResponse);
-        } else {
-            res.originalJson = res.json;
-            res.json = (body) => {
-                myCache.set(key, body, duration);
-                res.originalJson(body);
-            };
-            next();
+        if (cached && cached.expiry > Date.now()) {
+            return res.json(cached.data);
         }
+
+        // Store original json method
+        const originalJson = res.json.bind(res);
+        res.json = (body) => {
+            cache.set(key, {
+                data: body,
+                expiry: Date.now() + duration * 1000,
+            });
+            return originalJson(body);
+        };
+        next();
     };
 };
 
 const clearCache = (pattern) => {
-    const keys = myCache.keys();
-    const matchingKeys = keys.filter(key => key.includes(pattern));
-    myCache.del(matchingKeys);
+    for (const key of cache.keys()) {
+        if (key.includes(pattern)) {
+            cache.delete(key);
+        }
+    }
 };
 
 module.exports = { cacheMiddleware, clearCache };

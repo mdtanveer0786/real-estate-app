@@ -108,6 +108,18 @@ const getPropertyById = asyncHandler(async (req, res) => {
     }
 });
 
+// Helper to safely parse JSON — handles both string and already-parsed object
+const safeParse = (value) => {
+    if (typeof value === 'string') {
+        try {
+            return JSON.parse(value);
+        } catch (e) {
+            return value;
+        }
+    }
+    return value;
+};
+
 // @desc    Create a property
 // @route   POST /api/properties
 // @access  Private/Admin
@@ -119,13 +131,13 @@ const createProperty = asyncHandler(async (req, res) => {
         title,
         description,
         price,
-        location: JSON.parse(location),
+        location: safeParse(location),
         type,
         propertyType,
         bedrooms,
         bathrooms,
-        area: JSON.parse(area),
-        features: JSON.parse(features),
+        area: safeParse(area),
+        features: safeParse(features),
         createdBy: req.user._id,
     });
 
@@ -196,9 +208,9 @@ const updateProperty = asyncHandler(async (req, res) => {
 
     const updatedFields = {
         ...req.body,
-        location: req.body.location ? JSON.parse(req.body.location) : property.location,
-        area: req.body.area ? JSON.parse(req.body.area) : property.area,
-        features: req.body.features ? JSON.parse(req.body.features) : property.features
+        location: req.body.location ? safeParse(req.body.location) : property.location,
+        area: req.body.area ? safeParse(req.body.area) : property.area,
+        features: req.body.features ? safeParse(req.body.features) : property.features
     };
 
     const updatedProperty = await Property.findByIdAndUpdate(
