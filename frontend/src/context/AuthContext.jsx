@@ -87,6 +87,27 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const forgotPassword = async (email) => {
+        try {
+            await api.post('/auth/forgotpassword', { email });
+            toast.success('Password reset email sent!');
+        } catch (error) {
+            toast.error(error.response?.data?.error || 'Failed to send reset email');
+            throw error;
+        }
+    };
+
+    const resetPassword = async (resetToken, password) => {
+        try {
+            const { data } = await api.put(`/auth/resetpassword/${resetToken}`, { password });
+            toast.success('Password reset successful!');
+            return data;
+        } catch (error) {
+            toast.error(error.response?.data?.error || 'Password reset failed');
+            throw error;
+        }
+    };
+
     const value = {
         user,
         loading,
@@ -94,6 +115,8 @@ export const AuthProvider = ({ children }) => {
         register,
         logout,
         updateProfile,
+        forgotPassword,
+        resetPassword,
         isAuthenticated: !!user,
         isAdmin: user?.role === 'admin',
     };

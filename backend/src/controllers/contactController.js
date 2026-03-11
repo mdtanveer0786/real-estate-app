@@ -9,7 +9,7 @@ const submitContact = asyncHandler(async (req, res) => {
 
     // Send email to admin
     await sendEmail({
-        to: process.env.ADMIN_EMAIL || 'admin@estateelite.com',
+        to: process.env.ADMIN_EMAIL || 'realestateeliteteam01@gmail.com',
         subject: `New Contact Form Submission: ${subject}`,
         html: `
       <h2>New Contact Form Submission</h2>

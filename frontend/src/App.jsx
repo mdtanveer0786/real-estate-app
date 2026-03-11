@@ -26,10 +26,13 @@ const AdminPage = lazy(() => import('./pages/AdminPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const Login = lazy(() => import('./components/auth/Login'));
 const Register = lazy(() => import('./components/auth/Register'));
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
+const FAQPage = lazy(() => import('./pages/FAQPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 // Scroll to top on route change
@@ -82,8 +85,11 @@ function AppContent() {
                                 <Route path="/property/:id" element={<PropertyDetailPage />} />
                                 <Route path="/login" element={<Login />} />
                                 <Route path="/register" element={<Register />} />
+                                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                                <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
                                 <Route path="/about" element={<AboutPage />} />
                                 <Route path="/contact" element={<ContactPage />} />
+                                <Route path="/faq" element={<FAQPage />} />
                                 <Route path="/terms" element={<TermsPage />} />
                                 <Route path="/privacy" element={<PrivacyPage />} />
 

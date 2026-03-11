@@ -92,6 +92,12 @@ const Footer = () => {
                                     Contact
                                 </Link>
                             </li>
+                            <li>
+                                <Link to="/faq" className="text-gray-400 hover:text-primary-400 transition flex items-center group">
+                                    <span className="w-0 group-hover:w-2 h-0.5 bg-primary-400 mr-0 group-hover:mr-2 transition-all"></span>
+                                    FAQ
+                                </Link>
+                            </li>
                         </ul>
                     </div>
 
@@ -142,8 +148,8 @@ const Footer = () => {
                             </li>
                             <li className="flex items-center space-x-3 text-gray-400">
                                 <FiMail className="flex-shrink-0" />
-                                <a href="mailto:info@estateelite.com" className="hover:text-primary-400 transition">
-                                    info@estateelite.com
+                                <a href="mailto:realestateeliteteam01@gmail.com" className="hover:text-primary-400 transition">
+                                    realestateeliteteam01@gmail.com
                                 </a>
                             </li>
                         </ul>

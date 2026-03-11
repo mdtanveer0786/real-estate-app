@@ -33,8 +33,8 @@ const ContactPage = () => {
         {
             icon: FiMail,
             title: 'Email',
-            details: ['info@estateelite.com', 'support@estateelite.com'],
-            action: 'mailto:info@estateelite.com'
+            details: ['realestateeliteteam01@gmail.com'],
+            action: 'mailto:realestateeliteteam01@gmail.com'
         },
         {
             icon: FiMapPin,
@@ -225,44 +225,6 @@ const ContactPage = () => {
                                     title="Office Location"
                                 />
                             </motion.div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* FAQ Section */}
-                <section className="section-padding">
-                    <div className="container-custom max-w-4xl">
-                        <h2 className="text-3xl font-bold text-center mb-12">Frequently Asked Questions</h2>
-                        <div className="space-y-4">
-                            {[
-                                {
-                                    q: "How quickly can I get a property visit scheduled?",
-                                    a: "We typically schedule property visits within 24-48 hours of your request, depending on the owner's availability."
-                                },
-                                {
-                                    q: "What documents do I need to buy a property?",
-                                    a: "You'll need identity proof (Aadhar/PAN), income documents, and bank statements. Our team will guide you through the complete process."
-                                },
-                                {
-                                    q: "Do you provide home loan assistance?",
-                                    a: "Yes, we have partnerships with major banks and can help you get the best home loan rates."
-                                },
-                                {
-                                    q: "Is there any brokerage fee?",
-                                    a: "Our fees are transparent and competitive. We'll discuss all charges upfront before starting any transaction."
-                                }
-                            ].map((faq, index) => (
-                                <motion.div
-                                    key={index}
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: index * 0.1 }}
-                                    className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md"
-                                >
-                                    <h3 className="text-lg font-semibold mb-2">{faq.q}</h3>
-                                    <p className="text-gray-600 dark:text-gray-400">{faq.a}</p>
-                                </motion.div>
-                            ))}
                         </div>
                     </div>
                 </section>
