@@ -179,13 +179,31 @@ const updateProperty = asyncHandler(async (req, res) => {
         throw new Error('Property not found');
     }
 
+    // Handle Cloudinary image cleanup if images were removed
+    if (req.body.images) {
+        const newImages = req.body.images;
+        const removedImages = property.images.filter(
+            oldImg => !newImages.some(newImg => newImg.public_id === oldImg.public_id)
+        );
+
+        // Delete removed images from Cloudinary
+        const deletePromises = removedImages
+            .filter(img => img.public_id)
+            .map(img => deleteFromCloudinary(img.public_id));
+        
+        await Promise.all(deletePromises);
+    }
+
+    const updatedFields = {
+        ...req.body,
+        location: req.body.location ? JSON.parse(req.body.location) : property.location,
+        area: req.body.area ? JSON.parse(req.body.area) : property.area,
+        features: req.body.features ? JSON.parse(req.body.features) : property.features
+    };
+
     const updatedProperty = await Property.findByIdAndUpdate(
         req.params.id,
-        {
-            ...req.body, location: JSON.parse(req.body.location || '{}'),
-            area: JSON.parse(req.body.area || '{}'),
-            features: JSON.parse(req.body.features || '[]')
-        },
+        updatedFields,
         { new: true, runValidators: true }
     );
 

@@ -14,9 +14,11 @@ const transporter = nodemailer.createTransport({
 // Send email
 const sendEmail = async (options) => {
     try {
+        const recipients = Array.isArray(options.to) ? options.to.join(', ') : options.to;
+
         const mailOptions = {
             from: `"EstateElite" <${process.env.EMAIL_FROM}>`,
-            to: options.to,
+            to: recipients,
             subject: options.subject,
             html: options.html,
         };
@@ -25,8 +27,8 @@ const sendEmail = async (options) => {
         console.log('Email sent:', info.messageId);
         return info;
     } catch (error) {
-        console.error('Email error:', error);
-        throw new Error('Failed to send email');
+        console.error('Email error details:', error);
+        throw new Error(`Failed to send email: ${error.message}`);
     }
 };
 

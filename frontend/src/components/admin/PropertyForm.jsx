@@ -63,6 +63,10 @@ const PropertyForm = () => {
     const onSubmit = async (data) => {
         setLoading(true);
         try {
+            // Filter images: separate existing images (objects with .url) and new files
+            const existingImages = images.filter(img => img.url);
+            const newFiles = images.filter(img => img instanceof File);
+
             const propertyData = {
                 ...data,
                 price: Number(data.price),
@@ -71,20 +75,24 @@ const PropertyForm = () => {
                 area: JSON.stringify(data.area),
                 location: JSON.stringify(data.location),
                 features: JSON.stringify(data.features.filter(f => f.trim() !== '')),
+                images: existingImages, // Send current state of existing images
             };
 
+            let propertyId = id;
             if (id) {
                 await api.put(`/properties/${id}`, propertyData);
                 toast.success('Property updated successfully');
             } else {
                 const { data: newProperty } = await api.post('/properties', propertyData);
-
-                // Upload images if any
-                if (images.length > 0) {
-                    await uploadImages(newProperty._id);
-                }
+                propertyId = newProperty._id;
                 toast.success('Property created successfully');
             }
+
+            // Upload new images if any
+            if (newFiles.length > 0) {
+                await uploadImages(propertyId, newFiles);
+            }
+
             navigate('/admin/properties');
         } catch (error) {
             toast.error(error.response?.data?.error || 'Failed to save property');
@@ -93,10 +101,10 @@ const PropertyForm = () => {
         }
     };
 
-    const uploadImages = async (propertyId) => {
+    const uploadImages = async (propertyId, filesToUpload) => {
         setUploading(true);
         const formData = new FormData();
-        images.forEach(image => {
+        filesToUpload.forEach(image => {
             formData.append('images', image);
         });
 
@@ -105,7 +113,8 @@ const PropertyForm = () => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
         } catch (error) {
-            throw error;
+            console.error('Image upload failed:', error);
+            toast.error('Some images failed to upload');
         } finally {
             setUploading(false);
         }

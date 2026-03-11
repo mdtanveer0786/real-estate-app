@@ -7,8 +7,8 @@ const {
   getUsers,
   deleteUser,
   getAllProperties,
-  deleteProperty,
 } = require('../controllers/adminController');
+const { deleteProperty } = require('../controllers/propertyController');
 
 router.get('/stats', protect, admin, getDashboardStats);
 
