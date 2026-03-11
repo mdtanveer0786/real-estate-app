@@ -13,11 +13,16 @@ const ContactPage = () => {
     const onSubmit = async (data) => {
         setLoading(true);
         try {
-            await api.post('/contact', data);
-            toast.success('Message sent successfully! We\'ll get back to you soon.');
+            const response = await api.post('/contact', data);
+            toast.success(response.data?.message || 'Message sent successfully! We\'ll get back to you soon.');
             reset();
         } catch (error) {
-            toast.error(error.response?.data?.error || 'Failed to send message. Please try again.');
+            const errorMsg =
+                error.response?.data?.error ||
+                error.response?.data?.message ||
+                error.message ||
+                'Failed to send message. Please try again.';
+            toast.error(errorMsg);
         } finally {
             setLoading(false);
         }
@@ -45,7 +50,7 @@ const ContactPage = () => {
         {
             icon: FiClock,
             title: 'Working Hours',
-            details: ['Monday - Saturday: 9:00 AM - 8:00 PM', 'Sunday: 10:00 AM - 4:00 PM'],
+            details: ['Mon - Sat: 9:00 AM - 8:00 PM', 'Sunday: 10:00 AM - 4:00 PM'],
             action: null
         }
     ];
@@ -59,12 +64,12 @@ const ContactPage = () => {
 
             <div className="bg-white dark:bg-gray-900">
                 {/* Hero Section */}
-                <section className="bg-gradient-to-r from-primary-600 to-secondary-600 text-white py-20">
-                    <div className="container-custom text-center">
+                <section className="bg-gradient-to-r from-primary-600 to-secondary-600 text-white py-16 sm:py-20">
+                    <div className="container-custom text-center px-4">
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="text-4xl md:text-5xl font-bold mb-4"
+                            className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4"
                         >
                             Get in Touch
                         </motion.h1>
@@ -72,7 +77,7 @@ const ContactPage = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
-                            className="text-xl max-w-2xl mx-auto opacity-90"
+                            className="text-base sm:text-xl max-w-2xl mx-auto opacity-90"
                         >
                             Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
                         </motion.p>
@@ -81,29 +86,29 @@ const ContactPage = () => {
 
                 {/* Contact Info Cards */}
                 <section className="section-padding">
-                    <div className="container-custom">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 -mt-20">
+                    <div className="container-custom px-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 -mt-12 sm:-mt-20">
                             {contactInfo.map((item, index) => (
                                 <motion.div
                                     key={index}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: index * 0.1 }}
-                                    className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-6 text-center card-hover"
+                                    className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-5 sm:p-6 text-center card-hover"
                                 >
-                                    <div className="inline-block p-3 bg-primary-100 dark:bg-primary-900/20 rounded-full mb-4">
-                                        <item.icon className="text-2xl text-primary-600" />
+                                    <div className="inline-block p-3 bg-primary-100 dark:bg-primary-900/20 rounded-full mb-3 sm:mb-4">
+                                        <item.icon className="text-xl sm:text-2xl text-primary-600" />
                                     </div>
-                                    <h3 className="text-lg font-semibold mb-2">{item.title}</h3>
+                                    <h3 className="text-base sm:text-lg font-semibold mb-2">{item.title}</h3>
                                     {item.details.map((detail, i) => (
-                                        <p key={i} className="text-gray-600 dark:text-gray-400 text-sm">
+                                        <p key={i} className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm break-words">
                                             {detail}
                                         </p>
                                     ))}
                                     {item.action && (
                                         <a
                                             href={item.action}
-                                            className="inline-block mt-3 text-primary-600 hover:text-primary-700 text-sm font-medium"
+                                            className="inline-block mt-2 sm:mt-3 text-primary-600 hover:text-primary-700 text-sm font-medium"
                                         >
                                             Contact Now →
                                         </a>
@@ -116,20 +121,20 @@ const ContactPage = () => {
 
                 {/* Contact Form & Map */}
                 <section className="section-padding bg-gray-50 dark:bg-gray-800">
-                    <div className="container-custom">
-                        <div className="grid lg:grid-cols-2 gap-12">
+                    <div className="container-custom px-4">
+                        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
                             {/* Contact Form */}
                             <motion.div
                                 initial={{ opacity: 0, x: -20 }}
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
                             >
-                                <h2 className="text-3xl font-bold mb-4">Send us a Message</h2>
-                                <p className="text-gray-600 dark:text-gray-400 mb-8">
+                                <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Send us a Message</h2>
+                                <p className="text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 text-sm sm:text-base">
                                     Fill out the form below and we'll get back to you within 24 hours.
                                 </p>
 
-                                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
                                     <div className="grid sm:grid-cols-2 gap-4">
                                         <div>
                                             <label className="input-label">Your Name *</label>
@@ -185,7 +190,7 @@ const ContactPage = () => {
                                         <textarea
                                             {...register('message', { required: 'Message is required' })}
                                             rows="5"
-                                            className="input-field"
+                                            className="input-field resize-y min-h-[120px]"
                                             placeholder="Tell us more about your query..."
                                         />
                                         {errors.message && <p className="input-error">{errors.message.message}</p>}
@@ -194,7 +199,7 @@ const ContactPage = () => {
                                     <button
                                         type="submit"
                                         disabled={loading}
-                                        className="btn-primary w-full flex items-center justify-center gap-2"
+                                        className="btn-primary w-full flex items-center justify-center gap-2 py-3"
                                     >
                                         {loading ? (
                                             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -213,7 +218,7 @@ const ContactPage = () => {
                                 initial={{ opacity: 0, x: 20 }}
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
-                                className="h-[500px] lg:h-auto rounded-lg overflow-hidden shadow-xl"
+                                className="h-[350px] sm:h-[450px] lg:h-auto min-h-[350px] rounded-lg overflow-hidden shadow-xl"
                             >
                                 <iframe
                                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3887.985382234567!2d77.6137!3d12.9352!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae15b78b6546c1%3A0x1a2b3c4d5e6f7a8b!2sKoramangala%2C%20Bengaluru%2C%20Karnataka!5e0!3m2!1sen!2sin!4v1234567890!5m2!1sen!2sin"

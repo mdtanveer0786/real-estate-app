@@ -43,6 +43,18 @@ const authService = {
         return response.data;
     },
 
+    // Forgot password
+    forgotPassword: async (email) => {
+        const response = await api.post('/auth/forgotpassword', { email });
+        return response.data;
+    },
+
+    // Reset password
+    resetPassword: async (resetToken, password) => {
+        const response = await api.put(`/auth/resetpassword/${resetToken}`, { password });
+        return response.data;
+    },
+
     // Get current user from localStorage
     getCurrentUser: () => {
         const userStr = localStorage.getItem('user');

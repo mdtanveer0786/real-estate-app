@@ -12,6 +12,16 @@ export const useAuth = () => {
     return context;
 };
 
+// Helper to extract error message from API response
+const getErrorMessage = (error, fallback = 'Something went wrong') => {
+    return (
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message ||
+        fallback
+    );
+};
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -51,7 +61,7 @@ export const AuthProvider = ({ children }) => {
             }
             return data;
         } catch (error) {
-            toast.error(error.response?.data?.error || 'Invalid email or password');
+            toast.error(getErrorMessage(error, 'Invalid email or password'));
             throw error;
         }
     };
@@ -60,9 +70,9 @@ export const AuthProvider = ({ children }) => {
         try {
             const { data } = await api.post('/auth/register', userData);
             toast.success('Registration successful! Please login to continue.');
-            return { success: true };
+            return data;
         } catch (error) {
-            toast.error(error.response?.data?.error || 'Registration failed. Please try again.');
+            toast.error(getErrorMessage(error, 'Registration failed. Please try again.'));
             throw error;
         }
     };
@@ -82,17 +92,18 @@ export const AuthProvider = ({ children }) => {
             toast.success('Profile updated successfully');
             return data;
         } catch (error) {
-            toast.error(error.response?.data?.error || 'Update failed');
+            toast.error(getErrorMessage(error, 'Update failed'));
             throw error;
         }
     };
 
     const forgotPassword = async (email) => {
         try {
-            await api.post('/auth/forgotpassword', { email });
-            toast.success('Password reset email sent!');
+            const { data } = await api.post('/auth/forgotpassword', { email });
+            toast.success(data.message || 'Password reset email sent!');
+            return data;
         } catch (error) {
-            toast.error(error.response?.data?.error || 'Failed to send reset email');
+            toast.error(getErrorMessage(error, 'Failed to send reset email'));
             throw error;
         }
     };
@@ -100,10 +111,10 @@ export const AuthProvider = ({ children }) => {
     const resetPassword = async (resetToken, password) => {
         try {
             const { data } = await api.put(`/auth/resetpassword/${resetToken}`, { password });
-            toast.success('Password reset successful!');
+            toast.success(data.message || 'Password reset successful!');
             return data;
         } catch (error) {
-            toast.error(error.response?.data?.error || 'Password reset failed');
+            toast.error(getErrorMessage(error, 'Password reset failed'));
             throw error;
         }
     };

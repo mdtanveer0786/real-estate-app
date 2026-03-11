@@ -9,6 +9,7 @@ const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorMiddleware');
 const { apiLimiter, authLimiter, inquiryLimiter } = require('./middleware/rateLimiter');
 const logger = require('./utils/logger');
+const { verifyEmailConnection } = require('./utils/emailService');
 
 // Load env vars
 dotenv.config();
@@ -111,6 +112,8 @@ const PORT = process.env.PORT || 5000;
 
 const server = app.listen(PORT, () => {
     logger.info(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+    // Verify email service on startup
+    verifyEmailConnection();
 });
 
 // Handle unhandled promise rejections

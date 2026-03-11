@@ -8,7 +8,7 @@ const { sendPasswordResetEmail, sendWelcomeEmail } = require('../utils/emailServ
 // @route   POST /api/auth/login
 // @access  Public
 const loginUser = asyncHandler(async (req, res) => {
-    console.log('Login attempt:', req.body.email); // Debug log
+    console.log('Login attempt:', req.body.email);
 
     const { email, password } = req.body;
 
@@ -19,10 +19,7 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 
     // Find user by email (include password field)
-    const user = await User.findOne({ email }).select('+password');
-
-    // Debug logs
-    console.log('User found:', user ? 'Yes' : 'No');
+    const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
 
     if (!user) {
         res.status(401);
@@ -31,15 +28,16 @@ const loginUser = asyncHandler(async (req, res) => {
 
     // Check password
     const isPasswordMatch = await user.matchPassword(password);
-    console.log('Password match:', isPasswordMatch ? 'Yes' : 'No');
 
     if (isPasswordMatch) {
+        const token = generateToken(user._id);
         res.json({
+            success: true,
             _id: user._id,
             name: user.name,
             email: user.email,
             role: user.role,
-            token: generateToken(user._id),
+            token,
         });
     } else {
         res.status(401);
@@ -51,51 +49,64 @@ const loginUser = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-    console.log('Register attempt:', req.body.email); // Debug log
+    console.log('Register attempt:', req.body.email);
 
     const { name, email, password, role } = req.body;
 
     // Validation
-    if (!name || !email || !password) {
+    if (!name || !name.trim()) {
         res.status(400);
-        throw new Error('Please provide all required fields');
+        throw new Error('Please provide your name');
+    }
+    if (!email || !email.trim()) {
+        res.status(400);
+        throw new Error('Please provide your email');
+    }
+    if (!password) {
+        res.status(400);
+        throw new Error('Please provide a password');
+    }
+    if (password.length < 6) {
+        res.status(400);
+        throw new Error('Password must be at least 6 characters');
     }
 
     // Check if user exists
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ email: email.toLowerCase().trim() });
 
     if (userExists) {
         res.status(400);
-        throw new Error('User already exists');
+        throw new Error('An account with this email already exists');
     }
 
     // Create user
     const user = await User.create({
-        name,
-        email,
+        name: name.trim(),
+        email: email.toLowerCase().trim(),
         password,
-        role: role || 'user',
+        role: role === 'admin' ? 'user' : (role || 'user'), // Prevent self-assigning admin
     });
 
     if (user) {
-        // Send welcome email
-        try {
-            await sendWelcomeEmail(user);
-        } catch (emailError) {
-            console.error('Welcome email failed to send:', emailError.message);
-        }
+        // Send welcome email (non-blocking - don't let email failure prevent registration)
+        sendWelcomeEmail(user)
+            .then(() => console.log('✅ Welcome email sent to:', user.email))
+            .catch((emailError) => console.error('❌ Welcome email failed:', emailError.message));
 
-        console.log('User created successfully:', user.email, 'Role:', user.role);
+        const token = generateToken(user._id);
+        console.log('✅ User created successfully:', user.email, 'Role:', user.role);
+
         res.status(201).json({
+            success: true,
             _id: user._id,
             name: user.name,
             email: user.email,
             role: user.role,
-            token: generateToken(user._id),
+            token,
         });
     } else {
         res.status(400);
-        throw new Error('Invalid user data');
+        throw new Error('Invalid user data. Please try again.');
     }
 });
 
@@ -156,11 +167,18 @@ const updateUserProfile = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/forgotpassword
 // @access  Public
 const forgotPassword = asyncHandler(async (req, res) => {
-    const user = await User.findOne({ email: req.body.email });
+    const { email } = req.body;
+
+    if (!email || !email.trim()) {
+        res.status(400);
+        throw new Error('Please provide your email address');
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
 
     if (!user) {
         res.status(404);
-        throw new Error('There is no user with that email');
+        throw new Error('No account found with that email address');
     }
 
     // Get reset token
@@ -170,16 +188,20 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
     try {
         await sendPasswordResetEmail(user, resetToken);
-        res.status(200).json({ success: true, data: 'Email sent' });
+        res.status(200).json({
+            success: true,
+            message: 'Password reset email sent! Please check your inbox.',
+            data: 'Email sent',
+        });
     } catch (err) {
-        console.error(err);
+        console.error('❌ Forgot password email error:', err.message);
         user.resetPasswordToken = undefined;
         user.resetPasswordExpire = undefined;
 
         await user.save({ validateBeforeSave: false });
 
         res.status(500);
-        throw new Error('Email could not be sent');
+        throw new Error('Failed to send password reset email. Please try again later.');
     }
 });
 
@@ -187,6 +209,17 @@ const forgotPassword = asyncHandler(async (req, res) => {
 // @route   PUT /api/auth/resetpassword/:resettoken
 // @access  Public
 const resetPassword = asyncHandler(async (req, res) => {
+    const { password } = req.body;
+
+    if (!password) {
+        res.status(400);
+        throw new Error('Please provide a new password');
+    }
+    if (password.length < 6) {
+        res.status(400);
+        throw new Error('Password must be at least 6 characters');
+    }
+
     // Get hashed token
     const resetPasswordToken = crypto
         .createHash('sha256')
@@ -200,17 +233,18 @@ const resetPassword = asyncHandler(async (req, res) => {
 
     if (!user) {
         res.status(400);
-        throw new Error('Invalid or expired token');
+        throw new Error('Invalid or expired reset token. Please request a new password reset.');
     }
 
     // Set new password
-    user.password = req.body.password;
+    user.password = password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
     await user.save();
 
     res.status(200).json({
         success: true,
+        message: 'Password reset successful! You can now login with your new password.',
         data: 'Password reset successful',
         token: generateToken(user._id),
     });

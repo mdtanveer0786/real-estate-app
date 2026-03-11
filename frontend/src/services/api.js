@@ -8,6 +8,7 @@ const api = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
+    timeout: 30000, // 30 second timeout
 });
 
 // Request interceptor for tokens and URL safety
@@ -32,14 +33,23 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
+// Public routes that should NOT trigger 401 redirect
+const publicRoutes = ['/auth/login', '/auth/register', '/auth/forgotpassword', '/auth/resetpassword', '/contact'];
+
 // Response interceptor for error handling
 api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = '/login';
+            // Only redirect on 401 for non-public routes
+            const requestUrl = error.config?.url || '';
+            const isPublicRoute = publicRoutes.some(route => requestUrl.includes(route));
+            
+            if (!isPublicRoute) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            }
         }
         return Promise.reject(error);
     }

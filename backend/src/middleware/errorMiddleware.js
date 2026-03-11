@@ -8,7 +8,10 @@ const errorHandler = (err, req, res, next) => {
     error.message = err.message;
 
     // Log to console for dev
-    console.log(err);
+    console.error('Error:', err.message);
+    if (process.env.NODE_ENV === 'development') {
+        console.error(err.stack);
+    }
 
     // Mongoose bad ObjectId
     if (err.name === 'CastError') {
@@ -18,7 +21,11 @@ const errorHandler = (err, req, res, next) => {
 
     // Mongoose duplicate key
     if (err.code === 11000) {
-        const message = 'Duplicate field value entered';
+        // Extract the field that caused the duplicate
+        const field = Object.keys(err.keyValue || {})[0] || 'field';
+        const message = field === 'email'
+            ? 'An account with this email already exists'
+            : `Duplicate field value entered for ${field}`;
         error = { message, statusCode: 400 };
     }
 
@@ -33,6 +40,7 @@ const errorHandler = (err, req, res, next) => {
     res.status(statusCode).json({
         success: false,
         error: error.message || 'Server Error',
+        message: error.message || 'Server Error', // Also include as 'message' for compatibility
     });
 };
 
