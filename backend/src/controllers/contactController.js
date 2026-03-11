@@ -34,7 +34,7 @@ const submitContact = asyncHandler(async (req, res) => {
 
     try {
         // Send email to admin
-        await sendEmail({
+        sendEmail({
             to: process.env.ADMIN_EMAIL || 'realestateeliteteam01@gmail.com',
             subject: `New Contact Form Submission: ${subject}`,
             html: `
@@ -54,19 +54,20 @@ const submitContact = asyncHandler(async (req, res) => {
             </div>
           </div>
         `,
-        });
+        }).catch(err => console.error('Admin contact email failed:', err.message));
 
         // Send auto-reply to user
-        await sendContactConfirmation({ name, email, subject, message });
+        sendContactConfirmation({ name, email, subject, message })
+            .catch(err => console.error('User contact confirmation failed:', err.message));
 
         res.json({
             success: true,
-            message: 'Message sent successfully',
+            message: 'Message sent successfully! Our team will contact you soon.',
         });
     } catch (error) {
-        console.error('Contact form email error:', error.message);
+        console.error('Contact form controller error:', error.message);
         res.status(500);
-        throw new Error('Failed to send message. Please try again later.');
+        throw new Error('Something went wrong. Please try again later.');
     }
 });
 
