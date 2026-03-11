@@ -5,10 +5,11 @@ let transporter = null;
 
 const getTransporter = () => {
     if (!transporter) {
+        const isSecure = process.env.EMAIL_SECURE === 'true';
         transporter = nodemailer.createTransport({
             host: process.env.EMAIL_HOST || 'smtp.gmail.com',
             port: parseInt(process.env.EMAIL_PORT) || 587,
-            secure: process.env.EMAIL_SECURE === 'true',
+            secure: isSecure,
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
@@ -17,6 +18,9 @@ const getTransporter = () => {
             connectionTimeout: 10000,
             greetingTimeout: 10000,
             socketTimeout: 15000,
+            tls: {
+                rejectUnauthorized: false // Often needed for some SMTP servers to prevent SSL errors
+            }
         });
     }
     return transporter;
