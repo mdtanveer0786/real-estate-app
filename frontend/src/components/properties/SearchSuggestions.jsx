@@ -28,7 +28,6 @@ const SearchSuggestions = ({ onSelect }) => {
             const data = await propertyService.searchProperties(debouncedQuery);
             setSuggestions(data.properties);
         } catch (error) {
-            console.error('Error fetching suggestions:', error);
         } finally {
             setLoading(false);
         }

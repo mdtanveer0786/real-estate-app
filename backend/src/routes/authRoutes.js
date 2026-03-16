@@ -7,6 +7,8 @@ const {
     updateUserProfile,
     forgotPassword,
     resetPassword,
+    verifyEmail,
+    resendVerification,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -14,6 +16,8 @@ router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.post('/forgotpassword', forgotPassword);
 router.put('/resetpassword/:resettoken', resetPassword);
+router.get('/verifyemail/:token', verifyEmail);
+router.post('/resendverification', resendVerification);
 
 router.route('/profile')
     .get(protect, getUserProfile)

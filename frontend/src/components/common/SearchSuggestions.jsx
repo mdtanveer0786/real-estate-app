@@ -38,7 +38,6 @@ const SearchSuggestions = () => {
             const { data } = await api.get(`/search/suggestions?q=${debouncedQuery}`);
             setSuggestions(data);
         } catch (error) {
-            console.error('Error fetching suggestions:', error);
         } finally {
             setLoading(false);
         }

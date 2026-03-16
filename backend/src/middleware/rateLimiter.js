@@ -1,44 +1,41 @@
-// Simple in-memory rate limiter
+'use strict';
+
 const rateLimit = require('express-rate-limit');
 
-// General API rate limiter
+// ─── General API (100 req / 15 min per IP) ────────────────────────────────────
 const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per windowMs
-    message: {
-        success: false,
-        error: 'Too many requests, please try again later.',
-    },
+    windowMs: 15 * 60 * 1000,
+    max: 100,
     standardHeaders: true,
     legacyHeaders: false,
+    message: { success: false, error: 'Too many requests, please try again later.' },
 });
 
-// Auth rate limiter (stricter)
+// ─── Auth routes (10 req / 15 min per IP – brute-force protection) ────────────
 const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 attempts per windowMs
-    message: {
-        success: false,
-        error: 'Too many authentication attempts, please try again later.',
-    },
+    windowMs: 15 * 60 * 1000,
+    max: 10,
     standardHeaders: true,
     legacyHeaders: false,
+    message: { success: false, error: 'Too many authentication attempts, please try again in 15 minutes.' },
 });
 
-// Inquiry rate limiter
+// ─── Contact form (5 submissions / hour per IP – anti-spam) ──────────────────
+const contactLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, error: 'Too many contact form submissions. Please wait an hour before trying again.' },
+});
+
+// ─── Property inquiries (10 req / hour per IP) ────────────────────────────────
 const inquiryLimiter = rateLimit({
-    windowMs: 60 * 60 * 1000, // 1 hour
-    max: 20, // Limit each IP to 20 inquiries per hour
-    message: {
-        success: false,
-        error: 'Too many inquiries, please try again later.',
-    },
+    windowMs: 60 * 60 * 1000,
+    max: 10,
     standardHeaders: true,
     legacyHeaders: false,
+    message: { success: false, error: 'Too many inquiries submitted. Please try again later.' },
 });
 
-module.exports = {
-    apiLimiter,
-    authLimiter,
-    inquiryLimiter,
-};
+module.exports = { apiLimiter, authLimiter, contactLimiter, inquiryLimiter };
