@@ -18,21 +18,31 @@ const createInquiry = asyncHandler(async (req, res) => {
     });
 
     if (inquiry) {
-        // Send emails
+        // Send emails (await to ensure they are sent or errors are caught)
         try {
-            // Populate property to get the title for the email content
             const populatedInquiry = await Inquiry.findById(inquiry._id).populate('property', 'title');
             
             // Send confirmation to user
-            await sendInquiryConfirmation(populatedInquiry);
+            try {
+                await sendInquiryConfirmation(populatedInquiry);
+                console.log('✅ User inquiry confirmation sent.');
+            } catch (err) {
+                console.warn('⚠️ User inquiry email failed:', err.message);
+            }
             
-            // Send notification to admin
+            // Send notification to admin (mandatory)
             await sendInquiryToAdmin(populatedInquiry);
-        } catch (emailError) {
-            console.error('Inquiry email(s) failed to send:', emailError.message);
-        }
+            console.log('✅ Admin inquiry notification sent.');
 
-        res.status(201).json(inquiry);
+            res.status(201).json(inquiry);
+        } catch (error) {
+            console.error('❌ Inquiry email error:', error.message);
+            // We already created the inquiry in DB, but let's inform the user that notification failed
+            res.status(201).json({
+                ...inquiry.toObject(),
+                warning: 'Inquiry saved but notification email failed to send. Our team will still see it in the dashboard.',
+            });
+        }
     } else {
         res.status(400);
         throw new Error('Invalid inquiry data');

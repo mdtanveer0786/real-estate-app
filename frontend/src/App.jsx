@@ -33,6 +33,7 @@ const ContactPage = lazy(() => import('./pages/ContactPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const FAQPage = lazy(() => import('./pages/FAQPage'));
+const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 // Scroll to top on route change
@@ -87,6 +88,7 @@ function AppContent() {
                                 <Route path="/register" element={<Register />} />
                                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                                 <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+                                <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
                                 <Route path="/about" element={<AboutPage />} />
                                 <Route path="/contact" element={<ContactPage />} />
                                 <Route path="/faq" element={<FAQPage />} />

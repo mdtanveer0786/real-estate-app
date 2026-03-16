@@ -1,18 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { FiMapPin, FiPhone, FiMail, FiClock, FiSend } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 const ContactPage = () => {
+    const { user } = useAuth();
     const [loading, setLoading] = useState(false);
-    const { register, handleSubmit, reset, formState: { errors } } = useForm();
+    const { register, handleSubmit, reset, formState: { errors } } = useForm({
+        defaultValues: {
+            name: user?.name || '',
+            email: user?.email || '',
+            phone: user?.phone || '',
+            subject: '',
+            message: '',
+        }
+    });
+
+    // Pre-fill form if user is logged in
+    useEffect(() => {
+        if (user) {
+            reset({
+                name: user.name || '',
+                email: user.email || '',
+                phone: user.phone || '',
+                subject: '',
+                message: '',
+            });
+        }
+    }, [user, reset]);
 
     const onSubmit = async (data) => {
         setLoading(true);
         try {
+            console.log("contact information ", data)
             const response = await api.post('/contact', data);
             toast.success(response.data?.message || 'Message sent successfully! We\'ll get back to you soon.');
             reset();

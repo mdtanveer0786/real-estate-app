@@ -24,16 +24,12 @@ const subscribe = asyncHandler(async (req, res) => {
             existingSubscriber.subscribedAt = new Date();
             await existingSubscriber.save();
 
-            // Try to send email but don't fail if it doesn't work
-            try {
-                await sendEmail({
-                    to: email,
-                    subject: 'Welcome Back to EstateElite Newsletter',
-                    html: '<p>You have successfully resubscribed to our newsletter.</p>',
-                });
-            } catch (emailError) {
-                console.log('Email sending failed but subscription successful:', emailError.message);
-            }
+            // Send email (non-blocking)
+            sendEmail({
+                to: email,
+                subject: 'Welcome Back to EstateElite Newsletter',
+                html: '<p>You have successfully resubscribed to our newsletter.</p>',
+            }).catch(emailError => console.log('Email sending failed but subscription successful:', emailError.message));
 
             return res.json({ message: 'Successfully resubscribed' });
         }
@@ -46,16 +42,12 @@ const subscribe = asyncHandler(async (req, res) => {
         isActive: true,
     });
 
-    // Try to send welcome email but don't fail if it doesn't work
-    try {
-        await sendEmail({
-            to: email,
-            subject: 'Welcome to EstateElite Newsletter',
-            html: '<p>Thank you for subscribing to our newsletter. You will receive updates about new properties and offers.</p>',
-        });
-    } catch (emailError) {
-        console.log('Email sending failed but subscription successful:', emailError.message);
-    }
+    // Send welcome email (non-blocking)
+    sendEmail({
+        to: email,
+        subject: 'Welcome to EstateElite Newsletter',
+        html: '<p>Thank you for subscribing to our newsletter. You will receive updates about new properties and offers.</p>',
+    }).catch(emailError => console.log('Email sending failed but subscription successful:', emailError.message));
 
     res.status(201).json({
         message: 'Successfully subscribed to newsletter',
@@ -80,12 +72,12 @@ const unsubscribe = asyncHandler(async (req, res) => {
     subscriber.unsubscribedAt = new Date();
     await subscriber.save();
 
-    // Send goodbye email
-    await sendEmail({
+    // Send goodbye email (non-blocking)
+    sendEmail({
         to: email,
         subject: 'Unsubscribed from EstateElite Newsletter',
         html: '<p>You have been successfully unsubscribed from our newsletter. We\'re sorry to see you go.</p>',
-    });
+    }).catch(err => console.error('Unsubscribe email failed:', err.message));
 
     res.json({ message: 'Successfully unsubscribed' });
 });

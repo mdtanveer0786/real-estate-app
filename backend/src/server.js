@@ -12,7 +12,7 @@ const logger = require('./utils/logger');
 const { verifyEmailConnection } = require('./utils/emailService');
 
 // Load env vars
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 // Connect to database
 connectDB();

@@ -2,7 +2,11 @@ const asyncHandler = require('express-async-handler');
 const crypto = require('crypto');
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
-const { sendPasswordResetEmail, sendWelcomeEmail } = require('../utils/emailService');
+const { 
+    sendPasswordResetEmail, 
+    sendWelcomeEmail, 
+    sendVerificationEmail 
+} = require('../utils/emailService');
 
 // @desc    Login user
 // @route   POST /api/auth/login
@@ -29,20 +33,26 @@ const loginUser = asyncHandler(async (req, res) => {
     // Check password
     const isPasswordMatch = await user.matchPassword(password);
 
-    if (isPasswordMatch) {
-        const token = generateToken(user._id);
-        res.json({
-            success: true,
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            token,
-        });
-    } else {
+    if (!isPasswordMatch) {
         res.status(401);
         throw new Error('Invalid email or password');
     }
+
+    // Check if email is verified
+    if (!user.isVerified) {
+        res.status(401);
+        throw new Error('Please verify your email address before logging in.');
+    }
+
+    const token = generateToken(user._id);
+    res.json({
+        success: true,
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token,
+    });
 });
 
 // @desc    Register a new user
@@ -88,25 +98,111 @@ const registerUser = asyncHandler(async (req, res) => {
     });
 
     if (user) {
-        // Send welcome email (non-blocking - don't let email failure prevent registration)
-        sendWelcomeEmail(user)
-            .then(() => console.log('✅ Welcome email sent to:', user.email))
-            .catch((emailError) => console.error('❌ Welcome email failed:', emailError.message));
+        // Generate verification token
+        const verificationToken = user.getVerificationToken();
+        await user.save({ validateBeforeSave: false });
 
-        const token = generateToken(user._id);
-        console.log('✅ User created successfully:', user.email, 'Role:', user.role);
+        // Send verification email (await to catch SMTP errors)
+        try {
+            await sendVerificationEmail(user, verificationToken);
+            console.log('✅ Verification email sent to:', user.email);
+        } catch (emailError) {
+            console.error('❌ Verification email failed:', emailError.message);
+            // Optionally: we could delete the user here if verification is critical,
+            // but for now we just log it and inform the user that registration was successful but email might be delayed.
+            // Or better: let it throw so the user knows it failed.
+            throw new Error('User registered but failed to send verification email. Please try to resend it from login.');
+        }
 
         res.status(201).json({
             success: true,
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            token,
+            message: 'Registration successful! Please check your email to verify your account.',
         });
     } else {
         res.status(400);
         throw new Error('Invalid user data. Please try again.');
+    }
+});
+
+// @desc    Verify email
+// @route   GET /api/auth/verifyemail/:token
+// @access  Public
+const verifyEmail = asyncHandler(async (req, res) => {
+    // Hash token from URL
+    const verificationToken = crypto
+        .createHash('sha256')
+        .update(req.params.token)
+        .digest('hex');
+
+    const user = await User.findOne({
+        verificationToken,
+        verificationExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+        res.status(400);
+        throw new Error('Invalid or expired verification token.');
+    }
+
+    // Update user to verified
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationExpire = undefined;
+
+    await user.save({ validateBeforeSave: false });
+
+    // Send welcome email (await to catch SMTP errors)
+    try {
+        await sendWelcomeEmail(user);
+        console.log('✅ Welcome email sent to verified user:', user.email);
+    } catch (err) {
+        console.error('❌ Welcome email failed:', err.message);
+        // We don't throw here as the verification was successful regardless.
+    }
+
+    res.status(200).json({
+        success: true,
+        message: 'Email verified successfully! You can now login.',
+    });
+});
+
+// @desc    Resend verification email
+// @route   POST /api/auth/resendverification
+// @access  Public
+const resendVerification = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        res.status(400);
+        throw new Error('Please provide an email address');
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+
+    if (!user) {
+        res.status(404);
+        throw new Error('No user found with that email address');
+    }
+
+    if (user.isVerified) {
+        res.status(400);
+        throw new Error('This account is already verified');
+    }
+
+    // Generate new token
+    const verificationToken = user.getVerificationToken();
+    await user.save({ validateBeforeSave: false });
+
+    try {
+        await sendVerificationEmail(user, verificationToken);
+        res.status(200).json({
+            success: true,
+            message: 'Verification email resent! Please check your inbox.',
+        });
+    } catch (err) {
+        console.error('❌ Resend verification email error:', err.message);
+        res.status(500);
+        throw new Error('Failed to send verification email. Please try again later.');
     }
 });
 
@@ -186,23 +282,21 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
     await user.save({ validateBeforeSave: false });
 
+    // Send reset email (await to catch SMTP errors)
     try {
         await sendPasswordResetEmail(user, resetToken);
-        res.status(200).json({
-            success: true,
-            message: 'Password reset email sent! Please check your inbox.',
-            data: 'Email sent',
-        });
+        console.log('✅ Password reset email sent to:', user.email);
     } catch (err) {
         console.error('❌ Forgot password email error:', err.message);
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpire = undefined;
-
-        await user.save({ validateBeforeSave: false });
-
         res.status(500);
         throw new Error('Failed to send password reset email. Please try again later.');
     }
+
+    res.status(200).json({
+        success: true,
+        message: 'A password reset link has been sent to your email.',
+        data: 'Email sent successfully',
+    });
 });
 
 // @desc    Reset password
@@ -257,4 +351,6 @@ module.exports = {
     updateUserProfile,
     forgotPassword,
     resetPassword,
+    verifyEmail,
+    resendVerification,
 };

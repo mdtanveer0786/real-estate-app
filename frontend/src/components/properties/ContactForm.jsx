@@ -19,7 +19,7 @@ const ContactForm = ({ property }) => {
         }
     });
 
-    // Sync user data when it changes
+    // Sync user data when it changes or on mount
     useEffect(() => {
         if (user) {
             reset({
