@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useForm } from 'react-hook-form';
@@ -7,6 +7,7 @@ import {
     FiSend, FiUser, FiMessageSquare, FiCheckCircle,
 } from 'react-icons/fi';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 /* ─── Contact info cards data ────────────────────────────────────────────── */
 const CONTACT_INFO = [
@@ -70,6 +71,7 @@ const SuccessPanel = ({ name, onReset }) => (
 
 /* ─── Main page ──────────────────────────────────────────────────────────── */
 const ContactPage = () => {
+<<<<<<< HEAD
     const [loading, setLoading]       = useState(false);
     const [submitted, setSubmitted]   = useState(false);
     const [submittedName, setSubmittedName] = useState('');
@@ -81,11 +83,38 @@ const ContactPage = () => {
         reset,
         formState: { errors },
     } = useForm({ mode: 'onTouched' });
+=======
+    const { user } = useAuth();
+    const [loading, setLoading] = useState(false);
+    const { register, handleSubmit, reset, formState: { errors } } = useForm({
+        defaultValues: {
+            name: user?.name || '',
+            email: user?.email || '',
+            phone: user?.phone || '',
+            subject: '',
+            message: '',
+        }
+    });
+
+    // Pre-fill form if user is logged in
+    useEffect(() => {
+        if (user) {
+            reset({
+                name: user.name || '',
+                email: user.email || '',
+                phone: user.phone || '',
+                subject: '',
+                message: '',
+            });
+        }
+    }, [user, reset]);
+>>>>>>> f09f67a4d9c30a8a79cb18e0aff6098a770e46e2
 
     const onSubmit = async (data) => {
         setLoading(true);
         setServerError('');
         try {
+<<<<<<< HEAD
             await api.post('/contact', {
                 name:    data.name.trim(),
                 email:   data.email.trim(),
@@ -95,6 +124,11 @@ const ContactPage = () => {
             });
             setSubmittedName(data.name.trim());
             setSubmitted(true);
+=======
+            console.log("contact information ", data)
+            const response = await api.post('/contact', data);
+            toast.success(response.data?.message || 'Message sent successfully! We\'ll get back to you soon.');
+>>>>>>> f09f67a4d9c30a8a79cb18e0aff6098a770e46e2
             reset();
         } catch (err) {
             const msg =

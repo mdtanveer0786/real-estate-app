@@ -6,6 +6,7 @@ const nodemailer = require('nodemailer');
 let _transporter = null;
 
 const getTransporter = () => {
+<<<<<<< HEAD
     if (_transporter) return _transporter;
 
     const user = process.env.EMAIL_USER || '';
@@ -32,6 +33,34 @@ const getTransporter = () => {
             socketTimeout: 15000,
             tls: { rejectUnauthorized: false },
         });
+=======
+    if (!transporter) {
+        const emailHost = process.env.EMAIL_HOST || 'smtp.gmail.com';
+        const isSecure = process.env.EMAIL_SECURE === 'true' || process.env.EMAIL_PORT === '465';
+        
+        const transportConfig = {
+            host: emailHost,
+            port: parseInt(process.env.EMAIL_PORT) || 587,
+            secure: isSecure,
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            },
+            connectionTimeout: 5000, // Reduced to 5s
+            greetingTimeout: 5000,   // Reduced to 5s
+            socketTimeout: 10000,    // Reduced to 10s
+            tls: {
+                rejectUnauthorized: false
+            }
+        };
+
+        // Use service: 'gmail' for better reliability if using Gmail
+        if (emailHost.includes('gmail.com') || (process.env.EMAIL_USER && process.env.EMAIL_USER.endsWith('@gmail.com'))) {
+            transportConfig.service = 'gmail';
+        }
+
+        transporter = nodemailer.createTransport(transportConfig);
+>>>>>>> f09f67a4d9c30a8a79cb18e0aff6098a770e46e2
     }
     return _transporter;
 };
@@ -43,15 +72,40 @@ const verifyEmailConnection = async () => {
         return false;
     }
     try {
+<<<<<<< HEAD
         await getTransporter().verify();
         console.info('Email service connected and ready.');
         return true;
     } catch (err) {
         console.error('Email service verification failed:', err.message);
+=======
+        const t = getTransporter();
+        
+        // Log environment warning for FRONTEND_URL
+        const frontendUrl = process.env.FRONTEND_URL;
+        if (frontendUrl && frontendUrl.includes('vercel.app') && (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV)) {
+            console.warn('⚠️  Warning: FRONTEND_URL points to a production site (vercel.app) but server is in development mode.');
+            console.warn('   Email links (password reset, verification) will point to the deployed site, not localhost.');
+        }
+
+        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+            console.warn('⚠️ Email credentials missing. Email service might not work.');
+            return false;
+        }
+        await t.verify();
+        console.log('✅ Email service is ready to send emails');
+        return true;
+    } catch (error) {
+        console.error('❌ Email service verification failed:', error.message);
+        if (error.code === 'EAUTH') {
+            console.error('   Hint: Check your EMAIL_USER and EMAIL_PASS. For Gmail, you may need an App Password.');
+        }
+>>>>>>> f09f67a4d9c30a8a79cb18e0aff6098a770e46e2
         return false;
     }
 };
 
+<<<<<<< HEAD
 // ─── Core send helper (with 1 automatic retry) ───────────────────────────────
 const sendEmail = async (options, retries = 1) => {
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
@@ -62,12 +116,28 @@ const sendEmail = async (options, retries = 1) => {
     try {
         const info = await getTransporter().sendMail({
             from, to,
+=======
+// Send email with retry
+const sendEmail = async (options, retries = 1) => { // Default retries reduced to 1
+    try {
+        const t = getTransporter();
+        const recipients = Array.isArray(options.to) ? options.to.join(', ') : options.to;
+
+        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+            throw new Error('Email credentials not configured');
+        }
+
+        const mailOptions = {
+            from: `"EstateElite" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
+            to: recipients,
+>>>>>>> f09f67a4d9c30a8a79cb18e0aff6098a770e46e2
             subject: options.subject,
             html: options.html,
             text: options.text || options.html.replace(/<[^>]+>/g, ' '),
         });
         console.info('Email sent to ' + to + ' msgId: ' + info.messageId);
         return info;
+<<<<<<< HEAD
     } catch (err) {
         console.error('Email failed (' + retries + ' retries left): ' + err.message);
         if (['ECONNREFUSED','ESOCKET','EAUTH','ETIMEDOUT'].includes(err.code)) {
@@ -75,6 +145,24 @@ const sendEmail = async (options, retries = 1) => {
         }
         if (retries > 0) {
             await new Promise(r => setTimeout(r, 2000));
+=======
+    } catch (error) {
+        console.error(`❌ Email send failed (attempt ${2 - retries}/2):`, error.message);
+        
+        if (error.code === 'EAUTH') {
+            console.error('   Hint: Authentication failed. Check your EMAIL_USER/PASS or enable App Passwords for Gmail.');
+        } else if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
+            console.error('   Hint: Connection refused or timed out. Check your EMAIL_HOST and EMAIL_PORT.');
+        }
+        
+        if (retries > 0) {
+            // Reset transporter on connection errors
+            if (error.code === 'ECONNREFUSED' || error.code === 'ESOCKET' || error.code === 'EAUTH') {
+                transporter = null;
+            }
+            // Wait before retry (shorter delay)
+            await new Promise(resolve => setTimeout(resolve, 1000));
+>>>>>>> f09f67a4d9c30a8a79cb18e0aff6098a770e46e2
             return sendEmail(options, retries - 1);
         }
         throw new Error('Failed to send email: ' + err.message);
@@ -259,6 +347,37 @@ const sendInquiryToAdmin = (inquiry) => {
     });
 };
 
+// Send email verification
+const sendVerificationEmail = async (user, verificationToken) => {
+    const frontendUrl = process.env.FRONTEND_URL || 'https://real-estateelite.vercel.app';
+    const verificationUrl = `${frontendUrl}/verify-email/${verificationToken}`;
+
+    const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+        <h1 style="color: white; margin: 0;">Verify Your Email 📧</h1>
+      </div>
+      <div style="background: #ffffff; padding: 30px; border: 1px solid #e0e0e0; border-radius: 0 0 10px 10px;">
+        <p style="font-size: 16px;">Dear ${user.name},</p>
+        <p style="font-size: 14px; color: #555;">Thank you for registering with EstateElite! Please click the button below to verify your email address and activate your account:</p>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${verificationUrl}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-size: 16px; font-weight: bold;">Verify Email</a>
+        </div>
+        <p style="font-size: 12px; color: #999;">Or copy and paste this link: <a href="${verificationUrl}" style="color: #667eea;">${verificationUrl}</a></p>
+        <p style="font-size: 14px; color: #e74c3c;"><strong>This link will expire in 24 hours.</strong></p>
+        <p style="font-size: 14px; color: #555;">If you didn't create an account, please ignore this email.</p>
+        <p style="font-size: 14px; color: #555;">Best regards,<br/><strong>EstateElite Team</strong></p>
+      </div>
+    </div>
+  `;
+
+    return sendEmail({
+        to: user.email,
+        subject: 'Verify Your Email - EstateElite',
+        html,
+    });
+};
+
 module.exports = {
     sendEmail,
     verifyEmailConnection,
@@ -266,7 +385,13 @@ module.exports = {
     sendVerificationEmail,
     sendPasswordResetEmail,
     sendContactConfirmation,
+<<<<<<< HEAD
     sendContactToAdmin,
     sendInquiryConfirmation,
     sendInquiryToAdmin,
 };
+=======
+    sendVerificationEmail,
+    verifyEmailConnection,
+};
+>>>>>>> f09f67a4d9c30a8a79cb18e0aff6098a770e46e2
