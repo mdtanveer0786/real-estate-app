@@ -157,7 +157,7 @@ dotenv.config();
 //             }
 //         ],
 //         status: 'available',
-//         views: 45
+//                 views: 45
 //     },
 //     {
 //         title: 'Beachfront Villa',

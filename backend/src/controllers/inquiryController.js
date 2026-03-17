@@ -28,48 +28,20 @@ const createInquiry = asyncHandler(async (req, res) => {
         message:  message.trim(),
     });
 
-<<<<<<< HEAD
-    // Populate property title then fire emails non-blocking
-    Inquiry.findById(inquiry._id).populate('property', 'title').then(populated => {
-        sendInquiryConfirmation(populated)
-            .catch(err => console.error('Inquiry user email failed:', err.message));
-        sendInquiryToAdmin(populated)
-            .catch(err => console.error('Inquiry admin email failed:', err.message));
-    }).catch(err => console.error('Inquiry email populate failed:', err.message));
-
-    res.status(201).json({ success: true, inquiry });
-=======
     if (inquiry) {
-        // Send emails (await to ensure they are sent or errors are caught)
-        try {
-            const populatedInquiry = await Inquiry.findById(inquiry._id).populate('property', 'title');
-            
-            // Send confirmation to user
-            try {
-                await sendInquiryConfirmation(populatedInquiry);
-                console.log('✅ User inquiry confirmation sent.');
-            } catch (err) {
-                console.warn('⚠️ User inquiry email failed:', err.message);
-            }
-            
-            // Send notification to admin (mandatory)
-            await sendInquiryToAdmin(populatedInquiry);
-            console.log('✅ Admin inquiry notification sent.');
+        // Populate property title then fire emails non-blocking
+        Inquiry.findById(inquiry._id).populate('property', 'title').then(populated => {
+            sendInquiryConfirmation(populated)
+                .catch(err => console.error('Inquiry user email failed:', err.message));
+            sendInquiryToAdmin(populated)
+                .catch(err => console.error('Inquiry admin email failed:', err.message));
+        }).catch(err => console.error('Inquiry email populate failed:', err.message));
 
-            res.status(201).json(inquiry);
-        } catch (error) {
-            console.error('❌ Inquiry email error:', error.message);
-            // We already created the inquiry in DB, but let's inform the user that notification failed
-            res.status(201).json({
-                ...inquiry.toObject(),
-                warning: 'Inquiry saved but notification email failed to send. Our team will still see it in the dashboard.',
-            });
-        }
+        res.status(201).json({ success: true, inquiry });
     } else {
         res.status(400);
         throw new Error('Invalid inquiry data');
     }
->>>>>>> f09f67a4d9c30a8a79cb18e0aff6098a770e46e2
 });
 
 // @desc   Get all inquiries

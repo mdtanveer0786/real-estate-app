@@ -31,56 +31,26 @@ const subscribe = asyncHandler(async (req, res) => {
 
     const existing = await Newsletter.findOne({ email: email.toLowerCase().trim() });
 
-<<<<<<< HEAD
     if (existing) {
         if (existing.isActive) {
             return res.json({ success: true, message: 'You are already subscribed.', alreadySubscribed: true });
-=======
-    if (existingSubscriber) {
-        if (existingSubscriber.isActive) {
-            // Already active subscriber - return success (don't error)
-            return res.json({
-                message: 'Email already subscribed',
-                alreadySubscribed: true
-            });
-        } else {
-            // Reactivate subscription
-            existingSubscriber.isActive = true;
-            existingSubscriber.subscribedAt = new Date();
-            await existingSubscriber.save();
-
-            // Send email (non-blocking)
-            sendEmail({
-                to: email,
-                subject: 'Welcome Back to EstateElite Newsletter',
-                html: '<p>You have successfully resubscribed to our newsletter.</p>',
-            }).catch(emailError => console.log('Email sending failed but subscription successful:', emailError.message));
-
-            return res.json({ message: 'Successfully resubscribed' });
->>>>>>> f09f67a4d9c30a8a79cb18e0aff6098a770e46e2
         }
+        // Reactivate
         existing.isActive       = true;
         existing.subscribedAt   = new Date();
         existing.unsubscribedAt = undefined;
         await existing.save();
+
         sendEmail({ to: email, subject: 'Welcome Back – EstateElite Newsletter', html: subscribeHtml(email) })
             .catch(err => console.error('Newsletter re-subscribe email failed:', err.message));
+
         return res.json({ success: true, message: 'Welcome back! You have been resubscribed.' });
     }
 
     await Newsletter.create({ email: email.toLowerCase().trim(), isActive: true, subscribedAt: new Date() });
 
-<<<<<<< HEAD
     sendEmail({ to: email, subject: 'Subscribed – EstateElite Newsletter', html: subscribeHtml(email) })
         .catch(err => console.error('Newsletter subscribe email failed:', err.message));
-=======
-    // Send welcome email (non-blocking)
-    sendEmail({
-        to: email,
-        subject: 'Welcome to EstateElite Newsletter',
-        html: '<p>Thank you for subscribing to our newsletter. You will receive updates about new properties and offers.</p>',
-    }).catch(emailError => console.log('Email sending failed but subscription successful:', emailError.message));
->>>>>>> f09f67a4d9c30a8a79cb18e0aff6098a770e46e2
 
     res.status(201).json({ success: true, message: 'Successfully subscribed to our newsletter!', alreadySubscribed: false });
 });
@@ -102,9 +72,6 @@ const unsubscribe = asyncHandler(async (req, res) => {
     subscriber.unsubscribedAt  = new Date();
     await subscriber.save();
 
-<<<<<<< HEAD
-    res.json({ success: true, message: 'You have been successfully unsubscribed.' });
-=======
     // Send goodbye email (non-blocking)
     sendEmail({
         to: email,
@@ -112,8 +79,7 @@ const unsubscribe = asyncHandler(async (req, res) => {
         html: '<p>You have been successfully unsubscribed from our newsletter. We\'re sorry to see you go.</p>',
     }).catch(err => console.error('Unsubscribe email failed:', err.message));
 
-    res.json({ message: 'Successfully unsubscribed' });
->>>>>>> f09f67a4d9c30a8a79cb18e0aff6098a770e46e2
+    res.json({ success: true, message: 'You have been successfully unsubscribed.' });
 });
 
 // @desc   Get all subscribers (admin)
