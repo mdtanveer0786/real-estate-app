@@ -159,17 +159,10 @@ const ContactPage = () => {
             </Helmet>
 
             <div className="bg-white dark:bg-gray-900">
-<<<<<<< HEAD
                 {/* Hero Section */}
                 <section className="relative bg-gradient-to-br from-gray-900 via-primary-900 to-gray-900 text-white py-24 overflow-hidden">
                     <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=2000&q=80')] opacity-10 bg-cover bg-center mix-blend-overlay"></div>
                     <div className="container-custom text-center relative z-10 px-4">
-=======
-
-                {/* ── Hero ──────────────────────────────────────────────── */}
-                <section className="bg-gradient-to-r from-primary-600 to-secondary-600 text-white py-16 sm:py-20">
-                    <div className="container-custom text-center px-4">
->>>>>>> 9d0327fe633b54b3925b213e3d161bef0f32c055
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -180,18 +173,10 @@ const ContactPage = () => {
                         <motion.p
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-<<<<<<< HEAD
                             transition={{ delay: 0.2 }}
                             className="text-lg sm:text-xl max-w-2xl mx-auto opacity-90"
                         >
                             Have questions about buying, selling, or renting properties in India? We'd love to hear from you.
-=======
-                            transition={{ delay: 0.15 }}
-                            className="text-base sm:text-xl max-w-2xl mx-auto opacity-90"
-                        >
-                            Have questions? We'd love to hear from you. Send us a message
-                            and we'll respond as soon as possible.
->>>>>>> 9d0327fe633b54b3925b213e3d161bef0f32c055
                         </motion.p>
                     </div>
                 </section>

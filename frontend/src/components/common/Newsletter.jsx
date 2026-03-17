@@ -65,11 +65,7 @@ const Newsletter = () => {
                         <button
                             type="submit"
                             disabled={loading}
-<<<<<<< HEAD
                             className="bg-gradient-to-r from-secondary-500 to-primary-500 text-white px-6 py-3 rounded-xl font-bold hover:translate-y-[-2px] hover:shadow-lg hover:shadow-primary-500/40 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-70 disabled:hover:translate-y-0 text-sm"
-=======
-                            className="bg-white dark:bg-gray-800 text-primary-600 dark:text-primary-400 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 dark:hover:bg-gray-700 transition flex items-center justify-center gap-2 disabled:opacity-50"
->>>>>>> 9d0327fe633b54b3925b213e3d161bef0f32c055
                         >
                             {loading ? (
                                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
