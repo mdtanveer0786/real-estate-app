@@ -33,26 +33,26 @@ const AboutPage = () => {
         {
             name: 'Rajesh Sharma',
             role: 'Founder & CEO',
-            image: 'https://randomuser.me/api/portraits/men/1.jpg',
-            bio: '20+ years in real estate industry, previously worked with top developers.',
+            image: 'https://images.unsplash.com/photo-1556157382-97eda2d62296?auto=format&fit=crop&w=400&h=400&q=80',
+            bio: '20+ years in real estate industry, previously worked with top developers across India.',
         },
         {
             name: 'Priya Patel',
             role: 'Head of Sales',
-            image: 'https://randomuser.me/api/portraits/women/2.jpg',
-            bio: 'Expert in luxury properties with a track record of 500+ successful deals.',
+            image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&h=400&q=80',
+            bio: 'Expert in luxury properties with a track record of 500+ successful deals in metropolitan cities.',
         },
         {
             name: 'Amit Kumar',
             role: 'Senior Agent',
-            image: 'https://randomuser.me/api/portraits/men/3.jpg',
-            bio: 'Specializes in commercial real estate and investment properties.',
+            image: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&h=400&q=80',
+            bio: 'Specializes in commercial real estate and investment properties with high ROI.',
         },
         {
             name: 'Neha Singh',
             role: 'Customer Relations',
-            image: 'https://randomuser.me/api/portraits/women/4.jpg',
-            bio: 'Ensures smooth communication and handles client inquiries professionally.',
+            image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&h=400&q=80',
+            bio: 'Ensures smooth communication, RERA compliance, and handles client inquiries professionally.',
         }
     ];
 
@@ -65,8 +65,9 @@ const AboutPage = () => {
 
             <div className="bg-white dark:bg-gray-900">
                 {/* Hero Section */}
-                <section className="bg-gradient-to-r from-primary-600 to-secondary-600 text-white py-20">
-                    <div className="container-custom text-center">
+                <section className="relative bg-gradient-to-br from-gray-900 via-primary-900 to-gray-900 text-white py-24 overflow-hidden">
+                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=2000&q=80')] opacity-10 bg-cover bg-center mix-blend-overlay"></div>
+                    <div className="container-custom text-center relative z-10">
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -137,9 +138,9 @@ const AboutPage = () => {
                                 className="relative"
                             >
                                 <img
-                                    src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1073&q=80"
+                                    src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1073&q=80"
                                     alt="Our Office"
-                                    className="rounded-lg shadow-2xl"
+                                    className="rounded-2xl shadow-2xl border-4 border-white dark:border-gray-700"
                                 />
                                 <div className="absolute -bottom-6 -left-6 bg-primary-600 text-white p-6 rounded-lg shadow-xl">
                                     <p className="text-4xl font-bold">15+</p>

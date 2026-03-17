@@ -24,6 +24,14 @@ const PropertyCard = ({ property, onDelete }) => {
     const [imageLoaded, setImageLoaded] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
 
+    // Format Indian Currency (Crore/Lakhs)
+    const formatPrice = (price) => {
+        if (!price) return 'Contact for Price';
+        if (price >= 10000000) return `₹${(price / 10000000).toFixed(2).replace(/\.00$/, '')} Cr`;
+        if (price >= 100000) return `₹${(price / 100000).toFixed(2).replace(/\.00$/, '')} Lac`;
+        return `₹${price.toLocaleString('en-IN')}`;
+    };
+
     // Check if we're in admin panel
     const isAdminRoute = location.pathname.startsWith('/admin');
     const isAdmin = user?.role === 'admin';
@@ -134,12 +142,12 @@ const PropertyCard = ({ property, onDelete }) => {
 
                         {/* Price Tag */}
                         <div className="absolute bottom-3 left-3">
-                            <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-lg">
-                                <span className="text-lg sm:text-xl font-bold text-primary-600">
-                                    ₹{property.price.toLocaleString()}
+                            <div className="bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-lg shadow-xl shadow-black/10 border border-white/20">
+                                <span className="text-lg sm:text-xl font-bold text-primary-700">
+                                    {formatPrice(property.price)}
                                 </span>
                                 {property.type === 'rent' && (
-                                    <span className="text-xs sm:text-sm text-gray-600 ml-1">/month</span>
+                                    <span className="text-xs sm:text-sm text-gray-600 ml-1 font-semibold">/mo</span>
                                 )}
                             </div>
                         </div>

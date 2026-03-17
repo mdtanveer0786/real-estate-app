@@ -9,28 +9,28 @@ const FAQPage = () => {
 
     const faqs = [
         {
-            q: "How quickly can I get a property visit scheduled?",
-            a: "We typically schedule property visits within 24-48 hours of your request, depending on the owner's availability. You can request a visit directly from the property detail page."
+            q: "Are the properties listed on EstateElite RERA registered?",
+            a: "Yes, all new developer projects and applicable properties listed on our platform are thoroughly verified for RERA (Real Estate Regulatory Authority) registration to ensure complete transparency and security for our buyers."
         },
         {
-            q: "What documents do I need to buy a property?",
-            a: "You'll need identity proof (Aadhar/PAN), income documents, bank statements for the last 6 months, and address proof. Our legal team will guide you through the complete documentation and verification process."
+            q: "What documents do I need for property registration in India?",
+            a: "You will typically need your Aadhar Card, PAN Card, passport-size photographs, the original sale deed, NOC from the society/builder, and proof of stamp duty payment. Our legal team assists you through the entire registration process at the Sub-Registrar's office."
         },
         {
             q: "Do you provide home loan assistance?",
-            a: "Yes, we have strategic partnerships with major banks (HDFC, SBI, ICICI, etc.) and can help you get the best interest rates and fast-track your loan approval process."
+            a: "Yes, we have strategic partnerships with major Indian banks (SBI, HDFC, ICICI, Axis Bank) and NBFCs. We help you get the best interest rates, assist with documentation, and fast-track your loan approval process at zero extra cost."
         },
         {
-            q: "Is there any brokerage fee?",
-            a: "Our fee structure is transparent. For rentals, it's typically 15 days to 1 month of rent. For sales, it ranges from 1-2% depending on the property value and location. We discuss all charges upfront."
+            q: "What are the hidden costs when buying a property?",
+            a: "We believe in 100% transparency. Besides the property value, you should budget for Stamp Duty (varies by state, typically 5-7%), Registration charges (usually 1%), Legal/Advocate fees, Society transfer charges, and GST (if applicable on under-construction properties)."
         },
         {
-            q: "How do I list my property on EstateElite?",
-            a: "Listing is easy! Simply create an account, go to your dashboard, and click on 'Add Property'. Fill in the details, upload high-quality photos, and our team will verify and publish it within 24 hours."
+            q: "How does the rental agreement process work?",
+            a: "We handle the end-to-end rental process including tenant background verification, drafting the Leave and License agreement, and facilitating the online or offline police verification and agreement registration as per state laws."
         },
         {
-            q: "Is my personal data secure with you?",
-            a: "Absolutely. We use industry-standard encryption to protect your data. Your contact details are only shared with verified buyers/sellers when you explicitly show interest."
+            q: "Is there any brokerage or platform fee?",
+            a: "For buyers browsing listed properties, our platform is completely free to use. For personalized premium brokerage services or property sales, our fee ranges from 1-2% depending on the property value and city. All charges are discussed upfront with zero hidden costs."
         }
     ];
 
@@ -42,13 +42,14 @@ const FAQPage = () => {
         <>
             <Helmet>
                 <title>FAQ | EstateElite</title>
-                <meta name="description" content="Frequently asked questions about buying, selling, and renting properties with EstateElite." />
+                <meta name="description" content="Frequently asked questions about buying, selling, and renting properties with EstateElite in India." />
             </Helmet>
 
-            <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
-                {/* Hero Section */}
-                <section className="bg-gradient-to-r from-primary-600 to-secondary-600 text-white py-20">
-                    <div className="container-custom text-center">
+            <div className="bg-gray-50 dark:bg-gray-900 min-h-screen pb-16">
+                {/* Premium Hero Section */}
+                <section className="relative bg-gradient-to-br from-gray-900 via-primary-900 to-gray-900 text-white py-24 overflow-hidden">
+                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=2000&q=80')] opacity-10 bg-cover bg-center mix-blend-overlay"></div>
+                    <div className="container-custom text-center relative z-10 px-4">
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -60,16 +61,16 @@ const FAQPage = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
-                            className="text-xl max-w-2xl mx-auto opacity-90"
+                            className="text-lg sm:text-xl max-w-2xl mx-auto opacity-90"
                         >
-                            Find answers to the most common questions about our services and the real estate process.
+                            Find answers to common questions about RERA, home loans, property registration, and our services in India.
                         </motion.p>
                     </div>
                 </section>
 
                 {/* FAQ Accordion Section */}
-                <section className="section-padding">
-                    <div className="container-custom max-w-3xl">
+                <section className="section-padding -mt-10 relative z-20">
+                    <div className="container-custom max-w-4xl px-4">
                         <div className="space-y-4">
                             {faqs.map((faq, index) => (
                                 <motion.div
@@ -78,17 +79,17 @@ const FAQPage = () => {
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ delay: index * 0.1 }}
-                                    className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden"
+                                    className={`bg-white dark:bg-gray-800 rounded-2xl transition-all duration-300 overflow-hidden border ${activeIndex === index ? 'border-primary-500 shadow-lg shadow-primary-500/10' : 'border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md hover:border-primary-300'}`}
                                 >
                                     <button
                                         onClick={() => toggleAccordion(index)}
-                                        className="w-full flex items-center justify-between p-6 text-left focus:outline-none"
+                                        className="w-full flex items-center justify-between p-5 md:p-6 text-left focus:outline-none"
                                     >
-                                        <span className={`text-lg font-bold transition-colors ${activeIndex === index ? 'text-primary-600' : 'text-gray-900 dark:text-white'}`}>
+                                        <span className={`text-base md:text-lg font-bold pr-4 transition-colors ${activeIndex === index ? 'text-primary-700 dark:text-primary-400' : 'text-gray-900 dark:text-white'}`}>
                                             {faq.q}
                                         </span>
-                                        <div className={`flex-shrink-0 ml-4 p-1 rounded-full transition-transform duration-300 ${activeIndex === index ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 rotate-180' : 'bg-gray-100 dark:bg-gray-700 text-gray-500'}`}>
-                                            {activeIndex === index ? <FiMinus /> : <FiPlus />}
+                                        <div className={`flex-shrink-0 p-2 rounded-full transition-all duration-300 ${activeIndex === index ? 'bg-primary-600 text-white rotate-180 shadow-md' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 hover:bg-gray-200'}`}>
+                                            {activeIndex === index ? <FiMinus size={18} /> : <FiPlus size={18} />}
                                         </div>
                                     </button>
                                     
@@ -98,8 +99,8 @@ const FAQPage = () => {
                                         transition={{ duration: 0.3, ease: 'easeInOut' }}
                                         className="overflow-hidden"
                                     >
-                                        <div className="p-6 pt-0 border-t border-gray-50 dark:border-gray-700/50">
-                                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                                        <div className="p-5 md:p-6 pt-0 border-t border-gray-50 dark:border-gray-700/50 mt-2 md:mt-0">
+                                            <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-sm md:text-base">
                                                 {faq.a}
                                             </p>
                                         </div>
@@ -109,16 +110,24 @@ const FAQPage = () => {
                         </div>
 
                         {/* Still Have Questions? */}
-                        <div className="mt-16 p-8 rounded-3xl bg-primary-600 text-white text-center shadow-xl shadow-primary-500/20">
-                            <h2 className="text-2xl font-bold mb-4">Still have questions?</h2>
-                            <p className="mb-8 opacity-90">Can't find the answer you're looking for? Our team is here to help.</p>
+                        <motion.div 
+                            initial={{ opacity: 0, y: 30 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            className="mt-16 p-8 md:p-12 rounded-3xl bg-gradient-to-br from-primary-700 to-primary-600 text-white text-center shadow-2xl shadow-primary-600/30 relative overflow-hidden"
+                        >
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+                            
+                            <h2 className="text-2xl md:text-3xl font-bold mb-4 relative z-10">Still have questions?</h2>
+                            <p className="mb-8 opacity-90 text-sm md:text-base max-w-xl mx-auto relative z-10">Can't find the answer you're looking for? Our experienced real estate advisors are here to help you navigate your property journey.</p>
                             <a 
                                 href="/contact" 
-                                className="inline-flex items-center justify-center px-8 py-4 bg-white text-primary-600 font-bold rounded-2xl hover:bg-gray-50 transition-colors shadow-lg"
+                                className="inline-flex items-center justify-center px-8 py-3.5 bg-white text-primary-700 font-bold rounded-xl hover:bg-gray-50 hover:-translate-y-1 transition-all duration-300 shadow-xl relative z-10"
                             >
                                 Contact Support
                             </a>
-                        </div>
+                        </motion.div>
                     </div>
                 </section>
             </div>

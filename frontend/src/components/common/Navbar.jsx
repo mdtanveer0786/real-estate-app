@@ -30,14 +30,18 @@ const Navbar = () => {
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
-            document.body.style.touchAction = 'none';
+            // Prevent layout shift by adding padding equal to scrollbar width
+            const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+            document.body.style.paddingRight = `${scrollbarWidth}px`;
         } else {
-            document.body.style.overflow = 'unset';
-            document.body.style.touchAction = 'unset';
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
         }
+
+        // Cleanup function ensures body is unlocked if component unmounts while open
         return () => {
-            document.body.style.overflow = 'unset';
-            document.body.style.touchAction = 'unset';
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
         };
     }, [isOpen]);
 
@@ -113,7 +117,7 @@ const Navbar = () => {
         <header 
             className={`fixed top-0 left-0 w-full z-[1001] transition-all duration-500 ${
                 scrolled 
-                    ? 'py-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-[0_2px_20px_-5px_rgba(0,0,0,0.1)] border-b border-gray-200/50 dark:border-gray-800/50' 
+                    ? 'py-3 bg-white/70 dark:bg-gray-950/70 backdrop-blur-2xl shadow-[0_4px_30px_rgba(0,0,0,0.1)] border-b border-white/20 dark:border-gray-800/50 supports-[backdrop-filter]:bg-white/60' 
                     : 'py-6 bg-transparent border-b border-transparent'
             }`}
         >
@@ -122,15 +126,15 @@ const Navbar = () => {
                     {/* Logo */}
                     <Link 
                         to="/" 
-                        className="relative z-[1002] flex items-center space-x-2 group"
+                        className="relative z-[1002] flex items-center space-x-2.5 group"
                         onClick={() => setIsOpen(false)}
                     >
-                        <div className="w-10 h-10 bg-gradient-to-tr from-primary-600 to-primary-400 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20 group-hover:rotate-6 transition-transform duration-300">
+                        <div className="w-10 h-10 bg-gradient-to-tr from-primary-600 via-primary-500 to-secondary-500 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/30 group-hover:shadow-primary-500/50 group-hover:-translate-y-0.5 transition-all duration-300 border border-white/20">
                             <FiHome className="text-white text-xl" />
                         </div>
-                        <span className="text-2xl font-display font-bold tracking-tight">
-                            <span className="text-gray-900 dark:text-white">Estate</span>
-                            <span className="text-primary-600">Elite</span>
+                        <span className="text-2xl font-display font-black tracking-tight drop-shadow-sm">
+                            <span className={scrolled ? 'text-gray-900 dark:text-white' : 'text-gray-900 dark:text-white drop-shadow-md'}>Estate</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-secondary-500">Elite</span>
                         </span>
                     </Link>
 
@@ -256,7 +260,8 @@ const Navbar = () => {
                         initial="closed"
                         animate="opened"
                         exit="closed"
-                        className="fixed inset-0 bg-white dark:bg-gray-950 z-[1000] md:hidden flex flex-col pt-32 pb-10 px-6 overflow-y-auto"
+                        className="fixed inset-0 bg-white dark:bg-gray-950 z-[1000] md:hidden flex flex-col pt-32 pb-[calc(1rem+env(safe-area-inset-bottom))] px-6 overflow-y-auto min-h-screen"
+                        style={{ height: '100dvh' }}
                     >
                         {/* Background Decorative Elements */}
                         <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
@@ -270,6 +275,7 @@ const Navbar = () => {
                                     <motion.div key={link.path} variants={itemVariants}>
                                         <Link
                                             to={link.path}
+                                            onClick={() => setIsOpen(false)}
                                             className={`flex items-center justify-between p-4 rounded-2xl transition-all duration-300 ${
                                                 location.pathname === link.path
                                                     ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600'
@@ -294,6 +300,7 @@ const Navbar = () => {
                                         <motion.div key={link.path} variants={itemVariants}>
                                             <Link
                                                 to={link.path}
+                                                onClick={() => setIsOpen(false)}
                                                 className="flex flex-col items-start p-4 rounded-2xl bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-gray-700 dark:text-gray-300"
                                             >
                                                 <link.icon className="text-lg mb-2 text-primary-500" />
@@ -306,6 +313,7 @@ const Navbar = () => {
                                             <motion.div variants={itemVariants} className="col-span-2">
                                                 <Link
                                                     to="/login"
+                                                    onClick={() => setIsOpen(false)}
                                                     className="flex items-center justify-center p-4 rounded-2xl bg-primary-600 text-white font-bold shadow-lg shadow-primary-500/20"
                                                 >
                                                     Sign In
@@ -314,6 +322,7 @@ const Navbar = () => {
                                             <motion.div variants={itemVariants} className="col-span-2">
                                                 <Link
                                                     to="/register"
+                                                    onClick={() => setIsOpen(false)}
                                                     className="flex items-center justify-center p-4 rounded-2xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold"
                                                 >
                                                     Create Account

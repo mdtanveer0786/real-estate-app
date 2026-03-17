@@ -60,10 +60,18 @@ const PropertiesPage = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="bg-gray-50 dark:bg-gray-900 min-h-screen py-8"
+                className="bg-gray-50 dark:bg-gray-900 min-h-screen pb-8"
             >
+                {/* Premium Header */}
+                <div className="bg-gradient-to-r from-gray-900 via-primary-900 to-gray-900 text-white py-16 mb-8 relative overflow-hidden">
+                     <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80')] opacity-10 bg-cover bg-center mix-blend-overlay"></div>
+                    <div className="container-custom relative z-10 text-center">
+                        <h1 className="text-4xl md:text-5xl font-bold mb-4">Discover Premier Properties</h1>
+                        <p className="text-lg text-gray-200 max-w-2xl mx-auto">Explore our curated selection of luxury homes, apartments, and commercial spaces across India's top cities.</p>
+                    </div>
+                </div>
+
                 <div className="container-custom">
-                    <h1 className="text-3xl font-bold mb-8">Browse Properties</h1>
 
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                         {/* Filters Sidebar */}

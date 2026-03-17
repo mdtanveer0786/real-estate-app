@@ -88,12 +88,13 @@ const ContactPage = () => {
 
             <div className="bg-white dark:bg-gray-900">
                 {/* Hero Section */}
-                <section className="bg-gradient-to-r from-primary-600 to-secondary-600 text-white py-16 sm:py-20">
-                    <div className="container-custom text-center px-4">
+                <section className="relative bg-gradient-to-br from-gray-900 via-primary-900 to-gray-900 text-white py-24 overflow-hidden">
+                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=2000&q=80')] opacity-10 bg-cover bg-center mix-blend-overlay"></div>
+                    <div className="container-custom text-center relative z-10 px-4">
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4"
+                            className="text-4xl md:text-5xl font-bold mb-4"
                         >
                             Get in Touch
                         </motion.h1>
@@ -101,9 +102,9 @@ const ContactPage = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
-                            className="text-base sm:text-xl max-w-2xl mx-auto opacity-90"
+                            className="text-lg sm:text-xl max-w-2xl mx-auto opacity-90"
                         >
-                            Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+                            Have questions about buying, selling, or renting properties in India? We'd love to hear from you.
                         </motion.p>
                     </div>
                 </section>

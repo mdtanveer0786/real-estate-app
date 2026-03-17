@@ -63,15 +63,15 @@ const HeroSection = () => {
                     </motion.div>
 
                     {/* Main Heading */}
-                    <h1 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl font-black mb-6 leading-[1.1] tracking-tight">
+                    <h1 className="text-3xl xs:text-4xl sm:text-6xl md:text-7xl font-black mb-6 leading-[1.1] tracking-tight drop-shadow-lg">
                         Find Your{' '}
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-400">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-secondary-300">
                             Dream Home
                         </span>
                     </h1>
 
-                    <p className="text-base sm:text-xl md:text-2xl mb-10 text-gray-200 max-w-2xl mx-auto leading-relaxed">
-                        Discover the perfect property from our extensive collection of 5000+ homes, apartments, and villas across India
+                    <p className="text-base sm:text-xl md:text-2xl mb-10 text-gray-100 max-w-2xl mx-auto leading-relaxed drop-shadow-md font-medium">
+                        Discover the perfect property from our curated collection of luxury homes, premium apartments, and villas across India.
                     </p>
 
                     {/* Search Bar - Refined for mobile */}
@@ -134,21 +134,21 @@ const HeroSection = () => {
                         transition={{ delay: 0.6 }}
                         className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8"
                     >
-                        <div className="text-center group">
-                            <div className="text-2xl sm:text-4xl font-black text-primary-400 mb-1 group-hover:scale-110 transition-transform">5000+</div>
-                            <div className="text-[10px] sm:text-xs uppercase tracking-widest font-bold text-gray-300">Properties</div>
+                        <div className="text-center group bg-black/20 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:bg-black/40 transition-all duration-300">
+                            <div className="text-2xl sm:text-4xl font-black text-primary-400 mb-1 drop-shadow-md group-hover:scale-110 transition-transform">5000+</div>
+                            <div className="text-[10px] sm:text-xs uppercase tracking-widest font-bold text-gray-200">Properties</div>
                         </div>
-                        <div className="text-center group">
-                            <div className="text-2xl sm:text-4xl font-black text-primary-400 mb-1 group-hover:scale-110 transition-transform">1000+</div>
-                            <div className="text-[10px] sm:text-xs uppercase tracking-widest font-bold text-gray-300">Happy Clients</div>
+                        <div className="text-center group bg-black/20 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:bg-black/40 transition-all duration-300">
+                            <div className="text-2xl sm:text-4xl font-black text-primary-400 mb-1 drop-shadow-md group-hover:scale-110 transition-transform">1000+</div>
+                            <div className="text-[10px] sm:text-xs uppercase tracking-widest font-bold text-gray-200">Happy Clients</div>
                         </div>
-                        <div className="text-center group">
-                            <div className="text-2xl sm:text-4xl font-black text-primary-400 mb-1 group-hover:scale-110 transition-transform">50+</div>
-                            <div className="text-[10px] sm:text-xs uppercase tracking-widest font-bold text-gray-300">Cities</div>
+                        <div className="text-center group bg-black/20 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:bg-black/40 transition-all duration-300">
+                            <div className="text-2xl sm:text-4xl font-black text-primary-400 mb-1 drop-shadow-md group-hover:scale-110 transition-transform">Top 50</div>
+                            <div className="text-[10px] sm:text-xs uppercase tracking-widest font-bold text-gray-200">Cities Ranked</div>
                         </div>
-                        <div className="text-center group">
-                            <div className="text-2xl sm:text-4xl font-black text-primary-400 mb-1 group-hover:scale-110 transition-transform">24/7</div>
-                            <div className="text-[10px] sm:text-xs uppercase tracking-widest font-bold text-gray-300">Support</div>
+                        <div className="text-center group bg-black/20 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:bg-black/40 transition-all duration-300">
+                            <div className="text-2xl sm:text-4xl font-black text-primary-400 mb-1 drop-shadow-md group-hover:scale-110 transition-transform">RERA</div>
+                            <div className="text-[10px] sm:text-xs uppercase tracking-widest font-bold text-gray-200">Verified</div>
                         </div>
                     </motion.div>
 

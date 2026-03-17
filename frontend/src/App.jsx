@@ -35,6 +35,7 @@ const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const FAQPage = lazy(() => import('./pages/FAQPage'));
 const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+const TestimonialsPage = lazy(() => import('./pages/TestimonialsPage'));
 
 // Scroll to top on route change
 const ScrollToTopOnMount = () => {
@@ -92,6 +93,7 @@ function AppContent() {
                                 <Route path="/about" element={<AboutPage />} />
                                 <Route path="/contact" element={<ContactPage />} />
                                 <Route path="/faq" element={<FAQPage />} />
+                                <Route path="/testimonials" element={<TestimonialsPage />} />
                                 <Route path="/terms" element={<TermsPage />} />
                                 <Route path="/privacy" element={<PrivacyPage />} />
 
