@@ -113,7 +113,6 @@ const PropertyForm = () => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
         } catch (error) {
-            console.error('Image upload failed:', error);
             toast.error('Some images failed to upload');
         } finally {
             setUploading(false);

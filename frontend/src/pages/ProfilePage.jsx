@@ -41,14 +41,13 @@ const ProfilePage = () => {
             const { data } = await api.get('/users/inquiries');
             setUserInquiries(data.inquiries);
         } catch (error) {
-            console.error('Error fetching inquiries:', error);
         }
     };
 
     const onSubmit = async (data) => {
         setLoading(true);
         try {
-            const response = await api.put('/users/profile', data);
+            const response = await api.put('/auth/profile', data);
             toast.success('Profile updated successfully');
             setEditing(false);
             // Update user in context if needed

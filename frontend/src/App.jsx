@@ -61,7 +61,6 @@ const PageViewTracker = () => {
         }
 
         // You can add other analytics here
-        console.log('Page viewed:', pathname);
     }, [pathname]);
 
     return null;

@@ -41,7 +41,6 @@ export const WishlistProvider = ({ children }) => {
             const { data } = await api.get('/users/wishlist');
             setWishlist(data);
         } catch (error) {
-            console.error('Error fetching wishlist:', error);
             toast.error('Failed to load wishlist');
         } finally {
             setLoading(false);

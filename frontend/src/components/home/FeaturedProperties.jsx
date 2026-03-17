@@ -18,7 +18,6 @@ const FeaturedProperties = () => {
             const { data } = await api.get('/properties?limit=6&sort=-views');
             setProperties(data.properties);
         } catch (error) {
-            console.error('Error fetching featured properties:', error);
         } finally {
             setLoading(false);
         }

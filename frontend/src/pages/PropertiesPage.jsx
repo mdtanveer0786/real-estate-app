@@ -38,7 +38,6 @@ const PropertiesPage = () => {
             setProperties(data.properties);
             setTotalPages(data.pages);
         } catch (error) {
-            console.error('Error fetching properties:', error);
         } finally {
             setLoading(false);
         }

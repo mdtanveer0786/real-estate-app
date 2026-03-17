@@ -7,8 +7,9 @@ const helmet = require('helmet');
 const compression = require('compression');
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorMiddleware');
-const { apiLimiter, authLimiter, inquiryLimiter } = require('./middleware/rateLimiter');
+const { apiLimiter, authLimiter, contactLimiter, inquiryLimiter } = require('./middleware/rateLimiter');
 const logger = require('./utils/logger');
+const sanitize = require('./middleware/sanitize');
 const { verifyEmailConnection } = require('./utils/emailService');
 
 // Load env vars
@@ -40,6 +41,9 @@ app.use(compression());
 // Body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Sanitize all incoming request body/query strings (strip HTML tags)
+app.use(sanitize);
 
 // Static folder
 app.use('/public', express.static(path.join(__dirname, '../public')));
@@ -79,7 +83,7 @@ app.use('/api/inquiries', inquiryLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/properties', propertyRoutes);
-app.use('/api/contact', contactRoutes);
+app.use('/api/contact', contactLimiter, contactRoutes);
 app.use('/api/inquiries', inquiryRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/search', searchRoutes);

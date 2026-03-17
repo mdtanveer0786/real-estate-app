@@ -56,11 +56,9 @@ const getProperties = asyncHandler(async (req, res) => {
             filter['location.city'] = { $regex: req.query.city, $options: 'i' };
         }
 
-        console.log('Filter:', JSON.stringify(filter, null, 2));
 
         // Get total count
         const totalCount = await Property.countDocuments(filter);
-        console.log('Total properties found:', totalCount);
 
         // Get properties with pagination
         const properties = await Property.find(filter)
@@ -69,7 +67,6 @@ const getProperties = asyncHandler(async (req, res) => {
             .skip(pageSize * (page - 1))
             .sort(req.query.sort || '-createdAt');
 
-        console.log(`Returning ${properties.length} properties`);
 
         res.json({
             success: true,
