@@ -1,51 +1,60 @@
+'use strict';
+
 const jwt = require('jsonwebtoken');
 const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
 
+/**
+ * Protect routes — verifies JWT access token from Authorization header.
+ */
 const protect = asyncHandler(async (req, res, next) => {
     let token;
 
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
-            // Get token from header
             token = req.headers.authorization.split(' ')[1];
-
-            // Verify token
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            req.user = await User.findById(decoded.id).select('-password -twoFactorSecret -refreshTokens');
 
-            // Get user from the token
-            req.user = await User.findById(decoded.id).select('-password');
+            if (!req.user) {
+                res.status(401);
+                throw new Error('User no longer exists');
+            }
 
             return next();
         } catch (error) {
-            console.error(error);
+            if (error.name === 'TokenExpiredError') {
+                res.status(401);
+                throw new Error('Access token expired');
+            }
             res.status(401);
             throw new Error('Not authorized');
         }
     }
 
-    // No token found at all
     res.status(401);
     throw new Error('Not authorized, no token');
 });
 
-// Optional middleware to resolve user if token is present
+/**
+ * Optional auth — resolves user if token is present, otherwise continues as guest.
+ */
 const resolveUser = asyncHandler(async (req, res, next) => {
-    let token;
-
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
-            token = req.headers.authorization.split(' ')[1];
+            const token = req.headers.authorization.split(' ')[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            req.user = await User.findById(decoded.id).select('-password');
-        } catch (error) {
-            // Silently fail and continue as guest
-            console.warn('Optional auth failed:', error.message);
+            req.user = await User.findById(decoded.id).select('-password -twoFactorSecret -refreshTokens');
+        } catch {
+            // Silently continue as guest
         }
     }
     next();
 });
 
+/**
+ * Admin-only access.
+ */
 const admin = (req, res, next) => {
     if (req.user && req.user.role === 'admin') {
         next();
@@ -55,4 +64,30 @@ const admin = (req, res, next) => {
     }
 };
 
-module.exports = { protect, admin, resolveUser };
+/**
+ * Agent-or-admin access — agents can manage their own properties.
+ */
+const agentOrAdmin = (req, res, next) => {
+    if (req.user && (req.user.role === 'admin' || req.user.role === 'agent')) {
+        next();
+    } else {
+        res.status(403);
+        throw new Error('Not authorized. Agent or admin access required.');
+    }
+};
+
+/**
+ * Authorize specific roles.
+ * Usage: authorize('admin', 'agent')
+ */
+const authorize = (...roles) => {
+    return (req, res, next) => {
+        if (!req.user || !roles.includes(req.user.role)) {
+            res.status(403);
+            throw new Error(`Role '${req.user?.role}' is not authorized to access this route`);
+        }
+        next();
+    };
+};
+
+module.exports = { protect, admin, agentOrAdmin, authorize, resolveUser };

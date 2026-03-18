@@ -14,7 +14,7 @@ const apiLimiter = rateLimit({
 // ─── Auth routes (10 req / 15 min per IP – brute-force protection) ────────────
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 10,
+    max: 30,
     standardHeaders: true,
     legacyHeaders: false,
     message: { success: false, error: 'Too many authentication attempts, please try again in 15 minutes.' },

@@ -1,52 +1,59 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import api from '../services/api';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import api, { setAccessToken, clearAccessToken } from '../services/api';
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
-export const useAuth = () => {
-    const ctx = useContext(AuthContext);
-    if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
-    return ctx;
-};
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
-const extractError = (error, fallback = 'Something went wrong') =>
-    error?.response?.data?.error ||
-    error?.response?.data?.message ||
-    error?.message ||
-    fallback;
+const extractError = (err, fallback = 'Something went wrong') =>
+    err?.response?.data?.error || err?.response?.data?.message || err?.message || fallback;
+
+// ── Provider ─────────────────────────────────────────────────────────────────
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser]       = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [token, setToken]     = useState(() => localStorage.getItem('token'));
+    const [user, setUser]         = useState(null);
+    const [loading, setLoading]   = useState(true);
+    const [token, setToken]       = useState(null); // access token (memory)
 
-    useEffect(() => {
-        if (token) loadUser();
-        else setLoading(false);
-    }, [token]);
-
-    const loadUser = async () => {
+    // ── Load user on app start ───────────────────────────────────────────────
+    const loadUser = useCallback(async () => {
         try {
-            const { data } = await api.get('/auth/profile');
-            setUser(data);
+            // Try to refresh the token using the HTTP-only cookie
+            const { data } = await api.post('/auth/refresh');
+            setAccessToken(data.accessToken);
+            setToken(data.accessToken);
+            setUser(data.user);
+            localStorage.setItem('user', JSON.stringify(data.user));
         } catch {
-            localStorage.removeItem('token');
+            // No valid refresh token — user is not logged in
+            clearAccessToken();
             setToken(null);
+            setUser(null);
+            localStorage.removeItem('user');
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
-    // ── login ──────────────────────────────────────────────────────────────
+    useEffect(() => { loadUser(); }, [loadUser]);
+
+    // ── Login ────────────────────────────────────────────────────────────────
     const login = async (email, password) => {
         try {
             const { data } = await api.post('/auth/login', { email, password });
-            localStorage.setItem('token', data.token);
-            setToken(data.token);
-            setUser(data);
-            toast.success(`Welcome back, ${data.name}!`);
-            if (data.role === 'admin') window.location.href = '/admin';
+
+            // 2FA required — return indicator without setting auth state
+            if (data.requiresTwoFactor) {
+                return data;
+            }
+
+            setAccessToken(data.accessToken);
+            setToken(data.accessToken);
+            setUser(data.user);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            toast.success(`Welcome back, ${data.user.name}!`);
             return data;
         } catch (err) {
             toast.error(extractError(err, 'Invalid email or password'));
@@ -54,45 +61,71 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // ── register ───────────────────────────────────────────────────────────
-    const register = async (userData) => {
+    // ── 2FA Login Verification ───────────────────────────────────────────────
+    const verify2FALogin = async (tempToken, code) => {
         try {
-            const { data } = await api.post('/auth/register', userData);
-            // Do NOT auto-login – user must verify email first
+            const { data } = await api.post('/auth/2fa/verify-login', { tempToken, code });
+            setAccessToken(data.accessToken);
+            setToken(data.accessToken);
+            setUser(data.user);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            toast.success(`Welcome back, ${data.user.name}!`);
             return data;
         } catch (err) {
-            toast.error(extractError(err, 'Registration failed. Please try again.'));
+            toast.error(extractError(err, 'Invalid 2FA code'));
             throw err;
         }
     };
 
-    // ── logout ─────────────────────────────────────────────────────────────
-    const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+    // ── Register ─────────────────────────────────────────────────────────────
+    const register = async (name, email, password, role) => {
+        try {
+            const { data } = await api.post('/auth/register', { name, email, password, role });
+            toast.success(data.message || 'Registration successful! Please check your email.');
+            return data;
+        } catch (err) {
+            toast.error(extractError(err, 'Registration failed'));
+            throw err;
+        }
+    };
+
+    // ── Logout ───────────────────────────────────────────────────────────────
+    const logout = async () => {
+        try {
+            await api.post('/auth/logout');
+        } catch {
+            // Always clear local state
+        }
+        clearAccessToken();
         setToken(null);
         setUser(null);
+        localStorage.removeItem('user');
         toast.success('Logged out successfully');
     };
 
-    // ── updateProfile ──────────────────────────────────────────────────────
-    const updateProfile = async (userData) => {
+    // ── Update Profile ───────────────────────────────────────────────────────
+    const updateProfile = async (profileData) => {
         try {
-            const { data } = await api.put('/auth/profile', userData);
-            setUser(data);
+            const { data } = await api.put('/auth/profile', profileData);
+            if (data.accessToken) {
+                setAccessToken(data.accessToken);
+                setToken(data.accessToken);
+            }
+            setUser(data.user);
+            localStorage.setItem('user', JSON.stringify(data.user));
             toast.success('Profile updated successfully');
             return data;
         } catch (err) {
-            toast.error(extractError(err, 'Update failed'));
+            toast.error(extractError(err, 'Profile update failed'));
             throw err;
         }
     };
 
-    // ── forgotPassword ─────────────────────────────────────────────────────
+    // ── Forgot Password ─────────────────────────────────────────────────────
     const forgotPassword = async (email) => {
         try {
             const { data } = await api.post('/auth/forgotpassword', { email });
-            toast.success(data.message || 'If an account exists, a reset link has been sent.');
+            toast.success(data.message);
             return data;
         } catch (err) {
             toast.error(extractError(err, 'Failed to send reset email'));
@@ -100,30 +133,105 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // ── resetPassword ──────────────────────────────────────────────────────
+    // ── Reset Password ──────────────────────────────────────────────────────
     const resetPassword = async (resetToken, password) => {
         try {
             const { data } = await api.put(`/auth/resetpassword/${resetToken}`, { password });
-            toast.success(data.message || 'Password reset successful!');
+            if (data.accessToken) {
+                setAccessToken(data.accessToken);
+                setToken(data.accessToken);
+            }
+            toast.success('Password reset successful!');
             return data;
         } catch (err) {
-            toast.error(extractError(err, 'Password reset failed. The link may have expired.'));
+            toast.error(extractError(err, 'Password reset failed'));
             throw err;
         }
     };
 
+    // ── Resend Verification ─────────────────────────────────────────────────
+    const resendVerification = async (email) => {
+        try {
+            const { data } = await api.post('/auth/resendverification', { email });
+            toast.success(data.message);
+            return data;
+        } catch (err) {
+            toast.error(extractError(err, 'Failed to resend verification email'));
+            throw err;
+        }
+    };
+
+    // ── Google OAuth Success (called from redirect page) ────────────────────
+    const handleGoogleSuccess = async (accessToken) => {
+        setAccessToken(accessToken);
+        setToken(accessToken);
+        try {
+            const { data } = await api.get('/auth/profile');
+            setUser(data);
+            localStorage.setItem('user', JSON.stringify(data));
+            toast.success(`Welcome, ${data.name}!`);
+            return data;
+        } catch (err) {
+            clearAccessToken();
+            setToken(null);
+            toast.error('Google login failed. Please try again.');
+            throw err;
+        }
+    };
+
+    // ── 2FA Setup ────────────────────────────────────────────────────────────
+    const setup2FA = async () => {
+        const { data } = await api.post('/auth/2fa/setup');
+        return data;
+    };
+
+    const verify2FA = async (code) => {
+        const { data } = await api.post('/auth/2fa/verify', { code });
+        setUser(prev => ({ ...prev, twoFactorEnabled: true }));
+        toast.success('2FA enabled successfully!');
+        return data;
+    };
+
+    const disable2FA = async (code) => {
+        const { data } = await api.post('/auth/2fa/disable', { code });
+        setUser(prev => ({ ...prev, twoFactorEnabled: false }));
+        toast.success('2FA disabled.');
+        return data;
+    };
+
+    const isAuthenticated = !!user;
+
     const value = {
         user,
+        token,
         loading,
+        isAuthenticated,
         login,
         register,
         logout,
         updateProfile,
         forgotPassword,
         resetPassword,
-        isAuthenticated: !!user,
-        isAdmin: user?.role === 'admin',
+        resendVerification,
+        handleGoogleSuccess,
+        verify2FALogin,
+        setup2FA,
+        verify2FA,
+        disable2FA,
+        loadUser,
     };
 
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+    return (
+        <AuthContext.Provider value={value}>
+            {children}
+        </AuthContext.Provider>
+    );
 };
+
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) throw new Error('useAuth must be used within an AuthProvider');
+    return context;
+};
+
+export default AuthContext;

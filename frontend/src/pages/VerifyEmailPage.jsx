@@ -80,10 +80,10 @@ const VerifyEmailPage = () => {
                         <p className="text-gray-600 dark:text-gray-400">{message}</p>
                         <div className="pt-4 space-y-3">
                             <Link 
-                                to="/register" 
-                                className="block w-full py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold rounded-lg transition-colors"
+                                to="/resend-verification" 
+                                className="block w-full py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors"
                             >
-                                Back to Registration
+                                Resend Verification Email
                             </Link>
                             <Link 
                                 to="/contact" 

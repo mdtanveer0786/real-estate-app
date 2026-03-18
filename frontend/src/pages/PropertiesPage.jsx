@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import SEO from '../components/common/SEO';
 import PropertyFilters from '../components/properties/PropertyFilters';
 import PropertyList from '../components/properties/PropertyList';
 import api from '../services/api';
@@ -50,10 +50,10 @@ const PropertiesPage = () => {
 
     return (
         <>
-            <Helmet>
-                <title>Properties for Sale and Rent | EstateElite</title>
-                <meta name="description" content="Browse our extensive collection of properties for sale and rent. Find your perfect home with advanced filters." />
-            </Helmet>
+            <SEO 
+                title="Properties for Sale and Rent" 
+                description="Browse our extensive collection of properties for sale and rent. Find your perfect home with advanced filters."
+            />
 
             <motion.div
                 initial={{ opacity: 0 }}

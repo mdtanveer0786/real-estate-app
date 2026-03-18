@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './styles/index.css';
 
+import { HelmetProvider } from 'react-helmet-async';
+
 // Register service worker for PWA
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
     window.addEventListener('load', () => {
@@ -12,7 +14,7 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-    <>
+    <HelmetProvider>
         <App />
-    </>
+    </HelmetProvider>
 );

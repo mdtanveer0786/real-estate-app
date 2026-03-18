@@ -1,45 +1,50 @@
+'use strict';
+
 const express = require('express');
 const router = express.Router();
 const {
     getProperties,
     getPropertyById,
+    getFeaturedProperties,
+    getSimilarProperties,
     createProperty,
     updateProperty,
     deleteProperty,
     uploadPropertyImages,
     addToWishlist,
 } = require('../controllers/propertyController');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, agentOrAdmin } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
 const User = require('../models/User');
 
-// Public routes
-router.route('/')
-    .get(getProperties)
-    .post(protect, admin, createProperty);
+// ── Public routes ─────────────────────────────────────────────────────────────
+router.get('/featured', getFeaturedProperties);
+router.get('/', getProperties);
 
-// Property by ID routes
-router.route('/:id')
-    .get(getPropertyById)
-    .put(protect, admin, updateProperty)
-    .delete(protect, admin, deleteProperty);
+// ── Property by ID (must come after /featured) ───────────────────────────────
+router.get('/:id', getPropertyById);
+router.get('/:id/similar', getSimilarProperties);
 
-// Image upload route
-router.post('/:id/images', protect, admin, upload.array('images', 10), uploadPropertyImages);
+// ── Agent + Admin routes ──────────────────────────────────────────────────────
+router.post('/', protect, agentOrAdmin, createProperty);
+router.put('/:id', protect, agentOrAdmin, updateProperty);
+router.delete('/:id', protect, agentOrAdmin, deleteProperty);
 
-// Wishlist routes - ADD THIS SECTION
+// ── Image upload ──────────────────────────────────────────────────────────────
+router.post('/:id/images', protect, agentOrAdmin, upload.array('images', 10), uploadPropertyImages);
+
+// ── Wishlist ──────────────────────────────────────────────────────────────────
 router.route('/:id/wishlist')
-    .post(protect, addToWishlist)     // Add to wishlist
-    .delete(protect, addToWishlist);  // Remove from wishlist (uses same function)
+    .post(protect, addToWishlist)
+    .delete(protect, addToWishlist);
 
-// Optional: Add status check route
 router.get('/:id/wishlist/status', protect, async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
         const inWishlist = user.wishlist && user.wishlist.includes(req.params.id);
-        res.json({ inWishlist: !!inWishlist });
+        res.json({ success: true, inWishlist: !!inWishlist });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 

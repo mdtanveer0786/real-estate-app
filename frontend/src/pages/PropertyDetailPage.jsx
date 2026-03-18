@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import SEO from '../components/common/SEO';
 import { motion } from 'framer-motion';
 import { FiMapPin, FiHome, FiMaximize, FiArrowLeft } from 'react-icons/fi';
 import { IoBedOutline, IoWaterOutline } from 'react-icons/io5';
@@ -48,10 +48,11 @@ const PropertyDetailPage = () => {
 
     return (
         <>
-            <Helmet>
-                <title>{property.title} | EstateElite</title>
-                <meta name="description" content={property.description?.slice(0, 155)} />
-            </Helmet>
+            <SEO 
+                title={property.title} 
+                description={property.description?.slice(0, 155)}
+                image={property.images?.[0]?.url}
+            />
 
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
                 {/* Back button */}

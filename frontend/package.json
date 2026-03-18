@@ -26,6 +26,7 @@
         "react-query": "^3.39.3",
         "react-router-dom": "^6.30.3",
         "react-share": "^4.4.1",
+        "socket.io-client": "^4.8.3",
         "swiper": "^10.2.0",
         "uuid": "^9.0.0"
     },

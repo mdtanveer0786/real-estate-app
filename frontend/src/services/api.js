@@ -2,24 +2,30 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+// ── In-memory access token (never in localStorage) ──────────────────────────
+let _accessToken = null;
+
+export const setAccessToken = (token) => { _accessToken = token; };
+export const getAccessToken = () => _accessToken;
+export const clearAccessToken = () => { _accessToken = null; };
+
+// ── Axios instance ──────────────────────────────────────────────────────────
 const api = axios.create({
-    // Ensure baseURL includes the /api prefix
     baseURL: `${API_URL.replace(/\/+$/, '')}/api`,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    timeout: 30000, // 30 second timeout
+    headers: { 'Content-Type': 'application/json' },
+    timeout: 30000,
+    withCredentials: true, // Required for HTTP-only cookie support
 });
 
-// Request interceptor for tokens and URL safety
+// ── Request interceptor ─────────────────────────────────────────────────────
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+        // Attach access token from memory
+        if (_accessToken) {
+            config.headers.Authorization = `Bearer ${_accessToken}`;
         }
 
-        // Prevent double /api prefixing if the request URL already starts with /api
+        // Prevent double /api prefixing
         if (config.url && !config.url.startsWith('http')) {
             if (config.url.startsWith('/api/')) {
                 config.url = config.url.substring(5);
@@ -33,24 +39,76 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Public routes that should NOT trigger 401 redirect
-const publicRoutes = ['/auth/login', '/auth/register', '/auth/forgotpassword', '/auth/resetpassword', '/contact'];
+// ── Response interceptor with auto-refresh ──────────────────────────────────
 
-// Response interceptor for error handling
+// Prevent multiple simultaneous refresh calls
+let isRefreshing = false;
+let refreshSubscribers = [];
+
+const onRefreshed = (newToken) => {
+    refreshSubscribers.forEach(cb => cb(newToken));
+    refreshSubscribers = [];
+};
+
+const addRefreshSubscriber = (cb) => {
+    refreshSubscribers.push(cb);
+};
+
+// Public routes that should NOT trigger refresh/redirect
+const publicRoutes = [
+    '/auth/login', '/auth/register', '/auth/forgotpassword',
+    '/auth/resetpassword', '/auth/verifyemail', '/auth/resendverification',
+    '/auth/refresh', '/auth/logout', '/auth/google', '/auth/2fa/verify-login',
+    '/contact',
+];
+
 api.interceptors.response.use(
     (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            // Only redirect on 401 for non-public routes
-            const requestUrl = error.config?.url || '';
-            const isPublicRoute = publicRoutes.some(route => requestUrl.includes(route));
-            
-            if (!isPublicRoute) {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                window.location.href = '/login';
+    async (error) => {
+        const originalRequest = error.config;
+        const requestUrl = originalRequest?.url || '';
+        const isPublicRoute = publicRoutes.some(route => requestUrl.includes(route));
+
+        // Only attempt refresh on 401 for non-public, non-retried requests
+        if (error.response?.status === 401 && !isPublicRoute && !originalRequest._retry) {
+            originalRequest._retry = true;
+
+            if (!isRefreshing) {
+                isRefreshing = true;
+
+                try {
+                    const { data } = await api.post('/auth/refresh');
+                    _accessToken = data.accessToken;
+                    isRefreshing = false;
+                    onRefreshed(data.accessToken);
+
+                    // Retry the original request with new token
+                    originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+                    return api(originalRequest);
+                } catch (refreshError) {
+                    isRefreshing = false;
+                    refreshSubscribers = [];
+                    _accessToken = null;
+                    localStorage.removeItem('user');
+
+                    // Only redirect if not already on a public page
+                    if (!window.location.pathname.startsWith('/login') &&
+                        !window.location.pathname.startsWith('/register')) {
+                        window.location.href = '/login';
+                    }
+                    return Promise.reject(refreshError);
+                }
             }
+
+            // Queue requests while refresh is in progress
+            return new Promise((resolve) => {
+                addRefreshSubscriber((newToken) => {
+                    originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                    resolve(api(originalRequest));
+                });
+            });
         }
+
         return Promise.reject(error);
     }
 );

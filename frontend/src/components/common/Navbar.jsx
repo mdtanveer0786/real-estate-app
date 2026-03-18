@@ -8,6 +8,7 @@ import {
 } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import NotificationBell from './NotificationBell';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -182,6 +183,7 @@ const Navbar = () => {
                                         <link.icon className="text-xl" />
                                     </Link>
                                 ))}
+                                <NotificationBell />
                                 <Link to="/profile" className="flex items-center space-x-2 pl-2 group">
                                     <div className="w-11 h-11 rounded-full border-2 border-transparent group-hover:border-primary-500 transition-all p-0.5">
                                         <div className="w-full h-full rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 font-bold text-base shadow-inner">

@@ -11,11 +11,14 @@ import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import PrivateRoute from './components/common/PrivateRoute';
 import AdminRoute from './components/common/AdminRoute';
+import AgentRoute from './components/common/AgentRoute';
 import Loader from './components/common/Loader';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import Newsletter from './components/common/Newsletter';
 import ScrollToTop from './components/common/ScrollToTop';
 import CookieConsent from './components/common/CookieConsent';
+import ChatWidget from './components/chat/ChatWidget';
+import AIChatbot from './components/ai/AIChatbot';
 
 // Lazy load pages for better performance
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -34,8 +37,16 @@ const TermsPage = lazy(() => import('./pages/TermsPage'));
 const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const FAQPage = lazy(() => import('./pages/FAQPage'));
 const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'));
+const ResendVerificationPage = lazy(() => import('./pages/ResendVerificationPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const TestimonialsPage = lazy(() => import('./pages/TestimonialsPage'));
+const GoogleAuthSuccess = lazy(() => import('./pages/GoogleAuthSuccess'));
+const AgentDashboard = lazy(() => import('./pages/AgentDashboard'));
+const AddEditProperty = lazy(() => import('./pages/AddEditProperty'));
+const MessagesPage = lazy(() => import('./pages/MessagesPage'));
+const AIToolsPage = lazy(() => import('./pages/AIToolsPage'));
+const PricingPage = lazy(() => import('./pages/PricingPage'));
+const BillingPage = lazy(() => import('./pages/BillingPage'));
 
 // Scroll to top on route change
 const ScrollToTopOnMount = () => {
@@ -87,6 +98,7 @@ function AppContent() {
                                 <Route path="/login" element={<Login />} />
                                 <Route path="/register" element={<Register />} />
                                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                                <Route path="/resend-verification" element={<ResendVerificationPage />} />
                                 <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
                                 <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
                                 <Route path="/about" element={<AboutPage />} />
@@ -95,6 +107,7 @@ function AppContent() {
                                 <Route path="/testimonials" element={<TestimonialsPage />} />
                                 <Route path="/terms" element={<TermsPage />} />
                                 <Route path="/privacy" element={<PrivacyPage />} />
+                                <Route path="/auth/google/success" element={<GoogleAuthSuccess />} />
 
                                 {/* Protected Routes */}
                                 <Route path="/wishlist" element={
@@ -108,11 +121,36 @@ function AppContent() {
                                     </PrivateRoute>
                                 } />
 
+                                {/* Messages */}
+                                <Route path="/messages" element={
+                                    <PrivateRoute><MessagesPage /></PrivateRoute>
+                                } />
+                                <Route path="/messages/:id" element={
+                                    <PrivateRoute><MessagesPage /></PrivateRoute>
+                                } />
+
+                                {/* Agent Routes */}
+                                <Route path="/agent" element={
+                                    <AgentRoute><AgentDashboard /></AgentRoute>
+                                } />
+                                <Route path="/agent/add-property" element={
+                                    <AgentRoute><AddEditProperty /></AgentRoute>
+                                } />
+                                <Route path="/agent/edit-property/:id" element={
+                                    <AgentRoute><AddEditProperty /></AgentRoute>
+                                } />
+
                                 {/* Admin Routes */}
                                 <Route path="/admin/*" element={
                                     <AdminRoute>
                                         <AdminPage />
                                     </AdminRoute>
+                                } />
+
+                                <Route path="/ai-tools" element={<AIToolsPage />} />
+                                <Route path="/pricing" element={<PricingPage />} />
+                                <Route path="/billing" element={
+                                    <PrivateRoute><BillingPage /></PrivateRoute>
                                 } />
 
                                 {/* 404 Route */}
@@ -124,6 +162,8 @@ function AppContent() {
                 {!isAdminPath && <Newsletter />}
                 {!isAdminPath && <Footer />}
                 <CookieConsent />
+                {!isAdminPath && <ChatWidget />}
+                {!isAdminPath && <AIChatbot />}
             </div>
             <Toaster
                 position="top-right"
