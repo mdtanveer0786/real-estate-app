@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import PropertyCard from '../properties/PropertyCard';
+import PropertyDetails from '../properties/PropertyDetails';
 import api from '../../services/api';
 import Loader from '../common/Loader';
 
 const FeaturedProperties = () => {
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedProperty, setSelectedProperty] = useState(null);
 
     useEffect(() => {
         fetchFeaturedProperties();
@@ -43,7 +45,10 @@ const FeaturedProperties = () => {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.1 }}
                         >
-                            <PropertyCard property={property} />
+                            <PropertyCard 
+                                property={property} 
+                                onClick={() => setSelectedProperty(property)}
+                            />
                         </motion.div>
                     ))}
                 </div>
@@ -54,6 +59,25 @@ const FeaturedProperties = () => {
                     </Link>
                 </div>
             </div>
+
+            {/* Property Details Modal */}
+            <AnimatePresence>
+                {selectedProperty && (
+                    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 md:p-12 bg-black/80 backdrop-blur-md overflow-hidden">
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl no-scrollbar bg-white dark:bg-gray-900 relative"
+                        >
+                            <PropertyDetails 
+                                property={selectedProperty} 
+                                onClose={() => setSelectedProperty(null)} 
+                            />
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </section>
     );
 };

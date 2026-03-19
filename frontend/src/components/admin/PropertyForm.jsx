@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { FiPlus, FiX, FiUpload } from 'react-icons/fi';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
@@ -12,8 +12,9 @@ const PropertyForm = () => {
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [images, setImages] = useState([]);
+    const [features, setFeatures] = useState(['']);
 
-    const { register, handleSubmit, control, setValue, formState: { errors } } = useForm({
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm({
         defaultValues: {
             title: '',
             description: '',
@@ -24,14 +25,8 @@ const PropertyForm = () => {
             bathrooms: '',
             area: { value: '', unit: 'sqft' },
             location: { address: '', city: '', state: '', pincode: '' },
-            features: [''],
             status: 'available',
         }
-    });
-
-    const { fields, append, remove } = useFieldArray({
-        control,
-        name: 'features'
     });
 
     useEffect(() => {
@@ -43,18 +38,19 @@ const PropertyForm = () => {
     const fetchProperty = async () => {
         try {
             const { data } = await api.get(`/properties/${id}`);
-            setValue('title', data.title);
-            setValue('description', data.description);
-            setValue('price', data.price);
-            setValue('type', data.type);
-            setValue('propertyType', data.propertyType);
-            setValue('bedrooms', data.bedrooms);
-            setValue('bathrooms', data.bathrooms);
-            setValue('area', data.area);
-            setValue('location', data.location);
-            setValue('features', data.features.length ? data.features : ['']);
-            setValue('status', data.status);
-            setImages(data.images);
+            const property = data.property || data;
+            setValue('title', property.title);
+            setValue('description', property.description);
+            setValue('price', property.price);
+            setValue('type', property.type);
+            setValue('propertyType', property.propertyType);
+            setValue('bedrooms', property.bedrooms);
+            setValue('bathrooms', property.bathrooms);
+            setValue('area', property.area);
+            setValue('location', property.location);
+            setFeatures(property.features?.length ? property.features : ['']);
+            setValue('status', property.status);
+            setImages(property.images || []);
         } catch (error) {
             toast.error('Failed to fetch property');
         }
@@ -72,9 +68,9 @@ const PropertyForm = () => {
                 price: Number(data.price),
                 bedrooms: Number(data.bedrooms),
                 bathrooms: Number(data.bathrooms),
-                area: JSON.stringify(data.area),
-                location: JSON.stringify(data.location),
-                features: JSON.stringify(data.features.filter(f => f.trim() !== '')),
+                area: { value: Number(data.area.value), unit: data.area.unit },
+                location: data.location,
+                features: features.filter(f => f.trim() !== ''),
                 images: existingImages, // Send current state of existing images
             };
 
@@ -83,8 +79,8 @@ const PropertyForm = () => {
                 await api.put(`/properties/${id}`, propertyData);
                 toast.success('Property updated successfully');
             } else {
-                const { data: newProperty } = await api.post('/properties', propertyData);
-                propertyId = newProperty._id;
+                const { data: res } = await api.post('/properties', propertyData);
+                propertyId = res.property?._id || res._id;
                 toast.success('Property created successfully');
             }
 
@@ -277,18 +273,23 @@ const PropertyForm = () => {
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
                     <h2 className="text-lg font-semibold mb-4">Features</h2>
 
-                    {fields.map((field, index) => (
-                        <div key={field.id} className="flex gap-2 mb-2">
+                    {features.map((feature, index) => (
+                        <div key={index} className="flex gap-2 mb-2">
                             <input
                                 type="text"
-                                {...register(`features.${index}`)}
+                                value={feature}
+                                onChange={(e) => {
+                                    const updated = [...features];
+                                    updated[index] = e.target.value;
+                                    setFeatures(updated);
+                                }}
                                 className="input-field flex-1"
                                 placeholder="e.g., Swimming Pool, Garden, Parking"
                             />
                             {index > 0 && (
                                 <button
                                     type="button"
-                                    onClick={() => remove(index)}
+                                    onClick={() => setFeatures(prev => prev.filter((_, i) => i !== index))}
                                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
                                 >
                                     <FiX />
@@ -299,7 +300,7 @@ const PropertyForm = () => {
 
                     <button
                         type="button"
-                        onClick={() => append('')}
+                        onClick={() => setFeatures(prev => [...prev, ''])}
                         className="mt-2 text-primary-600 hover:text-primary-700 flex items-center gap-1"
                     >
                         <FiPlus /> Add Feature

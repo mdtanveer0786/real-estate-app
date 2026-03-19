@@ -128,6 +128,14 @@
   .glass-effect {
     @apply backdrop-blur-md bg-white/30 dark:bg-gray-900/30;
   }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 /* Custom animations */

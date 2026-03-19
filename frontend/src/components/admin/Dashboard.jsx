@@ -8,31 +8,33 @@ import {
 const Dashboard = ({ stats }) => {
   if (!stats) return null;
 
+  const s = stats?.stats || {};
+
   const statCards = [
     { 
       title: 'Total Properties', 
-      value: stats.stats.totalProperties, 
+      value: s.totalProperties || 0, 
       icon: FiHome, 
       color: 'bg-blue-500',
       change: '+12%',
     },
     { 
       title: 'Total Users', 
-      value: stats.stats.totalUsers, 
+      value: s.totalUsers || 0, 
       icon: FiUsers, 
       color: 'bg-green-500',
       change: '+8%',
     },
     { 
       title: 'Total Inquiries', 
-      value: stats.stats.totalInquiries, 
+      value: s.totalInquiries || 0, 
       icon: FiMessageSquare, 
       color: 'bg-purple-500',
       change: '+24%',
     },
     { 
       title: 'New Inquiries', 
-      value: stats.stats.newInquiries, 
+      value: s.newInquiries || 0, 
       icon: FiClock, 
       color: 'bg-yellow-500',
       change: '+5%',
@@ -41,9 +43,9 @@ const Dashboard = ({ stats }) => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-gray-600 dark:text-gray-400">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold">Dashboard</h1>
+        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
           {new Date().toLocaleDateString('en-US', { 
             weekday: 'long', 
             year: 'numeric', 
@@ -78,7 +80,7 @@ const Dashboard = ({ stats }) => {
             <FiHome className="mr-2 text-green-500" />
             Available Properties
           </h3>
-          <p className="text-3xl font-bold text-green-600">{stats.stats.availableProperties}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-green-600">{s.availableProperties || 0}</p>
           <p className="text-sm text-gray-500 mt-2">Ready for sale/rent</p>
         </div>
 
@@ -87,7 +89,7 @@ const Dashboard = ({ stats }) => {
             <FiDollarSign className="mr-2 text-blue-500" />
             Sold Properties
           </h3>
-          <p className="text-3xl font-bold text-blue-600">{stats.stats.soldProperties || 0}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-blue-600">{s.soldProperties || 0}</p>
           <p className="text-sm text-gray-500 mt-2">Successfully sold</p>
         </div>
 
@@ -96,7 +98,7 @@ const Dashboard = ({ stats }) => {
             <FiTrendingUp className="mr-2 text-purple-500" />
             Rented Properties
           </h3>
-          <p className="text-3xl font-bold text-purple-600">{stats.stats.rentedProperties || 0}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-purple-600">{s.rentedProperties || 0}</p>
           <p className="text-sm text-gray-500 mt-2">Currently rented</p>
         </div>
       </div>
@@ -113,17 +115,17 @@ const Dashboard = ({ stats }) => {
           </div>
           
           <div className="space-y-4">
-            {stats.recentProperties.map((property) => (
+            {(stats.recentProperties || []).map((property) => (
               <div key={property._id} className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-4 last:border-0">
                 <div>
-                  <p className="font-medium hover:text-primary-600 cursor-pointer">{property.title}</p>
-                  <div className="flex items-center text-sm text-gray-500 mt-1">
-                    <FiMapPin className="mr-1 text-xs" />
-                    {property.location.city}
+                  <p className="font-medium hover:text-primary-600 cursor-pointer text-sm sm:text-base truncate">{property.title}</p>
+                  <div className="flex items-center text-xs sm:text-sm text-gray-500 mt-1">
+                    <FiMapPin className="mr-1 text-xs flex-shrink-0" />
+                    {property.location?.city}
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-semibold text-primary-600">₹{property.price.toLocaleString()}</p>
+                <div className="text-right shrink-0">
+                  <p className="font-semibold text-primary-600 text-sm sm:text-base">₹{property.price?.toLocaleString()}</p>
                   <p className="text-xs text-gray-500">
                     {new Date(property.createdAt).toLocaleDateString()}
                   </p>
@@ -143,7 +145,7 @@ const Dashboard = ({ stats }) => {
           </div>
           
           <div className="space-y-4">
-            {stats.recentInquiries.map((inquiry) => (
+            {(stats.recentInquiries || []).map((inquiry) => (
               <div key={inquiry._id} className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-4 last:border-0">
                 <div>
                   <p className="font-medium">{inquiry.name}</p>

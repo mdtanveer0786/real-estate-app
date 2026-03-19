@@ -17,7 +17,7 @@ import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import { getImageUrl } from '../../utils/imageHelper';
 
-const PropertyCard = ({ property, onDelete }) => {
+const PropertyCard = ({ property, onDelete, onClick }) => {
     const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
     const { isAuthenticated, user } = useAuth();
     const location = useLocation();
@@ -35,6 +35,13 @@ const PropertyCard = ({ property, onDelete }) => {
     // Check if we're in admin panel
     const isAdminRoute = location.pathname.startsWith('/admin');
     const isAdmin = user?.role === 'admin';
+
+    const handleCardClick = (e) => {
+        if (onClick) {
+            e.preventDefault();
+            onClick();
+        }
+    };
 
     const handleWishlistClick = async (e) => {
         e.preventDefault();
@@ -74,7 +81,11 @@ const PropertyCard = ({ property, onDelete }) => {
             onHoverEnd={() => setIsHovered(false)}
             className="h-full"
         >
-            <Link to={`/property/${property._id}`} className="block h-full">
+            <Link 
+                to={`/property/${property._id}`} 
+                className="block h-full"
+                onClick={handleCardClick}
+            >
                 <div className="card h-full flex flex-col">
                     {/* Image Container */}
                     <div className="relative h-48 sm:h-56 md:h-64 overflow-hidden">

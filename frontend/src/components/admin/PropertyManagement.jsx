@@ -1,18 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FiEdit2, FiTrash2, FiEye, FiSearch } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiEye, FiSearch, FiX } from 'react-icons/fi';
+import { AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { getImageUrl } from '../../utils/imageHelper';
+import PropertyDetails from '../properties/PropertyDetails';
 
 const PropertyManagement = () => {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedProperty, setSelectedProperty] = useState(null);
 
   useEffect(() => {
     fetchProperties();
   }, []);
+
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (selectedProperty) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [selectedProperty]);
 
   const fetchProperties = async () => {
     try {
@@ -89,7 +104,7 @@ const PropertyManagement = () => {
                 <td className="px-6 py-4">
                   <div className="flex items-center">
                     <img
-                      src={getImageUrl(property.images[0]?.url)}
+                      src={getImageUrl(property.images?.[0]?.url)}
                       alt={property.title}
                       className="w-12 h-12 rounded-lg object-cover mr-3"
                     />
@@ -114,9 +129,15 @@ const PropertyManagement = () => {
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex space-x-2">
-                    <Link to={`/property/${property._id}`} target="_blank" className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"><FiEye /></Link>
-                    <Link to={`/admin/edit-property/${property._id}`} className="p-2 text-green-600 hover:bg-green-50 rounded-lg"><FiEdit2 /></Link>
-                    <button onClick={() => handleDelete(property._id, property.title)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg"><FiTrash2 /></button>
+                    <button 
+                      onClick={() => setSelectedProperty(property)} 
+                      className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition"
+                      title="Quick View"
+                    >
+                      <FiEye />
+                    </button>
+                    <Link to={`/admin/edit-property/${property._id}`} className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition"><FiEdit2 /></Link>
+                    <button onClick={() => handleDelete(property._id, property.title)} className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"><FiTrash2 /></button>
                   </div>
                 </td>
               </tr>
@@ -131,7 +152,7 @@ const PropertyManagement = () => {
           <div key={property._id} className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md border border-gray-100 dark:border-gray-700">
             <div className="flex gap-4 mb-4">
               <img
-                src={getImageUrl(property.images[0]?.url)}
+                src={getImageUrl(property.images?.[0]?.url)}
                 alt={property.title}
                 className="w-20 h-20 object-cover rounded-lg"
               />
@@ -152,6 +173,13 @@ const PropertyManagement = () => {
                 </span>
               </div>
               <div className="flex gap-1">
+                <button 
+                  onClick={() => setSelectedProperty(property)} 
+                  className="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition"
+                  title="Quick View"
+                >
+                  <FiEye size={18} />
+                </button>
                 <Link to={`/admin/edit-property/${property._id}`} className="p-2 text-green-600 hover:bg-green-50 rounded-lg"><FiEdit2 size={18} /></Link>
                 <button onClick={() => handleDelete(property._id, property.title)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg"><FiTrash2 size={18} /></button>
               </div>
@@ -169,6 +197,29 @@ const PropertyManagement = () => {
       <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
         Total Properties: {properties.length} | Showing: {filteredProperties.length}
       </div>
+
+      {/* Quick View Modal — same page */}
+      <AnimatePresence>
+        {selectedProperty && (
+          <div 
+            className="fixed inset-0 z-[1100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm overflow-hidden"
+            onClick={() => setSelectedProperty(null)}
+            onKeyDown={(e) => e.key === 'Escape' && setSelectedProperty(null)}
+            tabIndex={-1}
+            role="dialog"
+          >
+            <div 
+              className="w-full sm:max-w-6xl h-[95vh] sm:h-auto sm:max-h-[90vh] overflow-hidden rounded-t-2xl sm:rounded-2xl shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <PropertyDetails 
+                property={selectedProperty} 
+                onClose={() => setSelectedProperty(null)} 
+              />
+            </div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

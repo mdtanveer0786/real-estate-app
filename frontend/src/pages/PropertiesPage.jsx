@@ -3,10 +3,11 @@ import { useSearchParams } from 'react-router-dom';
 import SEO from '../components/common/SEO';
 import PropertyFilters from '../components/properties/PropertyFilters';
 import PropertyList from '../components/properties/PropertyList';
+import PropertyDetails from '../components/properties/PropertyDetails';
 import api from '../services/api';
 import Loader from '../components/common/Loader';
 import toast from 'react-hot-toast';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FiSearch } from 'react-icons/fi';
 
 const PropertiesPage = () => {
@@ -15,6 +16,7 @@ const PropertiesPage = () => {
     const [loading, setLoading] = useState(true);
     const [totalPages, setTotalPages] = useState(1);
     const [currentPage, setCurrentPage] = useState(1);
+    const [selectedProperty, setSelectedProperty] = useState(null);
     const [filters, setFilters] = useState({
         type: searchParams.get('type') || '',
         city: searchParams.get('city') || '',
@@ -27,6 +29,18 @@ const PropertiesPage = () => {
     useEffect(() => {
         fetchProperties();
     }, [currentPage, filters]);
+
+    // Lock body scroll when modal is open
+    useEffect(() => {
+        if (selectedProperty) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [selectedProperty]);
 
     const fetchProperties = async () => {
         setLoading(true);
@@ -100,12 +114,36 @@ const PropertiesPage = () => {
                                     totalPages={totalPages}
                                     currentPage={currentPage}
                                     onPageChange={setCurrentPage}
+                                    onPropertyClick={(prop) => setSelectedProperty(prop)}
                                 />
                             )}
                         </div>
                     </div>
                 </div>
             </motion.div>
+
+            {/* Property Details Modal */}
+            <AnimatePresence>
+                {selectedProperty && (
+                    <div 
+                        className="fixed inset-0 z-[1100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm overflow-hidden"
+                        onClick={() => setSelectedProperty(null)}
+                        onKeyDown={(e) => e.key === 'Escape' && setSelectedProperty(null)}
+                        tabIndex={-1}
+                        role="dialog"
+                    >
+                        <div 
+                            className="w-full sm:max-w-6xl h-[95vh] sm:h-auto sm:max-h-[90vh] overflow-hidden rounded-t-2xl sm:rounded-2xl shadow-2xl"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <PropertyDetails 
+                                property={selectedProperty} 
+                                onClose={() => setSelectedProperty(null)} 
+                            />
+                        </div>
+                    </div>
+                )}
+            </AnimatePresence>
         </>
     );
 };

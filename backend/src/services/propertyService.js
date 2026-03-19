@@ -15,7 +15,9 @@ class PropertyService {
         const filter = {};
 
         // Status filter (default: available)
-        if (query.status) {
+        if (query.status === 'all') {
+            // Do not filter by status
+        } else if (query.status) {
             filter.status = query.status;
         } else {
             filter.status = 'available';
@@ -77,6 +79,11 @@ class PropertyService {
                     $maxDistance: Number(query.radius) * 1000, // km to meters
                 },
             };
+        }
+
+        // Filter by creator
+        if (query.createdBy) {
+            filter.createdBy = query.createdBy;
         }
 
         // Sort

@@ -7,7 +7,7 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 const ContactForm = ({ property }) => {
-    const propertyId = property?._id;
+    const propertyId = property?._id || property?.id;
     const { user, isAuthenticated } = useAuth();
     const [loading, setLoading] = useState(false);
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
@@ -58,47 +58,43 @@ const ContactForm = ({ property }) => {
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-            <h3 className="text-xl font-semibold mb-4">Interested in this property?</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl shadow-black/5 p-6 sm:p-8 border border-gray-100 dark:border-gray-800 transition-all hover:shadow-2xl hover:shadow-black/10">
+            <h3 className="text-xl font-black mb-6 tracking-tight dark:text-white">Interested in this property?</h3>
 
-            {/* WhatsApp Button */}
+            {/* WhatsApp Action */}
             <button
                 onClick={handleWhatsApp}
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg mb-4 flex items-center justify-center gap-2 transition"
+                className="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-2xl flex items-center justify-center gap-3 font-bold transition-all transform hover:scale-[1.02] active:scale-95 shadow-lg shadow-green-500/20 mb-6"
             >
-                <FaWhatsapp size={20} />
-                Chat on WhatsApp
+                <FaWhatsapp size={24} />
+                Quick Chat on WhatsApp
             </button>
 
-            <div className="relative">
+            <div className="relative mb-6">
                 <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300 dark:border-gray-600"></div>
+                    <div className="w-full border-t border-gray-100 dark:border-gray-700"></div>
                 </div>
-                <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">or</span>
+                <div className="relative flex justify-center text-[10px] font-bold uppercase tracking-widest">
+                    <span className="px-3 bg-white dark:bg-gray-800 text-gray-400">or send a message</span>
                 </div>
             </div>
 
-            {/* Contact Form */}
-            <form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-4">
-                <div>
-                    <label className="block text-sm font-medium mb-1">Name *</label>
-                    <div className="relative">
-                        <FiUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            {/* Modernized Form */}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <div className="space-y-4">
+                    <div className="relative group">
+                        <FiUser className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
                         <input
                             type="text"
                             {...register('name', { required: 'Name is required' })}
-                            className="input-field pl-10"
-                            placeholder="Your name"
+                            className="w-full pl-11 pr-4 py-3.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all outline-none text-sm font-medium dark:text-white"
+                            placeholder="Your full name"
                         />
                     </div>
-                    {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
-                </div>
+                    {errors.name && <p className="text-red-500 text-[10px] font-bold uppercase ml-1">{errors.name.message}</p>}
 
-                <div>
-                    <label className="block text-sm font-medium mb-1">Email *</label>
-                    <div className="relative">
-                        <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <div className="relative group">
+                        <FiMail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
                         <input
                             type="email"
                             {...register('email', {
@@ -108,17 +104,14 @@ const ContactForm = ({ property }) => {
                                     message: 'Invalid email address'
                                 }
                             })}
-                            className="input-field pl-10"
-                            placeholder="your@email.com"
+                            className="w-full pl-11 pr-4 py-3.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all outline-none text-sm font-medium dark:text-white"
+                            placeholder="Email address"
                         />
                     </div>
-                    {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
-                </div>
+                    {errors.email && <p className="text-red-500 text-[10px] font-bold uppercase ml-1">{errors.email.message}</p>}
 
-                <div>
-                    <label className="block text-sm font-medium mb-1">Phone *</label>
-                    <div className="relative">
-                        <FiPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <div className="relative group">
+                        <FiPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
                         <input
                             type="tel"
                             {...register('phone', {
@@ -128,45 +121,42 @@ const ContactForm = ({ property }) => {
                                     message: 'Please enter a valid 10-digit phone number'
                                 }
                             })}
-                            className="input-field pl-10"
-                            placeholder="Your phone number"
+                            className="w-full pl-11 pr-4 py-3.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all outline-none text-sm font-medium dark:text-white"
+                            placeholder="10-digit phone number"
                         />
                     </div>
-                    {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>}
-                </div>
+                    {errors.phone && <p className="text-red-500 text-[10px] font-bold uppercase ml-1">{errors.phone.message}</p>}
 
-                <div>
-                    <label className="block text-sm font-medium mb-1">Message *</label>
-                    <div className="relative">
-                        <FiMessageSquare className="absolute left-3 top-3 text-gray-400" />
+                    <div className="relative group">
+                        <FiMessageSquare className="absolute left-4 top-4 text-gray-400 group-focus-within:text-primary-500 transition-colors" />
                         <textarea
                             {...register('message', { required: 'Message is required' })}
                             rows="4"
-                            className="input-field pl-10"
+                            className="w-full pl-11 pr-4 py-3.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all outline-none text-sm font-medium dark:text-white resize-none"
                             placeholder="I'm interested in this property. Please contact me with more details."
                         />
                     </div>
-                    {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message.message}</p>}
+                    {errors.message && <p className="text-red-500 text-[10px] font-bold uppercase ml-1">{errors.message.message}</p>}
                 </div>
 
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full btn-primary py-3 flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="w-full bg-primary-600 hover:bg-primary-700 text-white py-4 rounded-2xl flex items-center justify-center gap-3 font-bold transition-all transform hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary-600/20 disabled:opacity-50 mt-2"
                 >
                     {loading ? (
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
                         <>
-                            <FiSend /> Send Inquiry
+                            <FiSend size={18} /> Send Message
                         </>
                     )}
                 </button>
             </form>
 
             {!isAuthenticated && (
-                <p className="text-sm text-gray-500 mt-4 text-center">
-                    You'll receive responses via email. <a href="/login" className="text-primary-600 hover:underline">Login</a> for faster response.
+                <p className="text-xs text-center text-gray-500 mt-6 font-medium">
+                    Already have an account? <a href="/login" className="text-primary-600 font-bold hover:underline">Login here</a>
                 </p>
             )}
         </div>

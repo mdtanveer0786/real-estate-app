@@ -8,6 +8,7 @@ import StatsCard from '../components/common/StatsCard';
 import EmptyState from '../components/common/EmptyState';
 import { SkeletonDashboard } from '../components/common/Skeletons';
 import toast from 'react-hot-toast';
+import { getImageUrl } from '../utils/imageHelper';
 
 const AgentDashboard = () => {
     const { user } = useAuth();
@@ -24,7 +25,7 @@ const AgentDashboard = () => {
     const fetchData = useCallback(async () => {
         try {
             const { data } = await api.get('/properties', {
-                params: { createdBy: user?._id, limit: 50 },
+                params: { createdBy: user?._id, limit: 50, status: 'all' },
             });
 
             const props = data.properties || [];
@@ -148,8 +149,8 @@ const AgentDashboard = () => {
                                                     <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden flex-shrink-0">
                                                         {property.images?.[0]?.url ? (
                                                             <img
-                                                                src={property.images[0].url}
-                                                                alt=""
+                                                                src={getImageUrl(property.images[0].url)}
+                                                                alt={property.title || 'Property'}
                                                                 className="w-full h-full object-cover"
                                                             />
                                                         ) : (

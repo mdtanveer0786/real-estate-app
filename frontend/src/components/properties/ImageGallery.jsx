@@ -13,7 +13,7 @@ const ImageGallery = ({ images }) => {
     // Guard against empty images array
     if (!images || images.length === 0) {
         return (
-            <div className="relative h-[500px] bg-gray-900">
+            <div className="relative h-[250px] sm:h-[350px] md:h-[500px] bg-gray-900 rounded-xl overflow-hidden">
                 <img
                     src={defaultImage}
                     alt="No property image available"
@@ -37,7 +37,7 @@ const ImageGallery = ({ images }) => {
     return (
         <>
             {/* Main Gallery */}
-            <div className="relative h-[500px] bg-gray-900">
+            <div className="relative h-[250px] sm:h-[350px] md:h-[500px] bg-gray-900 rounded-xl overflow-hidden">
                 {/* Main Image */}
                 <img
                     src={getImageUrl(images[currentIndex]?.url) || defaultImage}
@@ -51,15 +51,15 @@ const ImageGallery = ({ images }) => {
                     <>
                         <button
                             onClick={prevImage}
-                            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
+                            className="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2.5 sm:p-3 rounded-full hover:bg-opacity-75 transition"
                         >
-                            <FiChevronLeft size={24} />
+                            <FiChevronLeft size={20} className="sm:w-6 sm:h-6" />
                         </button>
                         <button
                             onClick={nextImage}
-                            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75 transition"
+                            className="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2.5 sm:p-3 rounded-full hover:bg-opacity-75 transition"
                         >
-                            <FiChevronRight size={24} />
+                            <FiChevronRight size={20} className="sm:w-6 sm:h-6" />
                         </button>
                     </>
                 )}
@@ -76,7 +76,7 @@ const ImageGallery = ({ images }) => {
                             <button
                                 key={index}
                                 onClick={() => setCurrentIndex(index)}
-                                className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition ${index === currentIndex ? 'border-primary-500' : 'border-transparent'
+                                className={`flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 transition ${index === currentIndex ? 'border-primary-500' : 'border-transparent'
                                     }`}
                             >
                                 <img

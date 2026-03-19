@@ -3,7 +3,7 @@ import PropertyCard from './PropertyCard';
 import { motion, AnimatePresence } from 'framer-motion';
 import Pagination from '../common/Pagination';
 
-const PropertyList = ({ properties, totalPages, currentPage, onPageChange }) => {
+const PropertyList = ({ properties, totalPages, currentPage, onPageChange, onPropertyClick }) => {
     if (properties.length === 0) {
         return (
             <motion.div 
@@ -50,7 +50,10 @@ const PropertyList = ({ properties, totalPages, currentPage, onPageChange }) => 
                             exit={{ opacity: 0, scale: 0.9 }}
                             transition={{ duration: 0.3, delay: index * 0.05 }}
                         >
-                            <PropertyCard property={property} />
+                            <PropertyCard 
+                                property={property} 
+                                onClick={() => onPropertyClick && onPropertyClick(property)}
+                            />
                         </motion.div>
                     ))}
                 </AnimatePresence>

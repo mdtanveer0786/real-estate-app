@@ -36,6 +36,7 @@ const AdminPage = () => {
       const { data } = await api.get('/admin/stats');
       setStats(data);
     } catch (error) {
+      toast.error('Failed to load dashboard stats');
     } finally {
       setLoading(false);
     }

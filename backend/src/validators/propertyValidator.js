@@ -58,6 +58,7 @@ const updatePropertySchema = createPropertySchema.partial();
 // ─── Inquiry / Contact Schemas ───────────────────────────────────────────────
 
 const inquirySchema = z.object({
+    propertyId: z.string().min(1, 'Property ID is required'),
     name: z.string().min(1, 'Name is required').max(100).trim(),
     email: z.string().email('Invalid email address').toLowerCase().trim(),
     phone: z.string().regex(/^\d{10}$/, 'Phone must be a valid 10-digit number'),
