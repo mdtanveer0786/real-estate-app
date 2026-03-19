@@ -19,13 +19,16 @@ const {
 const REFRESH_COOKIE = 'refreshToken';
 const REFRESH_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-const cookieOptions = (maxAge = REFRESH_MAX_AGE) => ({
-    httpOnly: true,
-    secure:   process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
-    maxAge,
-    path: '/',
-});
+const cookieOptions = (maxAge = REFRESH_MAX_AGE) => {
+    const isProduction = process.env.NODE_ENV === 'production';
+    return {
+        httpOnly: true,
+        secure:   isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        maxAge,
+        path: '/',
+    };
+};
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -41,6 +44,7 @@ const userResponse = (user) => ({
     role:  user.role,
     avatar: user.avatar,
     phone: user.phone,
+    wishlist: user.wishlist || [],
     twoFactorEnabled: user.twoFactorEnabled || false,
     subscription: user.subscription,
 });
@@ -98,7 +102,8 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 
     const user = await User.findOne({ email: email.toLowerCase().trim() })
-        .select('+password +twoFactorSecret');
+        .select('+password +twoFactorSecret')
+        .populate('wishlist');
 
     if (!user) {
         res.status(401);
@@ -178,7 +183,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         throw new Error('Invalid or expired refresh token');
     }
 
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(decoded.id).populate('wishlist');
     if (!user) {
         res.clearCookie(REFRESH_COOKIE, cookieOptions(0));
         res.status(401);
@@ -303,6 +308,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     if (req.body.password) user.password = req.body.password;
 
     const updated = await user.save();
+    await updated.populate('wishlist');
     const accessToken = generateAccessToken(updated._id);
 
     res.json({
@@ -358,6 +364,7 @@ const resetPassword = asyncHandler(async (req, res) => {
     // Revoke all sessions on password change
     user.clearRefreshTokens();
     await user.save();
+    await user.populate('wishlist');
 
     const accessToken  = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);
@@ -383,6 +390,7 @@ const googleAuth = passport.authenticate('google', {
 const googleCallback = asyncHandler(async (req, res) => {
     // passport.authenticate populates req.user on success
     const user = req.user;
+    await user.populate('wishlist');
 
     const accessToken  = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);

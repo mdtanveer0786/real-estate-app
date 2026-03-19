@@ -59,8 +59,6 @@ export const WishlistProvider = ({ children }) => {
 
             // Refresh wishlist
             await fetchWishlistDetails();
-
-            toast.success('Property saved to wishlist');
             return true;
         } catch (error) {
             toast.error(error.response?.data?.error || 'Failed to save property');

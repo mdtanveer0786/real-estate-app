@@ -222,7 +222,7 @@ const ChatWidget = () => {
                                                        msg.sender?._id === user?._id;
                                         return (
                                             <div key={msg._id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                                                <div className={`max-w-[75%] px-3 py-2 rounded-2xl text-sm ${
+                                                <div className={`max-w-[85%] sm:max-w-[75%] px-3 py-2 rounded-2xl text-sm ${
                                                     isMine
                                                         ? 'bg-primary-600 text-white rounded-br-sm'
                                                         : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-sm'

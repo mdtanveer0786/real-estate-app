@@ -113,8 +113,13 @@ const AddEditProperty = () => {
                 bathrooms: Number(form.bathrooms),
                 area: { value: Number(form.area.value), unit: form.area.unit },
                 features: form.features.split(',').map(f => f.trim()).filter(Boolean),
-                images: existingImages,
+                amenities: form.amenities,
             };
+
+            // Only include images field when editing (to preserve/remove existing images)
+            if (isEdit) {
+                body.images = existingImages;
+            }
 
             let propertyId;
             if (isEdit) {
@@ -138,7 +143,11 @@ const AddEditProperty = () => {
 
             navigate('/agent');
         } catch (err) {
-            toast.error(err.response?.data?.error || 'Failed to save property');
+            const errorMsg = err.response?.data?.error
+                || err.response?.data?.errors?.map(e => e.message).join(', ')
+                || err.response?.data?.message
+                || 'Failed to save property. Please check all required fields.';
+            toast.error(errorMsg);
         } finally {
             setLoading(false);
         }

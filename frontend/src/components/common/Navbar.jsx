@@ -13,7 +13,7 @@ import NotificationBell from './NotificationBell';
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
-    const { user, logout, isAuthenticated, isAdmin } = useAuth();
+    const { user, logout, isAuthenticated, isAdmin, isAgent } = useAuth();
     const { darkMode, toggleDarkMode } = useTheme();
     const navigate = useNavigate();
     const location = useLocation();
@@ -82,6 +82,7 @@ const Navbar = () => {
     const authLinks = [
         { name: 'Wishlist', path: '/wishlist', icon: FiHeart, show: isAuthenticated },
         { name: 'Dashboard', path: '/admin', icon: FiStar, show: isAdmin },
+        { name: 'My Listings', path: '/agent', icon: FiHome, show: isAgent && !isAdmin },
         { name: 'Profile', path: '/profile', icon: FiUser, show: isAuthenticated },
     ];
 

@@ -6,6 +6,7 @@ const dotenv     = require('dotenv');
 const cors       = require('cors');
 const morgan     = require('morgan');
 const helmet     = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const passport   = require('passport');
@@ -46,13 +47,17 @@ const { initSocket }       = require('./config/socket');
 
 const app = express();
 
+// ── Trust proxy (required for rate limiting behind Vercel/Render/etc.) ────────
+app.set('trust proxy', 1);
+
 // ── Security & compression ───────────────────────────────────────────────────
 app.use(helmet());
+app.use(mongoSanitize());
 app.use(compression());
 
 // ── Body parsing ─────────────────────────────────────────────────────────────
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // ── Passport ─────────────────────────────────────────────────────────────────
@@ -109,12 +114,6 @@ app.use('/api/reviews',       reviewRoutes);
 app.use('/api/notifications', notificationRoutes);
 
 // ── API v1 alias (forward-compatible versioning) ─────────────────────────────
-// Allows clients to use /api/v1/... while we transition
-app.use('/api/v1', (req, res, next) => {
-    // Rewrite /api/v1/properties → /api/properties etc.
-    req.url = req.url; // no change needed — Express handles base path
-    next();
-});
 app.use('/api/v1/auth',          authRoutes);
 app.use('/api/v1/users',         userRoutes);
 app.use('/api/v1/properties',    propertyRoutes);

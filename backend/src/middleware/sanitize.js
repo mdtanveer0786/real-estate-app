@@ -1,26 +1,36 @@
-// Simple HTML sanitizer — strips all HTML tags (no external dependency needed)
-const stripHtmlTags = (str) => {
-    if (typeof str !== 'string') return str;
-    return str.replace(/<[^>]*>/g, '').trim();
+'use strict';
+
+const xss = require('xss');
+
+/**
+ * Recursively sanitize an object's string properties using the xss library.
+ */
+const sanitizeObject = (obj) => {
+    if (Array.isArray(obj)) {
+        return obj.map(item => sanitizeObject(item));
+    } else if (obj !== null && typeof obj === 'object') {
+        Object.keys(obj).forEach(key => {
+            obj[key] = sanitizeObject(obj[key]);
+        });
+        return obj;
+    } else if (typeof obj === 'string') {
+        // Sanitize string and trim
+        return xss(obj).trim();
+    }
+    return obj;
 };
 
 const sanitizeMiddleware = (req, res, next) => {
-    // Sanitize request body
     if (req.body) {
-        Object.keys(req.body).forEach(key => {
-            if (typeof req.body[key] === 'string') {
-                req.body[key] = stripHtmlTags(req.body[key]);
-            }
-        });
+        req.body = sanitizeObject(req.body);
     }
 
-    // Sanitize query parameters
     if (req.query) {
-        Object.keys(req.query).forEach(key => {
-            if (typeof req.query[key] === 'string') {
-                req.query[key] = stripHtmlTags(req.query[key]);
-            }
-        });
+        req.query = sanitizeObject(req.query);
+    }
+
+    if (req.params) {
+        req.params = sanitizeObject(req.params);
     }
 
     next();

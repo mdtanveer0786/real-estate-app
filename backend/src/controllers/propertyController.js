@@ -48,7 +48,9 @@ const createProperty = asyncHandler(async (req, res) => {
 // @route   POST /api/properties/:id/images
 // @access  Private/Agent+Admin
 const uploadPropertyImages = asyncHandler(async (req, res) => {
-    const property = await PropertyService.uploadImages(req.params.id, req.files);
+    const property = await PropertyService.uploadImages(
+        req.params.id, req.files, req.user._id, req.user.role
+    );
     res.json({ success: true, property });
 });
 

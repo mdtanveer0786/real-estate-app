@@ -5,7 +5,9 @@ import PropertyFilters from '../components/properties/PropertyFilters';
 import PropertyList from '../components/properties/PropertyList';
 import api from '../services/api';
 import Loader from '../components/common/Loader';
+import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
+import { FiSearch } from 'react-icons/fi';
 
 const PropertiesPage = () => {
     const [searchParams] = useSearchParams();
@@ -38,6 +40,8 @@ const PropertiesPage = () => {
             setProperties(data.properties);
             setTotalPages(data.pages);
         } catch (error) {
+            toast.error('Failed to load properties. Please try again.');
+            setProperties([]);
         } finally {
             setLoading(false);
         }
@@ -82,6 +86,14 @@ const PropertiesPage = () => {
                         <div className="lg:col-span-3">
                             {loading ? (
                                 <Loader />
+                            ) : properties.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-20 text-center">
+                                    <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-6">
+                                        <FiSearch className="text-3xl text-gray-400" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-700 dark:text-gray-300 mb-2">No Properties Found</h3>
+                                    <p className="text-gray-500 dark:text-gray-400 max-w-md">Try adjusting your filters or search criteria to find what you're looking for.</p>
+                                </div>
                             ) : (
                                 <PropertyList
                                     properties={properties}

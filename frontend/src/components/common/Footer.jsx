@@ -40,7 +40,7 @@ const Footer = () => {
                         <p className="text-gray-400 leading-relaxed text-sm">
                             India's most trusted real estate platform. We make finding your dream property simple, transparent, and completely hassle-free with expert guidance at every step.
                         </p>
-                        
+
                         {/* Trust Badges */}
                         <div className="flex gap-3 pt-2">
                             <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-md text-xs font-semibold text-gray-300 flex items-center gap-1.5 backdrop-blur-sm">
@@ -80,7 +80,6 @@ const Footer = () => {
                                 { name: 'Home', path: '/' },
                                 { name: 'Properties', path: '/properties' },
                                 { name: 'About Us', path: '/about' },
-                                { name: 'Testimonials', path: '/#testimonials' },
                                 { name: 'Contact', path: '/contact' },
                                 { name: 'FAQ', path: '/faq' }
                             ].map((link, index) => (
@@ -133,7 +132,7 @@ const Footer = () => {
                             </li>
                             <li className="flex items-center space-x-3 text-gray-400">
                                 <FiMail className="flex-shrink-0" />
-                                <a href="mailto:realestateeliteteam01@gmail.com" className="hover:text-primary-400 transition">
+                                <a href="mailto:realestateeliteteam01@gmail.com" className="hover:text-primary-400 transition break-all">
                                     realestateeliteteam01@gmail.com
                                 </a>
                             </li>
@@ -147,16 +146,16 @@ const Footer = () => {
                         <p className="text-gray-400 text-sm text-center sm:text-left">
                             © {new Date().getFullYear()} EstateElite. All rights reserved.
                         </p>
-                        <div className="flex space-x-6 text-sm">
-                            <a href="#" className="text-gray-400 hover:text-primary-400 transition">
+                        <div className="flex flex-wrap gap-4 sm:gap-6 text-sm">
+                            <Link to="/privacy" className="text-gray-400 hover:text-primary-400 transition">
                                 Privacy Policy
-                            </a>
-                            <a href="#" className="text-gray-400 hover:text-primary-400 transition">
+                            </Link>
+                            <Link to="/terms" className="text-gray-400 hover:text-primary-400 transition">
                                 Terms of Service
-                            </a>
-                            <a href="#" className="text-gray-400 hover:text-primary-400 transition">
+                            </Link>
+                            <Link to="/privacy" className="text-gray-400 hover:text-primary-400 transition">
                                 Cookie Policy
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </div>

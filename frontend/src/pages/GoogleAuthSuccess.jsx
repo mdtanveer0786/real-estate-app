@@ -80,7 +80,6 @@ const GoogleAuthSuccess = () => {
                 <div className="w-20 h-20 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center mx-auto mb-5">
                     <FiCheckCircle className="text-green-500 text-4xl" />
                 </div>
-                <h2 className="text-2xl font-bold mb-2 dark:text-white">Welcome!</h2>
                 <p className="text-gray-500 dark:text-gray-400 text-sm">
                     Google sign-in successful. Redirecting...
                 </p>

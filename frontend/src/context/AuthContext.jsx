@@ -1,7 +1,7 @@
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import api, { setAccessToken, clearAccessToken } from '../services/api';
+import api, { setAccessToken, clearAccessToken, getAccessToken } from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -13,25 +13,36 @@ const extractError = (err, fallback = 'Something went wrong') =>
 // ── Provider ─────────────────────────────────────────────────────────────────
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser]         = useState(null);
+    const [user, setUser]         = useState(() => {
+        const savedUser = localStorage.getItem('user');
+        try {
+            return savedUser ? JSON.parse(savedUser) : null;
+        } catch {
+            return null;
+        }
+    });
     const [loading, setLoading]   = useState(true);
     const [token, setToken]       = useState(null); // access token (memory)
+    const hasShownWelcome = useRef(false); // prevent duplicate toasts
 
     // ── Load user on app start ───────────────────────────────────────────────
     const loadUser = useCallback(async () => {
         try {
-            // Try to refresh the token using the HTTP-only cookie
-            const { data } = await api.post('/auth/refresh');
-            setAccessToken(data.accessToken);
-            setToken(data.accessToken);
-            setUser(data.user);
-            localStorage.setItem('user', JSON.stringify(data.user));
-        } catch {
-            // No valid refresh token — user is not logged in
-            clearAccessToken();
-            setToken(null);
-            setUser(null);
-            localStorage.removeItem('user');
+            // By calling /profile, we trigger the interceptor logic if needed.
+            // If the token is missing or expired, api.js will handle the refresh automatically.
+            const { data } = await api.get('/auth/profile');
+            const accessToken = getAccessToken();
+            setToken(accessToken);
+            setUser(data);
+            localStorage.setItem('user', JSON.stringify(data));
+        } catch (err) {
+            // If both profile and refresh fail, we clear state
+            if (err.response?.status === 401 || err.response?.status === 403) {
+                clearAccessToken();
+                setToken(null);
+                setUser(null);
+                localStorage.removeItem('user');
+            }
         } finally {
             setLoading(false);
         }
@@ -53,7 +64,12 @@ export const AuthProvider = ({ children }) => {
             setToken(data.accessToken);
             setUser(data.user);
             localStorage.setItem('user', JSON.stringify(data.user));
-            toast.success(`Welcome back, ${data.user.name}!`);
+            // Only show toast once per login
+            if (!hasShownWelcome.current) {
+                hasShownWelcome.current = true;
+                toast.success(`Welcome back, ${data.user?.name?.split(' ')[0] || 'User'}!`);
+                setTimeout(() => { hasShownWelcome.current = false; }, 3000);
+            }
             return data;
         } catch (err) {
             toast.error(extractError(err, 'Invalid email or password'));
@@ -69,7 +85,11 @@ export const AuthProvider = ({ children }) => {
             setToken(data.accessToken);
             setUser(data.user);
             localStorage.setItem('user', JSON.stringify(data.user));
-            toast.success(`Welcome back, ${data.user.name}!`);
+            if (!hasShownWelcome.current) {
+                hasShownWelcome.current = true;
+                toast.success(`Welcome back, ${data.user?.name?.split(' ')[0] || 'User'}!`);
+                setTimeout(() => { hasShownWelcome.current = false; }, 3000);
+            }
             return data;
         } catch (err) {
             toast.error(extractError(err, 'Invalid 2FA code'));
@@ -81,7 +101,7 @@ export const AuthProvider = ({ children }) => {
     const register = async (name, email, password, role) => {
         try {
             const { data } = await api.post('/auth/register', { name, email, password, role });
-            toast.success(data.message || 'Registration successful! Please check your email.');
+            toast.success('Registration successful! Please verify your email.');
             return data;
         } catch (err) {
             toast.error(extractError(err, 'Registration failed'));
@@ -169,7 +189,7 @@ export const AuthProvider = ({ children }) => {
             const { data } = await api.get('/auth/profile');
             setUser(data);
             localStorage.setItem('user', JSON.stringify(data));
-            toast.success(`Welcome, ${data.name}!`);
+            toast.success('Signed in with Google');
             return data;
         } catch (err) {
             clearAccessToken();
@@ -199,6 +219,8 @@ export const AuthProvider = ({ children }) => {
         return data;
     };
 
+    // isAuthenticated uses !!user so it stays true from localStorage during initial load
+    // loading is true only during the first loadUser() call
     const isAuthenticated = !!user;
 
     const value = {
@@ -219,6 +241,8 @@ export const AuthProvider = ({ children }) => {
         verify2FA,
         disable2FA,
         loadUser,
+        isAdmin: user?.role === 'admin',
+        isAgent: user?.role === 'agent',
     };
 
     return (

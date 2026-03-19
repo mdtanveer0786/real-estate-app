@@ -66,7 +66,7 @@ const PageViewTracker = () => {
     useEffect(() => {
         // Track page view with Google Analytics
         if (window.gtag) {
-            window.gtag('config', 'GA_MEASUREMENT_ID', {
+            window.gtag('config', import.meta.env.VITE_GA_ID || 'GA_MEASUREMENT_ID', {
                 page_path: pathname,
             });
         }

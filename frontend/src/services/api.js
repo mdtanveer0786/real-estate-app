@@ -91,11 +91,7 @@ api.interceptors.response.use(
                     _accessToken = null;
                     localStorage.removeItem('user');
 
-                    // Only redirect if not already on a public page
-                    if (!window.location.pathname.startsWith('/login') &&
-                        !window.location.pathname.startsWith('/register')) {
-                        window.location.href = '/login';
-                    }
+                    // Instead of hard redirect, let the application handle the 401 error
                     return Promise.reject(refreshError);
                 }
             }

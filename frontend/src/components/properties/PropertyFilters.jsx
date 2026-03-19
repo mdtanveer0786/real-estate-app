@@ -70,7 +70,7 @@ const PropertyFilters = ({ filters, onFilterChange }) => {
                             animate={{ x: 0 }}
                             exit={{ x: '100%' }}
                             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                            className="absolute right-0 top-0 h-full w-full max-w-[320px] bg-white dark:bg-gray-900 shadow-2xl flex flex-col"
+                            className="absolute right-0 top-0 h-full w-full max-w-xs sm:max-w-sm bg-white dark:bg-gray-900 shadow-2xl flex flex-col"
                         >
                             <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-gray-800">
                                 <h3 className="text-xl font-bold">Filters</h3>

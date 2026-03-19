@@ -17,13 +17,22 @@ const PropertyDetailPage = () => {
     const [loading, setLoading]   = useState(true);
     const [error, setError]       = useState('');
 
+    // Smart back navigation: go back in history or fallback to /properties
+    const goBack = () => {
+        if (window.history.length > 2) {
+            navigate(-1);
+        } else {
+            navigate('/properties');
+        }
+    };
+
     const fetchProperty = useCallback(async () => {
         if (!id) return;
         setLoading(true);
         setError('');
         try {
             const { data } = await api.get(`/properties/${id}`);
-            setProperty(data);
+            setProperty(data.property);
         } catch (err) {
             setError(err.response?.data?.error || 'Property not found.');
         } finally {
@@ -37,9 +46,9 @@ const PropertyDetailPage = () => {
 
     if (error || !property) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4">
+            <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4 pt-24">
                 <p className="text-red-500 text-lg">{error || 'Property not found.'}</p>
-                <button onClick={() => navigate(-1)} className="btn-primary flex items-center gap-2">
+                <button onClick={goBack} className="btn-primary flex items-center gap-2">
                     <FiArrowLeft /> Go Back
                 </button>
             </div>
@@ -54,11 +63,11 @@ const PropertyDetailPage = () => {
                 image={property.images?.[0]?.url}
             />
 
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-24">
                 {/* Back button */}
-                <div className="container-custom pt-6 pb-2 px-4">
+                <div className="container-custom pb-2 px-4">
                     <button
-                        onClick={() => navigate(-1)}
+                        onClick={goBack}
                         className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-primary-600 transition text-sm"
                     >
                         <FiArrowLeft /> Back to Properties

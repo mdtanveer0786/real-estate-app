@@ -45,3 +45,8 @@ yarn-error.log*
 
 # Vite
 vite.config.js.*.timestamp*
+
+# Build logs
+build.log
+build.txt
+build_output.txt

@@ -194,9 +194,15 @@ class PropertyService {
     /**
      * Upload images to Cloudinary and attach to property.
      */
-    static async uploadImages(propertyId, files) {
+    static async uploadImages(propertyId, files, userId, userRole) {
         const property = await Property.findById(propertyId);
         if (!property) throw AppError.notFound('Property');
+
+        // Agents can only upload to their own
+        if (userRole === 'agent' && property.createdBy.toString() !== userId.toString()) {
+            throw AppError.forbidden('You can only upload images to your own properties');
+        }
+
         if (!files?.length) throw AppError.badRequest('Please upload images');
 
         const uploaded = await Promise.all(
