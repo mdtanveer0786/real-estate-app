@@ -11,6 +11,7 @@ const GoogleAuthSuccess = () => {
     const navigate = useNavigate();
     const { handleGoogleSuccess } = useAuth();
     const [status, setStatus] = useState('loading'); // loading | success | error
+    const isProcessing = React.useRef(false);
 
     useEffect(() => {
         const token = searchParams.get('token');
@@ -19,6 +20,9 @@ const GoogleAuthSuccess = () => {
             setStatus('error');
             return;
         }
+
+        if (isProcessing.current) return;
+        isProcessing.current = true;
 
         handleGoogleSuccess(token)
             .then((user) => {
@@ -29,6 +33,7 @@ const GoogleAuthSuccess = () => {
             })
             .catch(() => {
                 setStatus('error');
+                isProcessing.current = false;
             });
     }, [searchParams, handleGoogleSuccess, navigate]);
 

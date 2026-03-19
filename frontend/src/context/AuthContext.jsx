@@ -189,11 +189,19 @@ export const AuthProvider = ({ children }) => {
             const { data } = await api.get('/auth/profile');
             setUser(data);
             localStorage.setItem('user', JSON.stringify(data));
-            toast.success('Signed in with Google');
+            
+            // Only show toast once
+            if (!hasShownWelcome.current) {
+                hasShownWelcome.current = true;
+                toast.success(`Welcome, ${data.name?.split(' ')[0] || 'User'}!`);
+                setTimeout(() => { hasShownWelcome.current = false; }, 3000);
+            }
             return data;
         } catch (err) {
             clearAccessToken();
             setToken(null);
+            setUser(null);
+            localStorage.removeItem('user');
             toast.error('Google login failed. Please try again.');
             throw err;
         }
