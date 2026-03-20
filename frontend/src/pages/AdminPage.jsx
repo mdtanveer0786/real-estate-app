@@ -16,6 +16,8 @@ import PropertyManagement from '../components/admin/PropertyManagement';
 import PropertyForm from '../components/admin/PropertyForm';
 import UserManagement from '../components/admin/UserManagement';
 import Inquiries from '../components/admin/Inquiries';
+import Analytics from '../components/admin/Analytics';
+import AddEditProperty from './AddEditProperty';
 
 const AdminPage = () => {
   const { user, logout } = useAuth();
@@ -49,6 +51,7 @@ const AdminPage = () => {
 
   const menuItems = [
     { path: '', name: 'Dashboard', icon: FiBarChart2 },
+    { path: 'analytics', name: 'Analytics', icon: FiTrendingUp },
     { path: 'properties', name: 'All Properties', icon: FiList },
     { path: 'add-property', name: 'Add Property', icon: FiPlus },
     { path: 'users', name: 'Users', icon: FiUsers },
@@ -189,9 +192,10 @@ const AdminPage = () => {
             >
               <Routes>
                 <Route index element={<Dashboard stats={stats} />} />
+                <Route path="analytics" element={<Analytics />} />
                 <Route path="properties" element={<PropertyManagement />} />
-                <Route path="add-property" element={<PropertyForm />} />
-                <Route path="edit-property/:id" element={<PropertyForm />} />
+                <Route path="add-property" element={<AddEditProperty />} />
+                <Route path="edit-property/:id" element={<AddEditProperty />} />
                 <Route path="users" element={<UserManagement />} />
                 <Route path="inquiries" element={<Inquiries />} />
               </Routes>

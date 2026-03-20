@@ -210,6 +210,13 @@ const Inquiries = () => {
                                                     <option value="contacted">Contacted</option>
                                                     <option value="closed">Closed</option>
                                                 </select>
+                                                <button
+                                                    onClick={() => handleDelete(inquiry._id)}
+                                                    className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                    title="Delete Inquiry"
+                                                >
+                                                    <FiTrash2 size={16} />
+                                                </button>
                                             </div>
                                         </div>
 

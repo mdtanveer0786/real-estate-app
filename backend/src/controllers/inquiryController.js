@@ -91,4 +91,20 @@ const updateInquiryStatus = asyncHandler(async (req, res) => {
     res.json({ success: true, inquiry: updated });
 });
 
-module.exports = { createInquiry, getInquiries, updateInquiryStatus };
+// @desc   Delete inquiry
+// @route  DELETE /api/inquiries/:id
+// @access Private/Agent/Admin
+const deleteInquiry = asyncHandler(async (req, res) => {
+    const inquiry = await Inquiry.findById(req.params.id).populate('property', 'createdBy');
+    if (!inquiry) { res.status(404); throw new Error('Inquiry not found'); }
+
+    // Agents can only delete inquiries for their own properties
+    if (req.user.role === 'agent' && inquiry.property.createdBy.toString() !== req.user._id.toString()) {
+        res.status(403); throw new Error('Not authorized to delete this inquiry');
+    }
+
+    await inquiry.deleteOne();
+    res.json({ success: true, message: 'Inquiry deleted successfully' });
+});
+
+module.exports = { createInquiry, getInquiries, updateInquiryStatus, deleteInquiry };

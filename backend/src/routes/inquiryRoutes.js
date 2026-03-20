@@ -15,6 +15,8 @@ router.route('/')
     .post(resolveUser, validate(inquirySchema), createInquiry)
     .get(protect, agentOrAdmin, getInquiries);
 
-router.put('/:id', protect, agentOrAdmin, updateInquiryStatus);
+router.route('/:id')
+    .put(protect, agentOrAdmin, updateInquiryStatus)
+    .delete(protect, agentOrAdmin, deleteInquiry);
 
 module.exports = router;
