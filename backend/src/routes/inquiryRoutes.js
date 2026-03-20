@@ -8,6 +8,7 @@ const {
     createInquiry,
     getInquiries,
     updateInquiryStatus,
+    deleteInquiry,
 } = require('../controllers/inquiryController');
 const { protect, admin, agentOrAdmin, resolveUser } = require('../middleware/authMiddleware');
 
