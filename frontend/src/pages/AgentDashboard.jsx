@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
     FiPlus, FiEdit3, FiTrash2, FiEye, FiSearch, 
     FiFilter, FiHome, FiTrendingUp, FiMessageCircle, FiStar,
