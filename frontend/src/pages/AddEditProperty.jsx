@@ -113,7 +113,7 @@ const AddEditProperty = () => {
     const removeExisting = (index) => setExistingImages(prev => prev.filter((_, i) => i !== index));
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        if (e && e.preventDefault) e.preventDefault();
         setLoading(true);
 
         try {
@@ -123,7 +123,9 @@ const AddEditProperty = () => {
                 bedrooms: Number(form.bedrooms),
                 bathrooms: Number(form.bathrooms),
                 area: { value: Number(form.area.value), unit: form.area.unit },
-                features: form.features.split(',').map(f => f.trim()).filter(Boolean),
+                features: typeof form.features === 'string' 
+                    ? form.features.split(',').map(f => f.trim()).filter(Boolean)
+                    : form.features,
                 amenities: form.amenities,
             };
 
@@ -133,11 +135,11 @@ const AddEditProperty = () => {
             if (isEdit) {
                 await api.put(`/properties/${id}`, body);
                 propertyId = id;
-                toast.success('Property updated!');
+                toast.success('Property updated successfully!');
             } else {
                 const { data } = await api.post('/properties', body);
                 propertyId = data.property?._id || data._id;
-                toast.success('Property created!');
+                toast.success('Property created successfully!');
             }
 
             if (images.length > 0 && propertyId) {
@@ -150,7 +152,9 @@ const AddEditProperty = () => {
 
             navigate('/agent');
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Failed to save property');
+            console.error('Update error:', err);
+            const errorMsg = err.response?.data?.error || err.response?.data?.message || 'Failed to save property';
+            toast.error(errorMsg);
         } finally {
             setLoading(false);
         }

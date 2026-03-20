@@ -9,12 +9,12 @@ const {
     getInquiries,
     updateInquiryStatus,
 } = require('../controllers/inquiryController');
-const { protect, admin, resolveUser } = require('../middleware/authMiddleware');
+const { protect, admin, agentOrAdmin, resolveUser } = require('../middleware/authMiddleware');
 
 router.route('/')
     .post(resolveUser, validate(inquirySchema), createInquiry)
-    .get(protect, admin, getInquiries);
+    .get(protect, agentOrAdmin, getInquiries);
 
-router.put('/:id', protect, admin, updateInquiryStatus);
+router.put('/:id', protect, agentOrAdmin, updateInquiryStatus);
 
 module.exports = router;

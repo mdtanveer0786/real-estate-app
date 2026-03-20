@@ -29,6 +29,10 @@ const createInquiry = asyncHandler(async (req, res) => {
     });
 
     if (inquiry) {
+        // Increment inquiryCount on property
+        const Property = require('../models/Property');
+        await Property.findByIdAndUpdate(propertyId, { $inc: { inquiryCount: 1 } });
+
         // Populate property title then fire emails non-blocking
         Inquiry.findById(inquiry._id).populate('property', 'title').then(populated => {
             sendInquiryConfirmation(populated)
@@ -46,10 +50,20 @@ const createInquiry = asyncHandler(async (req, res) => {
 
 // @desc   Get all inquiries
 // @route  GET /api/inquiries
-// @access Private/Admin
+// @access Private/Agent/Admin
 const getInquiries = asyncHandler(async (req, res) => {
-    const inquiries = await Inquiry.find({})
-        .populate('property', 'title price')
+    let filter = {};
+
+    // Agents only see inquiries for their properties
+    if (req.user.role === 'agent') {
+        const Property = require('../models/Property');
+        const agentProperties = await Property.find({ createdBy: req.user._id }).select('_id');
+        const propertyIds = agentProperties.map(p => p._id);
+        filter = { property: { $in: propertyIds } };
+    }
+
+    const inquiries = await Inquiry.find(filter)
+        .populate('property', 'title price createdBy')
         .populate('user', 'name email')
         .sort({ createdAt: -1 });
     res.json({ success: true, inquiries });
@@ -57,10 +71,15 @@ const getInquiries = asyncHandler(async (req, res) => {
 
 // @desc   Update inquiry status
 // @route  PUT /api/inquiries/:id
-// @access Private/Admin
+// @access Private/Agent/Admin
 const updateInquiryStatus = asyncHandler(async (req, res) => {
-    const inquiry = await Inquiry.findById(req.params.id);
+    const inquiry = await Inquiry.findById(req.params.id).populate('property', 'createdBy');
     if (!inquiry) { res.status(404); throw new Error('Inquiry not found'); }
+
+    // Agents can only update status for their own properties
+    if (req.user.role === 'agent' && inquiry.property.createdBy.toString() !== req.user._id.toString()) {
+        res.status(403); throw new Error('Not authorized to update this inquiry');
+    }
 
     const allowed = ['new', 'contacted', 'closed'];
     if (req.body.status && !allowed.includes(req.body.status)) {

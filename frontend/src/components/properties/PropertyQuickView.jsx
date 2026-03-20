@@ -1,132 +1,181 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiX, FiMapPin, FiMaximize2, FiHome, FiTag, FiCalendar, FiEye } from 'react-icons/fi';
+import { 
+  FiX, FiMapPin, FiMaximize2, FiHome, FiTag, 
+  FiCalendar, FiEye, FiChevronLeft, FiChevronRight 
+} from 'react-icons/fi';
 import { getImageUrl } from '../../utils/imageHelper';
 
 const PropertyQuickView = ({ property, isOpen, onClose }) => {
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+
   if (!property) return null;
+
+  const images = property.images?.length > 0 
+    ? property.images 
+    : [{ url: 'https://via.placeholder.com/800x600?text=No+Image' }];
+
+  const nextImage = (e) => {
+    e.stopPropagation();
+    setActiveImageIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = (e) => {
+    e.stopPropagation();
+    setActiveImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
           />
 
-          {/* Modal */}
+          {/* Modal Container */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="fixed inset-4 md:inset-auto md:w-[800px] md:max-h-[90vh] bg-white dark:bg-gray-800 rounded-2xl shadow-2xl z-[101] overflow-hidden flex flex-col md:flex-row"
-            style={{ left: '50%', top: '50%', x: '-50%', y: '-50%' }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="relative w-full max-w-5xl max-h-[90vh] bg-white dark:bg-gray-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row"
+            onClick={(e) => e.stopPropagation()}
           >
-            {/* Image Section */}
-            <div className="w-full md:w-1/2 h-64 md:h-auto relative">
+            {/* Close Button - Mobile */}
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 z-50 p-2 bg-black/20 hover:bg-black/40 text-white rounded-full backdrop-blur-md md:hidden transition-colors"
+            >
+              <FiX className="w-5 h-5" />
+            </button>
+
+            {/* Left Side: Image Gallery */}
+            <div className="w-full md:w-3/5 h-[300px] sm:h-[400px] md:h-auto relative bg-gray-100 dark:bg-gray-800">
               <img
-                src={property.images?.[0]?.url ? getImageUrl(property.images[0].url) : 'https://via.placeholder.com/800x600?text=No+Image'}
+                src={getImageUrl(images[activeImageIndex].url)}
                 alt={property.title}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute top-4 left-4">
-                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg ${
-                  property.status === 'available' ? 'bg-emerald-500 text-white' : 'bg-orange-500 text-white'
+              
+              {/* Navigation Arrows */}
+              {images.length > 1 && (
+                <>
+                  <button
+                    onClick={prevImage}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/20 hover:bg-white/40 text-white rounded-full backdrop-blur-md transition-all"
+                  >
+                    <FiChevronLeft className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={nextImage}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/20 hover:bg-white/40 text-white rounded-full backdrop-blur-md transition-all"
+                  >
+                    <FiChevronRight className="w-6 h-6" />
+                  </button>
+                </>
+              )}
+
+              {/* Status Badge */}
+              <div className="absolute top-6 left-6">
+                <span className={`px-4 py-1.5 rounded-xl text-xs font-bold uppercase tracking-widest shadow-xl border border-white/20 backdrop-blur-md ${
+                  property.status === 'available' 
+                    ? 'bg-emerald-500/90 text-white' 
+                    : 'bg-orange-500/90 text-white'
                 }`}>
                   {property.status}
                 </span>
               </div>
-              {property.images?.length > 1 && (
-                <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-md text-white px-2 py-1 rounded text-xs">
-                  +{property.images.length - 1} more photos
-                </div>
-              )}
+
+              {/* Image Counter */}
+              <div className="absolute bottom-6 left-6 bg-black/40 backdrop-blur-md text-white px-3 py-1 rounded-lg text-xs font-medium">
+                {activeImageIndex + 1} / {images.length}
+              </div>
             </div>
 
-            {/* Content Section */}
-            <div className="w-full md:w-1/2 p-6 overflow-y-auto">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                    {property.title}
-                  </h2>
-                  <p className="text-primary-600 font-bold text-xl">
-                    ₹{property.price?.toLocaleString('en-IN')}
-                  </p>
-                </div>
+            {/* Right Side: Content */}
+            <div className="w-full md:w-2/5 p-6 sm:p-8 overflow-y-auto bg-white dark:bg-gray-900">
+              <div className="hidden md:flex justify-end mb-2">
                 <button
                   onClick={onClose}
-                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors text-gray-400 hover:text-gray-600 dark:hover:text-white"
                 >
-                  <FiX className="w-6 h-6 text-gray-500" />
+                  <FiX className="w-6 h-6" />
                 </button>
               </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center text-gray-600 dark:text-gray-400">
-                  <FiMapPin className="mr-2 text-primary-500" />
-                  <span>{property.location?.address}, {property.location?.city}</span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl flex items-center">
-                    <FiHome className="mr-3 text-primary-500" />
-                    <div>
-                      <p className="text-xs text-gray-500">Type</p>
-                      <p className="text-sm font-semibold capitalize">{property.propertyType}</p>
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl flex items-center">
-                    <FiTag className="mr-3 text-primary-500" />
-                    <div>
-                      <p className="text-xs text-gray-500">Listing</p>
-                      <p className="text-sm font-semibold capitalize">For {property.type}</p>
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl flex items-center">
-                    <FiMaximize2 className="mr-3 text-primary-500" />
-                    <div>
-                      <p className="text-xs text-gray-500">Area</p>
-                      <p className="text-sm font-semibold">{property.area?.value} {property.area?.unit}</p>
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 dark:bg-gray-700/50 p-3 rounded-xl flex items-center">
-                    <FiCalendar className="mr-3 text-primary-500" />
-                    <div>
-                      <p className="text-xs text-gray-500">Listed on</p>
-                      <p className="text-sm font-semibold">{new Date(property.createdAt).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                </div>
-
+              <div className="space-y-6">
                 <div>
-                  <h3 className="font-semibold mb-2">Description</h3>
-                  <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-4">
+                  <div className="flex items-center gap-2 text-primary-600 dark:text-primary-400 font-bold text-sm uppercase tracking-wider mb-2">
+                    <FiTag className="w-4 h-4" />
+                    For {property.type}
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white leading-tight">
+                    {property.title}
+                  </h2>
+                  <p className="text-3xl font-black text-primary-600 mt-2">
+                    ₹{property.price?.toLocaleString('en-IN')}
+                  </p>
+                </div>
+
+                <div className="flex items-start gap-2 text-gray-500 dark:text-gray-400">
+                  <FiMapPin className="w-5 h-5 mt-1 flex-shrink-0 text-primary-500" />
+                  <span className="text-sm sm:text-base">
+                    {property.location?.address}, {property.location?.city}, {property.location?.state}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl border border-gray-100 dark:border-gray-800">
+                    <div className="flex items-center gap-3 mb-1 text-gray-400">
+                      <FiHome className="w-4 h-4" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider">Type</span>
+                    </div>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white capitalize">{property.propertyType}</p>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl border border-gray-100 dark:border-gray-800">
+                    <div className="flex items-center gap-3 mb-1 text-gray-400">
+                      <FiMaximize2 className="w-4 h-4" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider">Area</span>
+                    </div>
+                    <p className="text-sm font-bold text-gray-900 dark:text-white capitalize">{property.area?.value} {property.area?.unit}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider">Description</h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed line-clamp-4 sm:line-clamp-6">
                     {property.description}
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
-                  <div className="flex items-center text-sm text-gray-500">
-                    <FiEye className="mr-1" />
-                    {property.views || 0} views
+                <div className="pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4 mt-auto">
+                  <div className="flex items-center gap-4 text-xs font-bold text-gray-400">
+                    <div className="flex items-center gap-1.5">
+                      <FiEye className="w-4 h-4" />
+                      {property.views || 0}
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <FiCalendar className="w-4 h-4" />
+                      {new Date(property.createdAt).toLocaleDateString()}
+                    </div>
                   </div>
                   <button
                     onClick={() => window.open(`/property/${property._id}`, '_blank')}
-                    className="text-primary-600 font-semibold hover:text-primary-700 text-sm flex items-center gap-1"
+                    className="w-full sm:w-auto px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl shadow-lg shadow-primary-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                   >
-                    View Full Details <FiMaximize2 className="w-3 h-3" />
+                    View Details
+                    <FiMaximize2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
             </div>
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   );

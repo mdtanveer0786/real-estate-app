@@ -54,7 +54,7 @@ reviewSchema.index({ user: 1, agent: 1 }, { unique: true, sparse: true });
 // Static: Calculate average rating for a property
 reviewSchema.statics.calcAverageRating = async function (propertyId) {
     const stats = await this.aggregate([
-        { $match: { property: propertyId } },
+        { $match: { property: new mongoose.Types.ObjectId(propertyId) } },
         {
             $group: {
                 _id: '$property',
