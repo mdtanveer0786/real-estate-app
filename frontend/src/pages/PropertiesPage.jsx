@@ -133,7 +133,7 @@ const PropertiesPage = () => {
                         role="dialog"
                     >
                         <div 
-                            className="w-full sm:max-w-6xl h-[95vh] sm:h-auto sm:max-h-[90vh] overflow-hidden rounded-t-2xl sm:rounded-2xl shadow-2xl"
+                            className="w-full sm:max-w-6xl h-[95vh] sm:h-auto sm:max-h-[90vh] overflow-y-auto no-scrollbar rounded-t-2xl sm:rounded-2xl shadow-2xl"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <PropertyDetails 
