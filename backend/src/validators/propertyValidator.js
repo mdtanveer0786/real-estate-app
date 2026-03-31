@@ -68,7 +68,7 @@ const inquirySchema = z.object({
 const contactSchema = z.object({
     name: z.string().min(1, 'Name is required').max(100).trim(),
     email: z.string().email('Invalid email address').toLowerCase().trim(),
-    subject: z.string().min(1, 'Subject is required').max(200).trim().optional(),
+    subject: z.string().min(1, 'Subject is required').max(200).trim(),
     phone: z.string().optional(),
     message: z.string().min(1, 'Message is required').max(5000).trim(),
 });

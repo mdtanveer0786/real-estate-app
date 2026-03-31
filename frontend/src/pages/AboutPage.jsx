@@ -65,7 +65,7 @@ const AboutPage = () => {
 
             <div className="bg-white dark:bg-gray-900">
                 {/* Hero Section */}
-                <section className="relative bg-gradient-to-br from-gray-900 via-primary-900 to-gray-900 text-white py-24 overflow-hidden">
+                <section className="relative bg-gradient-to-br from-gray-900 via-primary-900 to-gray-900 text-white py-14 sm:py-20 lg:py-24 overflow-hidden">
                     <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=2000&q=80')] opacity-10 bg-cover bg-center mix-blend-overlay"></div>
                     <div className="container-custom text-center relative z-10">
                         <motion.h1

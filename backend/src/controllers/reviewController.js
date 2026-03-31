@@ -3,6 +3,8 @@
 const asyncHandler = require('express-async-handler');
 const Review = require('../models/Review');
 const Property = require('../models/Property');
+const NotificationService = require('../services/notificationService');
+const { emitNotification } = require('../config/socket');
 
 // @desc    Create a review for a property
 // @route   POST /api/reviews/:propertyId
@@ -10,7 +12,7 @@ const Property = require('../models/Property');
 const createReview = asyncHandler(async (req, res) => {
     const { rating, title, comment } = req.body;
 
-    const property = await Property.findById(req.params.propertyId);
+    const property = await Property.findById(req.params.propertyId).select('title createdBy');
     if (!property) {
         res.status(404);
         throw new Error('Property not found');
@@ -33,6 +35,21 @@ const createReview = asyncHandler(async (req, res) => {
         title,
         comment,
     });
+
+    // Notify property owner (fire-and-forget)
+    if (property.createdBy &&
+        property.createdBy.toString() !== req.user._id.toString()) {
+        NotificationService.create({
+            user: property.createdBy,
+            type: 'review',
+            title: 'New Review on Your Property',
+            message: `${req.user.name} left a ${rating}-star review on "${property.title}"`,
+            link: `/property/${req.params.propertyId}`,
+            metadata: { reviewId: review._id, propertyId: req.params.propertyId, rating },
+        }).then(notification => {
+            emitNotification(property.createdBy.toString(), notification);
+        }).catch(err => console.error('Review notification failed:', err.message));
+    }
 
     res.status(201).json({
         success: true,

@@ -107,7 +107,20 @@
 
 <body>
     <div id="root"></div>
+    <!-- Anti-flash theme script: runs synchronously before any JS bundle -->
+    <script>
+      (function(){
+        var t = localStorage.getItem('theme');
+        var prefer = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (t === 'dark' || (!t && prefer)) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      })();
+    </script>
     <script type="module" src="/src/index.jsx"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </body>
 
 </html>

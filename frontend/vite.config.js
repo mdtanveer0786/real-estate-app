@@ -6,18 +6,24 @@ export default defineConfig({
     base: '/',
     server: {
         port: 3000,
-        open: true
+        open: false,
+        host: true,
     },
     build: {
         outDir: 'dist',
         emptyOutDir: true,
         sourcemap: false,
+        chunkSizeWarningLimit: 600,
         rollupOptions: {
             output: {
                 manualChunks: {
-                    vendor: ['react', 'react-dom', 'react-router-dom', 'framer-motion'],
-                    icons: ['react-icons'],
-                    ui: ['swiper', 'react-hot-toast']
+                    'react-core':   ['react', 'react-dom'],
+                    'react-router': ['react-router-dom'],
+                    'animations':   ['framer-motion'],
+                    'icons':        ['react-icons'],
+                    'ui':           ['swiper', 'react-hot-toast', 'react-hook-form'],
+                    'query':        ['react-query'],
+                    'utils':        ['axios', 'date-fns', 'lodash'],
                 },
             },
         },
@@ -25,13 +31,12 @@ export default defineConfig({
     esbuild: {
         loader: 'jsx',
         include: /src\/.*\.jsx?$/,
-        exclude: []
+        exclude: [],
     },
     optimizeDeps: {
+        include: ['react', 'react-dom', 'react-router-dom'],
         esbuildOptions: {
-            loader: {
-                '.js': 'jsx',
-            },
+            loader: { '.js': 'jsx' },
         },
     },
 });

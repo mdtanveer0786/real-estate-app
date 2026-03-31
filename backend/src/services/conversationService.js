@@ -1,147 +1,143 @@
 'use strict';
 
 const Conversation = require('../models/Conversation');
-const AppError = require('../utils/AppError');
+const Message      = require('../models/Message');
+const AppError     = require('../utils/AppError');
 
 class ConversationService {
-    /**
-     * Get or create a conversation between two users about a property.
-     */
+
+    /** Get or create a 1-to-1 conversation (optionally scoped to a property). */
     static async getOrCreate(participantIds, propertyId = null) {
-        // Find existing conversation between these participants
-        let conversation = await Conversation.findOne({
-            participants: { $all: participantIds, $size: participantIds.length },
+        const sorted = [...participantIds].sort();           // canonical order
+        let conv = await Conversation.findOne({
+            participants: { $all: sorted, $size: sorted.length },
             ...(propertyId ? { property: propertyId } : {}),
-        }).populate('participants', 'name email avatar');
+        }).populate('participants', 'name email avatar role');
 
-        if (!conversation) {
-            conversation = await Conversation.create({
-                participants: participantIds,
-                property: propertyId,
+        if (!conv) {
+            conv = await Conversation.create({
+                participants: sorted,
+                property: propertyId || undefined,
             });
-            conversation = await conversation.populate('participants', 'name email avatar');
+            conv = await conv.populate('participants', 'name email avatar role');
         }
-
-        return conversation;
+        return conv;
     }
 
-    /**
-     * Get all conversations for a user.
-     */
+    /** List conversations for a user, newest-last-message first. */
     static async listForUser(userId, { page = 1, limit = 20 } = {}) {
         const filter = { participants: userId, status: 'active' };
 
         const [total, conversations] = await Promise.all([
             Conversation.countDocuments(filter),
             Conversation.find(filter)
-                .populate('participants', 'name email avatar')
+                .populate('participants', 'name email avatar role')
                 .populate('property', 'title images slug')
                 .sort({ 'lastMessage.timestamp': -1, updatedAt: -1 })
                 .skip((page - 1) * limit)
-                .limit(limit)
-                .select('-messages'), // Don't load all messages in list view
+                .limit(limit),
         ]);
 
-        return { conversations, total, page, pages: Math.ceil(total / limit) };
+        // Attach unread count for this user
+        const result = conversations.map(conv => {
+            const plain = conv.toObject();
+            plain.myUnread = conv.unreadCount?.get(userId.toString()) || 0;
+            return plain;
+        });
+
+        return { conversations: result, total, page, pages: Math.ceil(total / limit) };
     }
 
-    /**
-     * Get messages for a conversation (paginated, newest last).
-     */
+    /** Get paginated messages for a conversation (oldest first, page from end). */
     static async getMessages(conversationId, userId, { page = 1, limit = 50 } = {}) {
-        const conversation = await Conversation.findOne({
+        const conv = await Conversation.findOne({
             _id: conversationId,
             participants: userId,
         });
+        if (!conv) throw AppError.notFound('Conversation');
 
-        if (!conversation) throw AppError.notFound('Conversation');
+        const total = await Message.countDocuments({ conversation: conversationId, deletedAt: { $exists: false } });
+        const messages = await Message.find({
+            conversation: conversationId,
+            deletedAt: { $exists: false },
+        })
+            .populate('sender', 'name avatar')
+            .sort({ createdAt: 1 })
+            .skip(Math.max(0, total - page * limit))
+            .limit(limit);
 
-        const totalMessages = conversation.messages.length;
-        const start = Math.max(0, totalMessages - page * limit);
-        const end = Math.max(0, totalMessages - (page - 1) * limit);
-
-        const messages = conversation.messages.slice(start, end);
-
-        return {
-            messages,
-            total: totalMessages,
-            page,
-            pages: Math.ceil(totalMessages / limit),
-        };
+        return { messages, total, page, pages: Math.ceil(total / limit) };
     }
 
-    /**
-     * Send a message in a conversation.
-     */
+    /** Send a message, update conversation metadata, return populated message. */
     static async sendMessage(conversationId, senderId, text) {
-        const conversation = await Conversation.findOne({
+        const conv = await Conversation.findOne({
             _id: conversationId,
             participants: senderId,
             status: 'active',
         });
+        if (!conv) throw AppError.notFound('Conversation');
 
-        if (!conversation) throw AppError.notFound('Conversation');
-
-        const message = {
+        // Create message in separate collection
+        const msg = await Message.create({
+            conversation: conversationId,
             sender: senderId,
             text: text.trim(),
-        };
+            deliveredTo: [{ user: senderId }], // sender always delivered
+        });
 
-        conversation.messages.push(message);
-        conversation.lastMessage = {
-            text: text.trim().substring(0, 100),
-            sender: senderId,
+        // Increment unread for every OTHER participant
+        for (const pid of conv.participants) {
+            if (pid.toString() !== senderId.toString()) {
+                const key = pid.toString();
+                conv.unreadCount.set(key, (conv.unreadCount.get(key) || 0) + 1);
+            }
+        }
+
+        conv.lastMessage = {
+            text:      text.trim().substring(0, 100),
+            sender:    senderId,
             timestamp: new Date(),
         };
+        await conv.save();
 
-        await conversation.save();
-
-        // Return the last message (with its generated _id)
-        const savedMessage = conversation.messages[conversation.messages.length - 1];
-        return { message: savedMessage, conversation };
+        const populated = await msg.populate('sender', 'name avatar');
+        return { message: populated, conversation: conv };
     }
 
-    /**
-     * Mark messages as read.
-     */
+    /** Mark all messages in a conversation as read by userId. */
     static async markRead(conversationId, userId) {
-        const conversation = await Conversation.findOne({
+        const conv = await Conversation.findOne({
             _id: conversationId,
             participants: userId,
         });
+        if (!conv) return { updated: 0 };
 
-        if (!conversation) return;
+        // Zero out unread for this user
+        conv.unreadCount.set(userId.toString(), 0);
+        await conv.save();
 
-        let updated = false;
-        conversation.messages.forEach(msg => {
-            if (msg.sender.toString() !== userId.toString() && !msg.read) {
-                msg.read = true;
-                updated = true;
-            }
-        });
+        // Mark messages as seen
+        const result = await Message.updateMany(
+            {
+                conversation: conversationId,
+                sender: { $ne: userId },
+                'seenBy.user': { $ne: userId },
+                deletedAt: { $exists: false },
+            },
+            { $push: { seenBy: { user: userId, at: new Date() } } }
+        );
 
-        if (updated) await conversation.save();
-        return { updated };
+        return { updated: result.modifiedCount };
     }
 
-    /**
-     * Get unread message count across all conversations.
-     */
+    /** Total unread across all conversations for a user. */
     static async getUnreadCount(userId) {
-        const conversations = await Conversation.find({
-            participants: userId,
-            status: 'active',
-        }).select('messages');
-
+        const convs = await Conversation.find({ participants: userId, status: 'active' });
         let count = 0;
-        conversations.forEach(conv => {
-            conv.messages.forEach(msg => {
-                if (msg.sender.toString() !== userId.toString() && !msg.read) {
-                    count++;
-                }
-            });
+        convs.forEach(c => {
+            count += c.unreadCount?.get(userId.toString()) || 0;
         });
-
         return count;
     }
 }

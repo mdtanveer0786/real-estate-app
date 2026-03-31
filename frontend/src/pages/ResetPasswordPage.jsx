@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import SEO from '../components/common/SEO';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
@@ -40,7 +41,7 @@ const ResetPasswordPage = () => {
     // ── Invalid / expired token ────────────────────────────────────────────
     if (tokenError) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4">
+            <div className="min-h-[calc(100dvh-4.25rem)] flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-6 sm:py-10 px-4">
                 <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
                     className="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center">
                     <div className="w-20 h-20 bg-red-100 dark:bg-red-900/40 rounded-full flex items-center justify-center mx-auto mb-5">
@@ -61,7 +62,7 @@ const ResetPasswordPage = () => {
     // ── Success ────────────────────────────────────────────────────────────
     if (success) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4">
+            <div className="min-h-[calc(100dvh-4.25rem)] flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-6 sm:py-10 px-4">
                 <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
                     className="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 text-center">
                     <div className="w-20 h-20 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center mx-auto mb-5">

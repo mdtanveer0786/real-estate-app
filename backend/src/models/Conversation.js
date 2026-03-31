@@ -2,28 +2,6 @@
 
 const mongoose = require('mongoose');
 
-const messageSchema = new mongoose.Schema({
-    sender: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-    },
-    text: {
-        type: String,
-        required: true,
-        maxlength: 2000,
-    },
-    read: {
-        type: Boolean,
-        default: false,
-    },
-    attachments: [{
-        type: { type: String, enum: ['image', 'file'] },
-        url: String,
-        name: String,
-    }],
-}, { timestamps: true });
-
 const conversationSchema = new mongoose.Schema({
     participants: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -35,11 +13,16 @@ const conversationSchema = new mongoose.Schema({
         ref: 'Property',
     },
     lastMessage: {
-        text: String,
-        sender: mongoose.Schema.Types.ObjectId,
+        text:      String,
+        sender:    { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         timestamp: Date,
     },
-    messages: [messageSchema],
+    // Unread count per participant: { userId: count }
+    unreadCount: {
+        type: Map,
+        of: Number,
+        default: {},
+    },
     status: {
         type: String,
         enum: ['active', 'archived', 'blocked'],
@@ -49,7 +32,6 @@ const conversationSchema = new mongoose.Schema({
     timestamps: true,
 });
 
-// Indexes
 conversationSchema.index({ participants: 1 });
 conversationSchema.index({ 'lastMessage.timestamp': -1 });
 conversationSchema.index({ property: 1 });

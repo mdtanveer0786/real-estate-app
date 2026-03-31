@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import SEO from '../components/common/SEO';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FcGoogle } from 'react-icons/fc';
@@ -39,7 +40,7 @@ const GoogleAuthSuccess = () => {
 
     if (status === 'loading') {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+            <div className="min-h-[calc(100dvh-4.25rem)] flex items-center justify-center bg-gray-50 dark:bg-gray-900">
                 <div className="text-center">
                     <FcGoogle className="text-5xl mx-auto mb-4 animate-bounce" />
                     <p className="text-gray-600 dark:text-gray-400">Completing Google sign-in...</p>

@@ -116,7 +116,7 @@ const PropertyCard = ({ property, onDelete, onClick }) => {
 
                         {/* Featured Badge - Fixed positioning */}
                         {property.featured && (
-                            <div className="absolute top-3 left-24">
+                            <div className="absolute top-12 left-3">
                                 <span className="badge bg-yellow-500 text-white flex items-center gap-1">
                                     <FiStar className="fill-current" /> Featured
                                 </span>

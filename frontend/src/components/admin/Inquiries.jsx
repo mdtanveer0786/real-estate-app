@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     FiMail, FiPhone, FiCalendar,
-    FiCheck, FiX, FiClock, FiLoader, FiInbox,
+    FiCheck, FiX, FiClock, FiLoader, FiInbox, FiTrash2,
 } from 'react-icons/fi';
 import api from '../../services/api';
 import toast from 'react-hot-toast';

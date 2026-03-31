@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiLogIn } from 'react-icons/fi';
@@ -9,6 +9,8 @@ import { useAuth } from '../../context/AuthContext';
 const Login = () => {
     const { login, verify2FALogin } = useAuth();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const redirectTo = searchParams.get('redirect') || null;
     const [loading, setLoading]   = useState(false);
     const [showPwd, setShowPwd]   = useState(false);
 
@@ -31,8 +33,12 @@ const Login = () => {
                 return;
             }
 
-            if (result?.user?.role === 'admin') {
+            if (redirectTo) {
+                navigate(redirectTo);
+            } else if (result?.user?.role === 'admin') {
                 navigate('/admin');
+            } else if (result?.user?.role === 'agent') {
+                navigate('/agent');
             } else {
                 navigate('/');
             }
@@ -48,8 +54,12 @@ const Login = () => {
         setLoading(true);
         try {
             const result = await verify2FALogin(tempToken, twoFACode);
-            if (result?.user?.role === 'admin') {
+            if (redirectTo) {
+                navigate(redirectTo);
+            } else if (result?.user?.role === 'admin') {
                 navigate('/admin');
+            } else if (result?.user?.role === 'agent') {
+                navigate('/agent');
             } else {
                 navigate('/');
             }
@@ -66,7 +76,7 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-[calc(100dvh-4.25rem)] flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-6 sm:py-10 px-4 sm:px-6">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

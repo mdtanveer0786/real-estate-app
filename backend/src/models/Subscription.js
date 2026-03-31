@@ -95,8 +95,8 @@ subscriptionSchema.statics.getPlanLimits = function (plan) {
             price: 49900, // ₹499 in paise
         },
         premium: {
-            maxListings: 999,
-            featuredListings: 10,
+            maxListings: 9999, // unlimited
+            featuredListings: 9999, // unlimited
             analytics: true,
             aiInsights: true,
             prioritySupport: true,

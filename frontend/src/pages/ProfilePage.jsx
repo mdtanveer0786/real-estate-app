@@ -14,7 +14,7 @@ import toast from 'react-hot-toast';
 import { getImageUrl } from '../utils/imageHelper';
 
 const ProfilePage = () => {
-    const { user, logout } = useAuth();
+    const { user, logout, updateProfile } = useAuth();
     const { wishlist } = useWishlist();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
@@ -47,12 +47,10 @@ const ProfilePage = () => {
     const onSubmit = async (data) => {
         setLoading(true);
         try {
-            const response = await api.put('/auth/profile', data);
-            toast.success('Profile updated successfully');
+            await updateProfile(data);
             setEditing(false);
-            // Update user in context if needed
         } catch (error) {
-            toast.error(error.response?.data?.error || 'Failed to update profile');
+            // updateProfile already shows a toast error
         } finally {
             setLoading(false);
         }

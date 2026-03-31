@@ -13,7 +13,7 @@ const PropertyQuickView = ({ property, isOpen, onClose }) => {
 
   const images = property.images?.length > 0 
     ? property.images 
-    : [{ url: 'https://via.placeholder.com/800x600?text=No+Image' }];
+    : [{ url: `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%23f3f4f6'/%3E%3Cpath d='M340 240h120v30h-30v60h-60v-60h-30z' fill='%23d1d5db'/%3E%3C/svg%3E` }];
 
   const nextImage = (e) => {
     e.stopPropagation();

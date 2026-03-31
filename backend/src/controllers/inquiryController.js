@@ -3,6 +3,8 @@
 const asyncHandler = require('express-async-handler');
 const Inquiry = require('../models/Inquiry');
 const { sendInquiryConfirmation, sendInquiryToAdmin } = require('../utils/emailService');
+const NotificationService = require('../services/notificationService');
+const { emitNotification } = require('../config/socket');
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -31,15 +33,37 @@ const createInquiry = asyncHandler(async (req, res) => {
     if (inquiry) {
         // Increment inquiryCount on property
         const Property = require('../models/Property');
-        await Property.findByIdAndUpdate(propertyId, { $inc: { inquiryCount: 1 } });
+        const property = await Property.findByIdAndUpdate(
+            propertyId,
+            { $inc: { inquiryCount: 1 } },
+            { new: true }
+        ).select('title createdBy');
 
-        // Populate property title then fire emails non-blocking
-        Inquiry.findById(inquiry._id).populate('property', 'title').then(populated => {
+        // Populate property title then fire emails + notification non-blocking
+        Inquiry.findById(inquiry._id).populate('property', 'title').then(async populated => {
+            // Emails
             sendInquiryConfirmation(populated)
                 .catch(err => console.error('Inquiry user email failed:', err.message));
             sendInquiryToAdmin(populated)
                 .catch(err => console.error('Inquiry admin email failed:', err.message));
-        }).catch(err => console.error('Inquiry email populate failed:', err.message));
+
+            // In-app notification to property owner
+            if (property?.createdBy) {
+                try {
+                    const notification = await NotificationService.create({
+                        user: property.createdBy,
+                        type: 'inquiry',
+                        title: 'New Property Inquiry',
+                        message: `${name.trim()} is interested in "${property.title}"`,
+                        link: '/agent',
+                        metadata: { inquiryId: inquiry._id, propertyId },
+                    });
+                    emitNotification(property.createdBy.toString(), notification);
+                } catch (err) {
+                    console.error('Inquiry notification failed:', err.message);
+                }
+            }
+        }).catch(err => console.error('Inquiry post-save tasks failed:', err.message));
 
         res.status(201).json({ success: true, inquiry });
     } else {

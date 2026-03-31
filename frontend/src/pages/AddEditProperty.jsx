@@ -164,7 +164,7 @@ const AddEditProperty = () => {
     const labelClass = 'block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2';
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] dark:bg-gray-950 pb-24">
+        <div className="min-h-screen bg-[#f8fafc] dark:bg-gray-950 pb-28 sm:pb-24">
             {/* Header Sticky */}
             <div className="sticky top-0 z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">

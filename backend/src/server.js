@@ -11,9 +11,10 @@ const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const passport   = require('passport');
 const connectDB  = require('./config/db');
+require('./models/Message'); // ensure Message collection is registered
 const { setupGoogleStrategy } = require('./config/passport');
 const errorHandler = require('./middleware/errorMiddleware');
-const { apiLimiter, authLimiter, contactLimiter, inquiryLimiter } = require('./middleware/rateLimiter');
+const { apiLimiter, authLimiter, contactLimiter, inquiryLimiter, aiLimiter } = require('./middleware/rateLimiter');
 const logger     = require('./utils/logger');
 const sanitize   = require('./middleware/sanitize');
 const { verifyEmailConnection } = require('./utils/emailService');
@@ -76,22 +77,31 @@ if (process.env.NODE_ENV === 'development') {
     app.use(morgan('combined', { stream: logger.stream }));
 }
 
-// ── CORS ─────────────────────────────────────────────────────────────────────
+// ── CORS ──────────────────────────────────────────────────────────────────────
+// credentials:true + specific origin (not *) is required for cross-origin cookies.
+// FRONTEND_URL must be set to your exact Vercel URL (no trailing slash).
 const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:5173',
+    'http://localhost:4173',
     process.env.FRONTEND_URL,
 ].filter(Boolean);
 
 app.use(cors({
     origin: function (origin, callback) {
+        // Allow server-to-server (no origin) and curl during dev
         if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) {
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        // In development, allow any localhost port
+        if (process.env.NODE_ENV !== 'production' && origin.includes('localhost')) {
             return callback(null, true);
         }
-        return callback(new Error('Not allowed by CORS'));
+        logger.warn(`CORS blocked origin: ${origin}`);
+        return callback(new Error(`Origin ${origin} not allowed by CORS`));
     },
-    credentials: true, // Required for cookies
+    credentials: true,
+    // Expose these headers so the browser can read them
+    exposedHeaders: ['set-cookie'],
 }));
 
 // ── Rate limiting ────────────────────────────────────────────────────────────
@@ -121,8 +131,8 @@ app.use('/api/v1/reviews',       reviewRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
 app.use('/api/conversations',    conversationRoutes);
 app.use('/api/v1/conversations', conversationRoutes);
-app.use('/api/ai',               aiRoutes);
-app.use('/api/v1/ai',            aiRoutes);
+app.use('/api/ai',               aiLimiter, aiRoutes);
+app.use('/api/v1/ai',            aiLimiter, aiRoutes);
 app.use('/api/subscriptions',    subscriptionRoutes);
 app.use('/api/v1/subscriptions', subscriptionRoutes);
 

@@ -139,7 +139,7 @@ const PropertyDetails = ({ property, onClose }) => {
             {onClose && (
                 <button
                     onClick={onClose}
-                    className="fixed top-6 right-6 z-[60] bg-white/10 backdrop-blur-md text-white p-2.5 rounded-full hover:bg-white/20 transition-all shadow-xl border border-white/20 sm:top-8 sm:right-8"
+                    className="absolute top-4 right-4 z-[60] bg-white/10 backdrop-blur-md text-white p-2.5 rounded-full hover:bg-white/20 transition-all shadow-xl border border-white/20 sm:top-8 sm:right-8"
                     aria-label="Close"
                 >
                     <FiX size={24} />

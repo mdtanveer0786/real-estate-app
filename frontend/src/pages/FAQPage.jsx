@@ -47,7 +47,7 @@ const FAQPage = () => {
 
             <div className="bg-gray-50 dark:bg-gray-900 min-h-screen pb-16">
                 {/* Premium Hero Section */}
-                <section className="relative bg-gradient-to-br from-gray-900 via-primary-900 to-gray-900 text-white py-24 overflow-hidden">
+                <section className="relative bg-gradient-to-br from-gray-900 via-primary-900 to-gray-900 text-white py-14 sm:py-20 lg:py-24 overflow-hidden">
                     <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=2000&q=80')] opacity-10 bg-cover bg-center mix-blend-overlay"></div>
                     <div className="container-custom text-center relative z-10 px-4">
                         <motion.h1

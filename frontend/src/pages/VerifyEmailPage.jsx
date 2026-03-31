@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import SEO from '../components/common/SEO';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiCheckCircle, FiXCircle, FiLoader, FiArrowRight } from 'react-icons/fi';

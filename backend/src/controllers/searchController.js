@@ -1,6 +1,9 @@
 const asyncHandler = require('express-async-handler');
 const Property = require('../models/Property');
 
+// Escape special regex characters to prevent ReDoS attacks
+const escapeRegex = (str) => str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+
 // @desc    Search properties with autocomplete
 // @route   GET /api/search/suggestions
 // @access  Public
@@ -11,13 +14,15 @@ const getSearchSuggestions = asyncHandler(async (req, res) => {
         return res.json([]);
     }
 
+    const safeQ = escapeRegex(q);
+
     const suggestions = await Property.aggregate([
         {
             $match: {
                 $or: [
-                    { title: { $regex: q, $options: 'i' } },
-                    { 'location.city': { $regex: q, $options: 'i' } },
-                    { 'location.address': { $regex: q, $options: 'i' } },
+                    { title: { $regex: safeQ, $options: 'i' } },
+                    { 'location.city': { $regex: safeQ, $options: 'i' } },
+                    { 'location.address': { $regex: safeQ, $options: 'i' } },
                 ],
                 status: 'available',
             },
@@ -42,7 +47,7 @@ const getSearchSuggestions = asyncHandler(async (req, res) => {
         },
         {
             $match: {
-                suggestions: { $regex: q, $options: 'i' },
+                suggestions: { $regex: safeQ, $options: 'i' },
             },
         },
         {
@@ -102,7 +107,7 @@ const advancedSearch = asyncHandler(async (req, res) => {
 
     // Location
     if (city) {
-        query['location.city'] = { $regex: city, $options: 'i' };
+        query['location.city'] = { $regex: escapeRegex(city), $options: 'i' };
     }
 
     // Amenities

@@ -15,7 +15,7 @@ const TestimonialsPage = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="pt-20 bg-gray-50 dark:bg-gray-900 min-h-screen"
+                className="pt-4 bg-gray-50 dark:bg-gray-900 min-h-screen"
             >
                 {/* Premium Header */}
                 <div className="bg-gradient-to-r from-gray-900 via-primary-900 to-gray-900 text-white py-16 relative overflow-hidden">

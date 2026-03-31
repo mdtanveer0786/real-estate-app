@@ -34,14 +34,14 @@ const PropertyFilters = ({ filters, onFilterChange }) => {
             {/* Mobile Filter Button - More prominent */}
             <button
                 onClick={() => setIsOpen(true)}
-                className="lg:hidden fixed bottom-6 right-6 z-40 bg-primary-600 text-white p-4 rounded-2xl shadow-[0_10px_25px_-5px_rgba(37,99,235,0.4)] flex items-center gap-2 border border-primary-500 animate-fade-in"
+                className="lg:hidden fixed bottom-20 right-4 z-40 bg-primary-600 text-white p-4 rounded-2xl shadow-[0_10px_25px_-5px_rgba(37,99,235,0.4)] flex items-center gap-2 border border-primary-500 animate-fade-in"
             >
                 <FiFilter size={20} />
                 <span className="font-bold text-sm">Filters</span>
             </button>
 
             {/* Desktop Filters */}
-            <div className="hidden lg:block bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 sticky top-24 border border-gray-100 dark:border-gray-800">
+            <div className="hidden lg:block bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 sticky top-[5rem] border border-gray-100 dark:border-gray-800">
                 <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
                     <FiFilter className="text-primary-600" />
                     Search Filters

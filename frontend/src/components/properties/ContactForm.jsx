@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { FiMail, FiPhone, FiMessageSquare, FiSend, FiUser } from 'react-icons/fi';
+import { FiMail, FiPhone, FiMessageSquare, FiSend, FiUser, FiMessageCircle } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
@@ -10,6 +11,25 @@ const ContactForm = ({ property }) => {
     const propertyId = property?._id || property?.id;
     const { user, isAuthenticated } = useAuth();
     const [loading, setLoading] = useState(false);
+    const [chatLoading, setChatLoading] = useState(false);
+    const navigate = useNavigate();
+
+    const handleStartChat = async () => {
+        if (!isAuthenticated) { toast.error('Please login to chat'); navigate('/login'); return; }
+        const agentId = property?.createdBy?._id || property?.createdBy;
+        if (!agentId) { toast.error('Agent info unavailable'); return; }
+        if (agentId.toString() === user._id.toString()) { toast('You cannot chat with yourself'); return; }
+        setChatLoading(true);
+        try {
+            const { data } = await api.post('/conversations', {
+                participantId: agentId,
+                propertyId: propertyId,
+            });
+            navigate('/messages/' + data.conversation._id);
+        } catch (err) {
+            toast.error(err.response?.data?.error || 'Could not start chat');
+        } finally { setChatLoading(false); }
+    };
     const { register, handleSubmit, reset, formState: { errors } } = useForm({
         defaultValues: {
             name: user?.name || '',
@@ -51,8 +71,11 @@ const ContactForm = ({ property }) => {
     };
 
     const handleWhatsApp = () => {
-        // Use property owner's phone if available, else fallback
-        const phone = property?.createdBy?.phone || '+918252574386';
+        const phone = property?.createdBy?.phone;
+        if (!phone) {
+            toast.error('WhatsApp number not available for this property. Please use the form below.');
+            return;
+        }
         const message = `Hi, I'm interested in your property: "${property?.title}". Can you provide more details?`;
         window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
     };
@@ -60,6 +83,21 @@ const ContactForm = ({ property }) => {
     return (
         <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl shadow-black/5 p-6 sm:p-8 border border-gray-100 dark:border-gray-800 transition-all hover:shadow-2xl hover:shadow-black/10">
             <h3 className="text-xl font-black mb-6 tracking-tight dark:text-white">Interested in this property?</h3>
+
+            {/* Start Chat Button */}
+            {isAuthenticated && property?.createdBy && (
+                <button
+                    onClick={handleStartChat}
+                    disabled={chatLoading}
+                    className="w-full bg-primary-600 hover:bg-primary-700 text-white py-3.5 rounded-2xl flex items-center justify-center gap-2.5 font-bold transition-all transform hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary-500/20 mb-3 disabled:opacity-70"
+                >
+                    {chatLoading
+                        ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        : <FiMessageCircle size={18} />
+                    }
+                    {chatLoading ? 'Opening Chat…' : 'Chat with Agent'}
+                </button>
+            )}
 
             {/* WhatsApp Action */}
             <button

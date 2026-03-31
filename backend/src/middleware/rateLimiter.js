@@ -11,7 +11,7 @@ const apiLimiter = rateLimit({
     message: { success: false, error: 'Too many requests, please try again later.' },
 });
 
-// ─── Auth routes (10 req / 15 min per IP – brute-force protection) ────────────
+// ─── Auth routes (30 req / 15 min per IP – brute-force protection) ────────────
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 30,
@@ -38,4 +38,14 @@ const inquiryLimiter = rateLimit({
     message: { success: false, error: 'Too many inquiries submitted. Please try again later.' },
 });
 
-module.exports = { apiLimiter, authLimiter, contactLimiter, inquiryLimiter };
+// ─── AI chat/price endpoints (20 req / 15 min per IP) ────────────────────────
+// Each AI request runs 2-3 DB queries – protect against abuse
+const aiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 20,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, error: 'Too many AI requests, please slow down.' },
+});
+
+module.exports = { apiLimiter, authLimiter, contactLimiter, inquiryLimiter, aiLimiter };

@@ -72,7 +72,11 @@ const sendEmail = async (options, retries = 1) => {
         throw new Error('Email credentials not configured.');
     }
     const to   = Array.isArray(options.to) ? options.to.join(', ') : options.to;
-    const from = `"EstateElite" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`;
+    // EMAIL_FROM may already include display name like: EstateElite Team <email@gmail.com>
+    // If it looks like a plain email address, wrap it with display name.
+    // If it already has angle brackets, use it as-is.
+    const rawFrom = (process.env.EMAIL_FROM || process.env.EMAIL_USER).replace(/^"|"$/g, '');
+    const from = rawFrom.includes('<') ? rawFrom : `"EstateElite" <${rawFrom}>`;
     try {
         const info = await getTransporter().sendMail({
             from,

@@ -1,48 +1,71 @@
-import React, { createContext, useState, useContext, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+/**
+ * AuthContext.jsx
+ *
+ * Fix: page refresh used to log users out because:
+ *   1. loadUser() called /auth/profile without a token → 401
+ *   2. Interceptor tried /auth/refresh → raced or failed → cleared user
+ *
+ * Fix: loadUser() now calls /auth/refresh FIRST to restore the access token,
+ * then calls /auth/profile. If the refresh cookie is missing/expired the user
+ * is truly logged out and the state is cleared cleanly — no flash/race.
+ */
+import React, {
+    createContext, useState, useContext,
+    useEffect, useCallback, useRef,
+} from 'react';
 import toast from 'react-hot-toast';
 import api, { setAccessToken, clearAccessToken, getAccessToken } from '../services/api';
+import axios from 'axios';
 
 const AuthContext = createContext(null);
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
 const extractError = (err, fallback = 'Something went wrong') =>
-    err?.response?.data?.error || err?.response?.data?.message || err?.message || fallback;
+    err?.response?.data?.error ||
+    err?.response?.data?.message ||
+    err?.message || fallback;
 
-// ── Provider ─────────────────────────────────────────────────────────────────
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/+$/, '');
 
+// ── Safely parse user from localStorage ────────────────────────────────────
+const storedUser = () => {
+    try {
+        const s = localStorage.getItem('user');
+        return s ? JSON.parse(s) : null;
+    } catch { return null; }
+};
+
+// ── Provider ────────────────────────────────────────────────────────────────
 export const AuthProvider = ({ children }) => {
-    const [user, setUser]         = useState(() => {
-        const savedUser = localStorage.getItem('user');
-        try {
-            return savedUser ? JSON.parse(savedUser) : null;
-        } catch {
-            return null;
-        }
-    });
-    const [loading, setLoading]   = useState(true);
-    const [token, setToken]       = useState(null); // access token (memory)
-    const hasShownWelcome = useRef(false); // prevent duplicate toasts
+    // Seed from localStorage so UI doesn't flash on cold load
+    const [user,    setUser]    = useState(storedUser);
+    const [loading, setLoading] = useState(true);
+    const welcomeShown = useRef(false);
 
-    // ── Load user on app start ───────────────────────────────────────────────
+    // ── Restore session on page load / refresh ────────────────────────────
     const loadUser = useCallback(async () => {
+        setLoading(true);
         try {
-            // By calling /profile, we trigger the interceptor logic if needed.
-            // If the token is missing or expired, api.js will handle the refresh automatically.
-            const { data } = await api.get('/auth/profile');
-            const accessToken = getAccessToken();
-            setToken(accessToken);
-            setUser(data);
-            localStorage.setItem('user', JSON.stringify(data));
-        } catch (err) {
-            // If both profile and refresh fail, we clear state
-            if (err.response?.status === 401 || err.response?.status === 403) {
-                clearAccessToken();
-                setToken(null);
-                setUser(null);
-                localStorage.removeItem('user');
-            }
+            // Step 1: get a fresh access token from the HTTP-only cookie
+            const refreshRes = await axios.post(
+                `${API_URL}/api/auth/refresh`,
+                {},
+                { withCredentials: true }
+            );
+            const accessToken = refreshRes.data.accessToken;
+            setAccessToken(accessToken);
+
+            // Step 2: fetch full profile with the new token
+            const { data: profile } = await api.get('/auth/profile', {
+                headers: { Authorization: `Bearer ${accessToken}` },
+            });
+
+            setUser(profile);
+            localStorage.setItem('user', JSON.stringify(profile));
+        } catch {
+            // Refresh token missing or expired → user is genuinely logged out
+            clearAccessToken();
+            setUser(null);
+            localStorage.removeItem('user');
         } finally {
             setLoading(false);
         }
@@ -50,25 +73,21 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => { loadUser(); }, [loadUser]);
 
-    // ── Login ────────────────────────────────────────────────────────────────
+    // ── Login ──────────────────────────────────────────────────────────────
     const login = async (email, password) => {
         try {
             const { data } = await api.post('/auth/login', { email, password });
 
-            // 2FA required — return indicator without setting auth state
-            if (data.requiresTwoFactor) {
-                return data;
-            }
+            if (data.requiresTwoFactor) return data; // caller handles 2FA
 
             setAccessToken(data.accessToken);
-            setToken(data.accessToken);
             setUser(data.user);
             localStorage.setItem('user', JSON.stringify(data.user));
-            // Only show toast once per login
-            if (!hasShownWelcome.current) {
-                hasShownWelcome.current = true;
-                toast.success(`Welcome back, ${data.user?.name?.split(' ')[0] || 'User'}!`);
-                setTimeout(() => { hasShownWelcome.current = false; }, 3000);
+
+            if (!welcomeShown.current) {
+                welcomeShown.current = true;
+                toast.success(`Welcome back, ${data.user?.name?.split(' ')[0] || 'User'}! 👋`);
+                setTimeout(() => { welcomeShown.current = false; }, 3000);
             }
             return data;
         } catch (err) {
@@ -77,18 +96,17 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // ── 2FA Login Verification ───────────────────────────────────────────────
+    // ── 2FA ────────────────────────────────────────────────────────────────
     const verify2FALogin = async (tempToken, code) => {
         try {
             const { data } = await api.post('/auth/2fa/verify-login', { tempToken, code });
             setAccessToken(data.accessToken);
-            setToken(data.accessToken);
             setUser(data.user);
             localStorage.setItem('user', JSON.stringify(data.user));
-            if (!hasShownWelcome.current) {
-                hasShownWelcome.current = true;
-                toast.success(`Welcome back, ${data.user?.name?.split(' ')[0] || 'User'}!`);
-                setTimeout(() => { hasShownWelcome.current = false; }, 3000);
+            if (!welcomeShown.current) {
+                welcomeShown.current = true;
+                toast.success(`Welcome back, ${data.user?.name?.split(' ')[0] || 'User'}! 👋`);
+                setTimeout(() => { welcomeShown.current = false; }, 3000);
             }
             return data;
         } catch (err) {
@@ -97,7 +115,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // ── Register ─────────────────────────────────────────────────────────────
+    // ── Register ───────────────────────────────────────────────────────────
     const register = async (name, email, password, role) => {
         try {
             const { data } = await api.post('/auth/register', { name, email, password, role });
@@ -109,30 +127,23 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // ── Logout ───────────────────────────────────────────────────────────────
+    // ── Logout ─────────────────────────────────────────────────────────────
     const logout = async () => {
-        try {
-            await api.post('/auth/logout');
-        } catch {
-            // Always clear local state
-        }
+        try { await api.post('/auth/logout'); } catch { /* always clear */ }
         clearAccessToken();
-        setToken(null);
         setUser(null);
         localStorage.removeItem('user');
         toast.success('Logged out successfully');
     };
 
-    // ── Update Profile ───────────────────────────────────────────────────────
+    // ── Update Profile ─────────────────────────────────────────────────────
     const updateProfile = async (profileData) => {
         try {
             const { data } = await api.put('/auth/profile', profileData);
-            if (data.accessToken) {
-                setAccessToken(data.accessToken);
-                setToken(data.accessToken);
-            }
-            setUser(data.user);
-            localStorage.setItem('user', JSON.stringify(data.user));
+            if (data.accessToken) setAccessToken(data.accessToken);
+            const updated = data.user || data;
+            setUser(updated);
+            localStorage.setItem('user', JSON.stringify(updated));
             toast.success('Profile updated successfully');
             return data;
         } catch (err) {
@@ -141,11 +152,11 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // ── Forgot Password ─────────────────────────────────────────────────────
+    // ── Forgot / Reset Password ───────────────────────────────────────────
     const forgotPassword = async (email) => {
         try {
             const { data } = await api.post('/auth/forgotpassword', { email });
-            toast.success(data.message);
+            toast.success(data.message || 'Reset link sent to your email');
             return data;
         } catch (err) {
             toast.error(extractError(err, 'Failed to send reset email'));
@@ -153,14 +164,10 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // ── Reset Password ──────────────────────────────────────────────────────
     const resetPassword = async (resetToken, password) => {
         try {
             const { data } = await api.put(`/auth/resetpassword/${resetToken}`, { password });
-            if (data.accessToken) {
-                setAccessToken(data.accessToken);
-                setToken(data.accessToken);
-            }
+            if (data.accessToken) setAccessToken(data.accessToken);
             toast.success('Password reset successful!');
             return data;
         } catch (err) {
@@ -169,11 +176,11 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // ── Resend Verification ─────────────────────────────────────────────────
+    // ── Resend Verification ────────────────────────────────────────────────
     const resendVerification = async (email) => {
         try {
             const { data } = await api.post('/auth/resendverification', { email });
-            toast.success(data.message);
+            toast.success(data.message || 'Verification email sent');
             return data;
         } catch (err) {
             toast.error(extractError(err, 'Failed to resend verification email'));
@@ -181,25 +188,21 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // ── Google OAuth Success (called from redirect page) ────────────────────
+    // ── Google OAuth ───────────────────────────────────────────────────────
     const handleGoogleSuccess = async (accessToken) => {
         setAccessToken(accessToken);
-        setToken(accessToken);
         try {
             const { data } = await api.get('/auth/profile');
             setUser(data);
             localStorage.setItem('user', JSON.stringify(data));
-            
-            // Only show toast once
-            if (!hasShownWelcome.current) {
-                hasShownWelcome.current = true;
-                toast.success(`Welcome, ${data.name?.split(' ')[0] || 'User'}!`);
-                setTimeout(() => { hasShownWelcome.current = false; }, 3000);
+            if (!welcomeShown.current) {
+                welcomeShown.current = true;
+                toast.success(`Welcome, ${data.name?.split(' ')[0] || 'User'}! 👋`);
+                setTimeout(() => { welcomeShown.current = false; }, 3000);
             }
             return data;
         } catch (err) {
             clearAccessToken();
-            setToken(null);
             setUser(null);
             localStorage.removeItem('user');
             toast.error('Google login failed. Please try again.');
@@ -207,19 +210,14 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // ── 2FA Setup ────────────────────────────────────────────────────────────
-    const setup2FA = async () => {
-        const { data } = await api.post('/auth/2fa/setup');
-        return data;
-    };
-
-    const verify2FA = async (code) => {
+    // ── 2FA Setup / Disable ────────────────────────────────────────────────
+    const setup2FA   = async () => { const { data } = await api.post('/auth/2fa/setup');   return data; };
+    const verify2FA  = async (code) => {
         const { data } = await api.post('/auth/2fa/verify', { code });
         setUser(prev => ({ ...prev, twoFactorEnabled: true }));
-        toast.success('2FA enabled successfully!');
+        toast.success('2FA enabled!');
         return data;
     };
-
     const disable2FA = async (code) => {
         const { data } = await api.post('/auth/2fa/disable', { code });
         setUser(prev => ({ ...prev, twoFactorEnabled: false }));
@@ -227,30 +225,15 @@ export const AuthProvider = ({ children }) => {
         return data;
     };
 
-    // isAuthenticated uses !!user so it stays true from localStorage during initial load
-    // loading is true only during the first loadUser() call
-    const isAuthenticated = !!user;
-
     const value = {
-        user,
-        token,
-        loading,
-        isAuthenticated,
-        login,
-        register,
-        logout,
-        updateProfile,
-        forgotPassword,
-        resetPassword,
-        resendVerification,
-        handleGoogleSuccess,
-        verify2FALogin,
-        setup2FA,
-        verify2FA,
-        disable2FA,
+        user, loading,
+        isAuthenticated: !!user,
+        isAdmin:  user?.role === 'admin',
+        isAgent:  user?.role === 'agent' || user?.role === 'admin',
+        login, register, logout,
+        updateProfile, forgotPassword, resetPassword, resendVerification,
+        handleGoogleSuccess, verify2FALogin, setup2FA, verify2FA, disable2FA,
         loadUser,
-        isAdmin: user?.role === 'admin',
-        isAgent: user?.role === 'agent',
     };
 
     return (
@@ -261,9 +244,9 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) throw new Error('useAuth must be used within an AuthProvider');
-    return context;
+    const ctx = useContext(AuthContext);
+    if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
+    return ctx;
 };
 
 export default AuthContext;

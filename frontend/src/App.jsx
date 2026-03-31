@@ -80,6 +80,10 @@ const PageViewTracker = () => {
 function AppContent() {
     const location = useLocation();
     const isAdminPath = location.pathname.startsWith('/admin');
+    const isAuthPath  = ['/login', '/register', '/forgot-password', '/reset-password',
+                         '/verify-email', '/resend-verification', '/auth'].some(p =>
+                             location.pathname.startsWith(p));
+    const isMinimalPath = isAdminPath || isAuthPath;
 
     return (
         <>
@@ -87,7 +91,7 @@ function AppContent() {
             <PageViewTracker />
             <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
                 {!isAdminPath && <Navbar />}
-                <main className={`flex-grow ${!isAdminPath ? 'pt-20' : ''}`}>
+                <main className={`flex-grow ${!isAdminPath ? 'pt-16 sm:pt-[4.25rem]' : ''}`}>
                     <Suspense fallback={<Loader />}>
                         <ErrorBoundary>
                             <Routes>
@@ -159,11 +163,11 @@ function AppContent() {
                         </ErrorBoundary>
                     </Suspense>
                 </main>
-                {!isAdminPath && <Newsletter />}
-                {!isAdminPath && <Footer />}
+                {!isMinimalPath && <Newsletter />}
+                {!isMinimalPath && <Footer />}
                 <CookieConsent />
-                {!isAdminPath && <ChatWidget />}
-                {!isAdminPath && <AIChatbot />}
+                {!isMinimalPath && <ChatWidget />}
+                {!isMinimalPath && <AIChatbot />}
             </div>
             <Toaster
                 position="top-right"

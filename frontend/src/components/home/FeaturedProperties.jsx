@@ -25,7 +25,32 @@ const FeaturedProperties = () => {
         }
     };
 
-    if (loading) return <Loader />;
+    if (loading) return (
+        <section className="py-12 sm:py-16 bg-white dark:bg-gray-900">
+            <div className="container-custom">
+                <div className="text-center mb-10">
+                    <div className="h-8 w-48 skeleton rounded-xl mx-auto mb-3" />
+                    <div className="h-4 w-72 skeleton rounded-lg mx-auto" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[1,2,3].map(i => (
+                        <div key={i} className="rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-800">
+                            <div className="h-52 skeleton" />
+                            <div className="p-4 space-y-3">
+                                <div className="h-5 skeleton rounded-lg w-3/4" />
+                                <div className="h-4 skeleton rounded-lg w-1/2" />
+                                <div className="grid grid-cols-3 gap-2">
+                                    <div className="h-8 skeleton rounded-lg" />
+                                    <div className="h-8 skeleton rounded-lg" />
+                                    <div className="h-8 skeleton rounded-lg" />
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
 
     return (
         <section className="py-16 bg-white dark:bg-gray-900">

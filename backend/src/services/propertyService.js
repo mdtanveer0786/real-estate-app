@@ -4,6 +4,9 @@ const Property = require('../models/Property');
 const AppError = require('../utils/AppError');
 const { uploadToCloudinary, deleteFromCloudinary } = require('../utils/cloudinary');
 
+// Escape special regex characters to prevent ReDoS attacks
+const escapeRegex = (str) => str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+
 class PropertyService {
     /**
      * List properties with filters, pagination, and sorting.
@@ -25,11 +28,12 @@ class PropertyService {
 
         // Keyword search
         if (query.keyword) {
+            const safe = escapeRegex(query.keyword);
             filter.$or = [
-                { title: { $regex: query.keyword, $options: 'i' } },
-                { description: { $regex: query.keyword, $options: 'i' } },
-                { 'location.city': { $regex: query.keyword, $options: 'i' } },
-                { 'location.address': { $regex: query.keyword, $options: 'i' } },
+                { title: { $regex: safe, $options: 'i' } },
+                { description: { $regex: safe, $options: 'i' } },
+                { 'location.city': { $regex: safe, $options: 'i' } },
+                { 'location.address': { $regex: safe, $options: 'i' } },
             ];
         }
 
@@ -54,7 +58,7 @@ class PropertyService {
 
         // City
         if (query.city) {
-            filter['location.city'] = { $regex: query.city, $options: 'i' };
+            filter['location.city'] = { $regex: escapeRegex(query.city), $options: 'i' };
         }
 
         // Amenities (must have all specified)
@@ -137,8 +141,38 @@ class PropertyService {
 
     /**
      * Create a new property listing.
+     * Enforces per-plan listing quota for agents.
      */
     static async create(data, userId) {
+        // Check subscription quota (agents only — admins are exempt)
+        const User = require('../models/User');
+        const user = await User.findById(userId).select('role');
+        if (user && user.role === 'agent') {
+            const SubscriptionService = require('./subscriptionService');
+            const allowed = await SubscriptionService.canCreateListing(userId);
+            if (!allowed) {
+                const { limits } = await SubscriptionService.getUserLimits(userId);
+                throw AppError.badRequest(
+                    `Listing limit reached. Your current plan allows a maximum of ${limits.maxListings} listing${limits.maxListings === 1 ? '' : 's'}. Upgrade your plan to add more.`,
+                    'LISTING_QUOTA_EXCEEDED'
+                );
+            }
+        }
+
+        // Enforce featured listing quota
+        if (data.featured) {
+            const SubscriptionService = require('./subscriptionService');
+            const { limits } = await SubscriptionService.getUserLimits(userId);
+            if (limits.featuredListings === 0) {
+                data.featured = false; // silently downgrade for free plan
+            } else {
+                const featuredCount = await Property.countDocuments({ createdBy: userId, featured: true });
+                if (featuredCount >= limits.featuredListings) {
+                    data.featured = false;
+                }
+            }
+        }
+
         const property = await Property.create({
             ...data,
             createdBy: userId,

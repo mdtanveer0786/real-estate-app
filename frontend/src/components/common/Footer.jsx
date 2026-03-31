@@ -15,7 +15,7 @@ const Footer = () => {
             {/* Scroll to top button */}
             <button
                 onClick={scrollToTop}
-                className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-500 hover:to-secondary-500 text-white p-3.5 rounded-full shadow-xl shadow-primary-500/20 transition-all duration-300 hover:-translate-y-2 border-4 border-gray-50 dark:border-gray-900 z-10"
+                className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-primary-600 to-secondary-600 hover:from-primary-500 hover:to-secondary-500 text-white p-3.5 rounded-full shadow-xl shadow-primary-500/20 transition-all duration-300 hover:-translate-y-2 border-4 border-white dark:border-gray-950 z-10"
                 aria-label="Scroll to top"
             >
                 <FiArrowUp className="text-xl" />

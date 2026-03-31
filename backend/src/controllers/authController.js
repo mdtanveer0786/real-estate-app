@@ -23,10 +23,14 @@ const cookieOptions = (maxAge = REFRESH_MAX_AGE) => {
     const isProduction = process.env.NODE_ENV === 'production';
     return {
         httpOnly: true,
+        // secure must be true when sameSite=none (required for cross-site cookies)
         secure:   isProduction,
+        // 'none' allows cross-origin (Vercel ↔ Render).
+        // 'lax' for local dev (same-origin localhost).
         sameSite: isProduction ? 'none' : 'lax',
         maxAge,
         path: '/',
+        // domain omitted — let browser use the response origin automatically
     };
 };
 

@@ -210,9 +210,17 @@ const seedDatabase = async () => {
                 name: 'Admin User',
                 email: 'admin@estateelite.com',
                 password: hashedPassword,
-                role: 'admin'
+                role: 'admin',
+                isVerified: true,
             });
             console.log('✅ Admin user created');
+        } else {
+            // Make sure existing admin is verified
+            if (!admin.isVerified) {
+                admin.isVerified = true;
+                await admin.save({ validateBeforeSave: false });
+                console.log('✅ Admin user verified');
+            }
         }
 
         // Add properties with admin as creator
@@ -232,7 +240,8 @@ const seedDatabase = async () => {
                 name: 'Test User',
                 email: 'user@example.com',
                 password: hashedPassword,
-                role: 'user'
+                role: 'user',
+                isVerified: true,
             });
             console.log('✅ Test user created');
         }
