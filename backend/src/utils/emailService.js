@@ -21,7 +21,6 @@ const getTransporter = () => {
         _transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: { user, pass },
-            tls: { rejectUnauthorized: false },
         });
     } else {
         _transporter = nodemailer.createTransport({
@@ -32,7 +31,6 @@ const getTransporter = () => {
             connectionTimeout: 10000,
             greetingTimeout: 10000,
             socketTimeout: 15000,
-            tls: { rejectUnauthorized: false },
         });
     }
     return _transporter;

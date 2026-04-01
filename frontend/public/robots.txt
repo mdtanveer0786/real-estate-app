@@ -1,0 +1,17 @@
+# EstateElite - Real Estate Platform
+# https://real-estateelite.vercel.app
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /profile
+Disallow: /messages
+Disallow: /billing
+Disallow: /agent
+Disallow: /auth/
+
+# Sitemap
+Sitemap: https://real-estateelite.vercel.app/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1

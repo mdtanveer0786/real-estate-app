@@ -100,9 +100,17 @@ app.use(cors({
         return callback(new Error(`Origin ${origin} not allowed by CORS`));
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     // Expose these headers so the browser can read them
     exposedHeaders: ['set-cookie'],
 }));
+
+// Ensure Vary: Origin header is set for proper CDN/proxy caching
+app.use((req, res, next) => {
+    res.setHeader('Vary', 'Origin');
+    next();
+});
 
 // ── Rate limiting ────────────────────────────────────────────────────────────
 app.use('/api/', apiLimiter);
