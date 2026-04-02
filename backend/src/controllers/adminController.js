@@ -84,6 +84,39 @@ const updateUser = asyncHandler(async (req, res) => {
     res.json({ success: true, user: { ...user.toObject(), password: undefined } });
 });
 
+// POST /api/admin/users — admin-led user creation
+const createUser = asyncHandler(async (req, res) => {
+    const { name, email, password, role, isVerified } = req.body;
+    
+    if (!name || !email || !password) {
+        res.status(400); throw new Error('Please provide name, email and password');
+    }
+
+    const exists = await User.findOne({ email: email.toLowerCase() });
+    if (exists) {
+        res.status(400); throw new Error('User already exists');
+    }
+
+    const user = await User.create({
+        name,
+        email: email.toLowerCase(),
+        password,
+        role: role || 'user',
+        isVerified: isVerified !== undefined ? isVerified : true
+    });
+
+    res.status(201).json({
+        success: true,
+        user: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            isVerified: user.isVerified
+        }
+    });
+});
+
 // DELETE /api/admin/users/:id
 const deleteUser = asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id);

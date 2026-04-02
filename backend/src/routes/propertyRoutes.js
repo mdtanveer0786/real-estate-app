@@ -15,6 +15,8 @@ const {
 } = require('../controllers/propertyController');
 const { protect, agentOrAdmin } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
+const { validate } = require('../middleware/validate');
+const { createPropertySchema, updatePropertySchema } = require('../validators/propertyValidator');
 const User = require('../models/User');
 
 // ── Public routes ─────────────────────────────────────────────────────────────
@@ -26,8 +28,8 @@ router.get('/:id', getPropertyById);
 router.get('/:id/similar', getSimilarProperties);
 
 // ── Agent + Admin routes ──────────────────────────────────────────────────────
-router.post('/', protect, agentOrAdmin, createProperty);
-router.put('/:id', protect, agentOrAdmin, updateProperty);
+router.post('/', protect, agentOrAdmin, validate(createPropertySchema), createProperty);
+router.put('/:id', protect, agentOrAdmin, validate(updatePropertySchema), updateProperty);
 router.delete('/:id', protect, agentOrAdmin, deleteProperty);
 
 // ── Image upload ──────────────────────────────────────────────────────────────

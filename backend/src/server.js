@@ -80,22 +80,30 @@ if (process.env.NODE_ENV === 'development') {
 // ── CORS ──────────────────────────────────────────────────────────────────────
 // credentials:true + specific origin (not *) is required for cross-origin cookies.
 // FRONTEND_URL must be set to your exact Vercel URL (no trailing slash).
+const normalizedFrontendUrl = (process.env.FRONTEND_URL || '').replace(/\/+$/, '');
+
 const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:5173',
     'http://localhost:4173',
-    process.env.FRONTEND_URL,
+    normalizedFrontendUrl,
 ].filter(Boolean);
 
 app.use(cors({
     origin: function (origin, callback) {
         // Allow server-to-server (no origin) and curl during dev
         if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) return callback(null, true);
+        
+        // Normalize the request origin for matching
+        const requestOrigin = origin.replace(/\/+$/, '');
+        
+        if (allowedOrigins.includes(requestOrigin)) return callback(null, true);
+        
         // In development, allow any localhost port
-        if (process.env.NODE_ENV !== 'production' && origin.includes('localhost')) {
+        if (process.env.NODE_ENV !== 'production' && requestOrigin.includes('localhost')) {
             return callback(null, true);
         }
+        
         logger.warn(`CORS blocked origin: ${origin}`);
         return callback(new Error(`Origin ${origin} not allowed by CORS`));
     },

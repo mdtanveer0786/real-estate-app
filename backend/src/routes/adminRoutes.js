@@ -2,7 +2,7 @@
 const express = require('express');
 const router  = express.Router();
 const {
-    getDashboardStats, getUsers, updateUser, deleteUser,
+    getDashboardStats, getUsers, createUser, updateUser, deleteUser,
     getAllProperties, toggleFeatured, updatePropertyStatus,
 } = require('../controllers/adminController');
 const { protect }     = require('../middleware/authMiddleware');
@@ -12,6 +12,7 @@ router.use(protect, adminOnly);
 
 router.get('/stats',                    getDashboardStats);
 router.get('/users',                    getUsers);
+router.post('/users',                   createUser);
 router.put('/users/:id',                updateUser);
 router.delete('/users/:id',             deleteUser);
 router.get('/properties',               getAllProperties);

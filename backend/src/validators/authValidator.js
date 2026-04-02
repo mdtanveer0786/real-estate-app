@@ -56,6 +56,13 @@ const verify2FASchema = z.object({
         .regex(/^\d+$/, '2FA code must contain only numbers'),
 });
 
+const verifyLoginWith2FASchema = z.object({
+    tempToken: z.string().min(32, 'Invalid session'),
+    code: z.string()
+        .length(6, '2FA code must be exactly 6 digits')
+        .regex(/^\d+$/, '2FA code must contain only numbers'),
+});
+
 module.exports = {
     registerSchema,
     loginSchema,
@@ -63,4 +70,5 @@ module.exports = {
     resetPasswordSchema,
     updateProfileSchema,
     verify2FASchema,
+    verifyLoginWith2FASchema,
 };

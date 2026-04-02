@@ -11,6 +11,7 @@ const {
     resetPasswordSchema,
     updateProfileSchema,
     verify2FASchema,
+    verifyLoginWith2FASchema,
 } = require('../validators/authValidator');
 const {
     registerUser,
@@ -50,7 +51,7 @@ router.get('/google/callback',
 );
 
 // ── 2FA login verification (public — user not yet authenticated) ─────────────
-router.post('/2fa/verify-login', verifyLoginWith2FA);
+router.post('/2fa/verify-login', validate(verifyLoginWith2FASchema), verifyLoginWith2FA);
 
 // ── Protected routes ──────────────────────────────────────────────────────────
 router.route('/profile')
