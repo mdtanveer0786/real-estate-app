@@ -61,14 +61,28 @@ const Navbar = () => {
 
     useEffect(() => {
         if (!isOpen) return;
-        const handler = (e) => {
-            if (menuRef.current && !menuRef.current.contains(e.target)) setIsOpen(false);
-        };
-        document.addEventListener('mousedown', handler);
-        return () => document.removeEventListener('mousedown', handler);
+        
+        // Use a small delay to prevent the toggle button's own click 
+        // from being immediately caught as an "outside click"
+        const timeout = setTimeout(() => {
+            const handler = (e) => {
+                if (menuRef.current && menuRef.current.contains(e.target)) return;
+                // If it's the toggle button, let toggleMenu handle it
+                if (e.target.closest('button[aria-label*="menu"]')) return;
+                
+                setIsOpen(false);
+            };
+            document.addEventListener('mousedown', handler);
+            return () => document.removeEventListener('mousedown', handler);
+        }, 10);
+
+        return () => clearTimeout(timeout);
     }, [isOpen]);
 
-    const toggleMenu   = useCallback(() => setIsOpen(p => !p), []);
+    const toggleMenu = (e) => {
+        if (e) e.stopPropagation();
+        setIsOpen(prev => !prev);
+    };
     const handleLogout = useCallback(() => {
         logout(); setIsOpen(false); navigate('/');
     }, [logout, navigate]);
@@ -198,91 +212,111 @@ const Navbar = () => {
             {/* Mobile dropdown drawer */}
             <AnimatePresence>
                 {isOpen && (
-                    <>
-                        <motion.div key="bd"
-                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                            transition={{ duration: 0.18 }}
-                            className="fixed inset-0 top-16 sm:top-[4.25rem] bg-black/25 dark:bg-black/50 lg:hidden z-[997]"
-                            onClick={() => setIsOpen(false)} />
+                    <div className="lg:hidden">
+                        <motion.div 
+                            key="bd"
+                            initial={{ opacity: 0 }} 
+                            animate={{ opacity: 1 }} 
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="fixed inset-0 top-16 sm:top-[4.25rem] bg-black/20 dark:bg-black/40 backdrop-blur-[2px] z-[997]"
+                            onClick={() => setIsOpen(false)} 
+                        />
 
-                        <motion.div key="drawer" ref={menuRef}
-                            initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
-                            transition={{ duration: 0.18, ease: 'easeOut' }}
-                            className="absolute top-full left-0 right-0 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 shadow-2xl lg:hidden z-[998] overflow-y-auto"
-                            style={{ maxHeight: 'calc(100dvh - 4rem)' }}>
-
-                            <div className="container-custom py-3 pb-5">
-
+                        <motion.div 
+                            key="drawer" 
+                            ref={menuRef}
+                            initial={{ opacity: 0, y: -10 }} 
+                            animate={{ opacity: 1, y: 0 }} 
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.2, ease: "easeOut" }}
+                            className="absolute top-full left-0 right-0 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 shadow-2xl z-[998] overflow-y-auto"
+                            style={{ maxHeight: 'calc(100vh - 4.25rem)' }}
+                        >
+                            <div className="container-custom py-4 pb-6">
                                 {/* Nav links */}
-                                <div className="space-y-0.5 mb-3">
+                                <div className="space-y-1 mb-4">
                                     {NAV_LINKS.map((link, i) => (
                                         <motion.div key={link.path}
-                                            initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: i * 0.035, duration: 0.18 }}>
+                                            initial={{ opacity: 0, x: -10 }} 
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: i * 0.03, duration: 0.2 }}>
                                             <Link to={link.path} onClick={() => setIsOpen(false)}
                                                 className={[
-                                                    'flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[14.5px] font-semibold transition-all duration-150 min-h-0',
+                                                    'flex items-center gap-3.5 px-4 py-3 rounded-xl text-[15px] font-semibold transition-all duration-200',
                                                     isActive(link.path)
-                                                        ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600'
+                                                        ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 shadow-sm'
                                                         : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/70',
                                                 ].join(' ')}>
-                                                <link.icon className={`w-4 h-4 shrink-0 ${isActive(link.path) ? 'text-primary-600' : 'text-gray-400 dark:text-gray-500'}`} />
+                                                <link.icon className={`w-4.5 h-4.5 shrink-0 ${isActive(link.path) ? 'text-primary-600' : 'text-gray-400 dark:text-gray-500'}`} />
                                                 {link.name}
-                                                {isActive(link.path) && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600 shrink-0" />}
+                                                {isActive(link.path) && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-600" />}
                                             </Link>
                                         </motion.div>
                                     ))}
                                 </div>
 
-                                <div className="border-t border-gray-100 dark:border-gray-800 mb-3" />
+                                <div className="h-px bg-gray-100 dark:bg-gray-800 mb-4 mx-2" />
 
                                 {isAuthenticated ? (
-                                    <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18, duration: 0.18 }}
-                                        className="space-y-2">
-                                        <div className="grid grid-cols-2 gap-2">
+                                    <motion.div 
+                                        initial={{ opacity: 0, y: 10 }} 
+                                        animate={{ opacity: 1, y: 0 }} 
+                                        transition={{ delay: 0.15, duration: 0.2 }}
+                                        className="space-y-3"
+                                    >
+                                        <div className="grid grid-cols-2 gap-2.5">
                                             {DASH_LINKS.filter(l => l.show).map(link => (
                                                 <Link key={link.path} to={link.path} onClick={() => setIsOpen(false)}
                                                     className={[
-                                                        'flex items-center gap-2 p-3 rounded-xl text-[13px] font-semibold transition-all min-h-0',
+                                                        'flex items-center gap-2.5 p-3.5 rounded-xl text-[13.5px] font-bold transition-all border shadow-sm',
                                                         isActive(link.path)
-                                                            ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600'
-                                                            : 'bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-gray-700 dark:text-gray-200 hover:border-primary-200 dark:hover:border-primary-800',
+                                                            ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 border-primary-100 dark:border-primary-800'
+                                                            : 'bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 text-gray-700 dark:text-gray-200 hover:border-primary-200 dark:hover:border-primary-800',
                                                     ].join(' ')}>
                                                     <link.icon className="w-4 h-4 text-primary-500 shrink-0" />
                                                     {link.name}
                                                 </Link>
                                             ))}
                                         </div>
-                                        <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800">
-                                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-primary-600 to-primary-400 flex items-center justify-center text-white font-bold text-sm shrink-0 overflow-hidden">
+                                        
+                                        <div className="flex items-center gap-3.5 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                                            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary-600 to-primary-400 flex items-center justify-center text-white font-bold text-base shrink-0 overflow-hidden shadow-sm">
                                                 {user?.avatar ? <img src={user.avatar} alt="" className="w-full h-full object-cover" /> : user?.name?.charAt(0)?.toUpperCase() || 'U'}
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <p className="text-[13px] font-bold text-gray-900 dark:text-white truncate">{user?.name}</p>
-                                                <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
+                                                <p className="text-[14px] font-bold text-gray-900 dark:text-white truncate">{user?.name}</p>
+                                                <p className="text-[12px] text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
                                             </div>
-                                            <button onClick={handleLogout}
-                                                className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors min-h-0 shrink-0">
-                                                <FiLogOut className="w-4 h-4" />
+                                            <button 
+                                                onClick={handleLogout}
+                                                title="Logout"
+                                                className="p-2.5 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all shrink-0"
+                                            >
+                                                <FiLogOut className="w-5 h-5" />
                                             </button>
                                         </div>
                                     </motion.div>
                                 ) : (
-                                    <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18, duration: 0.18 }}
-                                        className="grid grid-cols-2 gap-2.5">
+                                    <motion.div 
+                                        initial={{ opacity: 0, y: 10 }} 
+                                        animate={{ opacity: 1, y: 0 }} 
+                                        transition={{ delay: 0.15, duration: 0.2 }}
+                                        className="grid grid-cols-2 gap-3"
+                                    >
                                         <Link to="/login" onClick={() => setIsOpen(false)}
-                                            className="flex items-center justify-center py-2.5 px-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 text-sm font-bold hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-all min-h-0">
+                                            className="flex items-center justify-center py-3 px-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 text-[14px] font-bold hover:border-primary-500 hover:text-primary-600 dark:hover:text-primary-400 transition-all">
                                             Sign In
                                         </Link>
                                         <Link to="/register" onClick={() => setIsOpen(false)}
-                                            className="flex items-center justify-center py-2.5 px-4 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold shadow-md shadow-primary-500/20 transition-all min-h-0">
+                                            className="flex items-center justify-center py-3 px-4 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-[14px] font-bold shadow-lg shadow-primary-500/25 transition-all active:scale-95">
                                             Get Started
                                         </Link>
                                     </motion.div>
                                 )}
                             </div>
                         </motion.div>
-                    </>
+                    </div>
                 )}
             </AnimatePresence>
         </header>
