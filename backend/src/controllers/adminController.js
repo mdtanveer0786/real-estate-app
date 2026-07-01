@@ -169,6 +169,6 @@ const updatePropertyStatus = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
-    getDashboardStats, getUsers, updateUser, deleteUser,
+    getDashboardStats, getUsers, createUser, updateUser, deleteUser,
     getAllProperties, toggleFeatured, updatePropertyStatus,
 };
